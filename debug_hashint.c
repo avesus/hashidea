@@ -16,6 +16,7 @@
 #define unk -2
 #define num_threads 32 //number of threads to test with
 #define test_num 100
+#define table_bound (1<<0)
 
 pthread_mutex_t cm; //various locks
 int barrier=0;
@@ -138,7 +139,14 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
   }
 
   //create new table
-  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
+  int new_size=0;
+  if(global->tt[startCur-1]->t_size>table_bound&&startCur%2){
+    new_size=global->tt[startCur-1]->t_size;
+  }
+  else{
+    new_size=global->tt[startCur-1]->t_size<<1;
+  }
+  h_table* new_table=createTable(new_size);
   addDrop(ent, seeds, new_table, startCur);
 }
 
