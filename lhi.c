@@ -44,17 +44,17 @@ void ptable();
 int check(rowptr** table, int set, int val){
 
   pthread_rwlock_rdlock(&rwlock[set]);
-    block*ptr=table[set]->head;
-    while(ptr!=NULL){
-      if(ptr->val==val){
-	pthread_rwlock_unlock(&rwlock[set]);
-	return 1;
-      }
-      ptr=ptr->next;
-      
+  block*ptr=table[set]->head;
+  while(ptr!=NULL){
+    if(ptr->val==val){
+      pthread_rwlock_unlock(&rwlock[set]);
+      return 1;
     }
-    pthread_rwlock_unlock(&rwlock[set]);
-    return 0;
+    ptr=ptr->next;
+      
+  }
+  pthread_rwlock_unlock(&rwlock[set]);
+  return 0;
 
 }
 void addNode(rowptr** table, int set, int val){
@@ -77,7 +77,7 @@ void addNode(rowptr** table, int set, int val){
     table[set]->head=node;
     node->prev=NULL;
   }
-    pthread_rwlock_unlock(&rwlock[set]);
+  pthread_rwlock_unlock(&rwlock[set]);
 
    
 }
@@ -131,7 +131,9 @@ int main(int argc, char** argv){
   initSize=atoi(argv[1]);
   runs=atoi(argv[2]);
   num_threads=atoi(argv[3]);
-
+  if(num_threads>max_threads){
+    num_threads=max_threads;
+  }
 
   global=(rowptr**)malloc(initSize*sizeof(rowptr*));
   for(int i =0;i<initSize;i++){
@@ -140,7 +142,7 @@ int main(int argc, char** argv){
   }
   rwlock=(pthread_rwlock_t*)malloc(initSize*sizeof(pthread_rwlock_t));
   for(int i =0;i<initSize;i++){
-      pthread_rwlock_init(&rwlock[i], NULL);
+    pthread_rwlock_init(&rwlock[i], NULL);
   }
   hashSeeds* seeds=(hashSeeds*)malloc(sizeof(hashSeeds));
   seeds->rand1=rand();
@@ -149,14 +151,16 @@ int main(int argc, char** argv){
   seeds->rand1=seeds->rand1*temp;
   temp=rand();
   seeds->rand2=seeds->rand2*temp;
+
   
+  int cores=sysconf(_SC_NPROCESSORS_ONLN);
   pthread_t threads[max_threads];
-    pthread_attr_t attr;
+  pthread_attr_t attr;
   pthread_attr_init(&attr);
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
-    CPU_SET(i, &sets[i]);
+    CPU_SET(i%cores, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
     pthread_create(&threads[i], &attr,run,(void*)seeds);

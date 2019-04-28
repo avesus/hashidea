@@ -171,14 +171,14 @@ void printTables(int arr){
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
-       fprintf(fp, "Table Size: %d\n", ht->t_size);
-     for(int i =0;i<ht->t_size;i++){
+    fprintf(fp, "Table Size: %d\n", ht->t_size);
+    for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
 	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
 	count++;
       }
       else{
-	  fprintf(fp,"%d: NULL\n", i);
+	fprintf(fp,"%d: NULL\n", i);
       }
     }
     fprintf(fp,"\n\n\n");
@@ -220,6 +220,9 @@ int main(int argc, char** argv){
   initSize=atoi(argv[1]);
   runs=atoi(argv[2]);
   num_threads=atoi(argv[3]);
+  if(num_threads>max_threads){
+    num_threads=max_threads;
+  }
 
   global=(h_head*)malloc(sizeof(h_head));
   global->tt=(h_table**)calloc(32,sizeof(h_table*));
@@ -240,13 +243,14 @@ int main(int argc, char** argv){
   
   //creating num_threads threads to add items in parallel
   //see run function for more details
+  int cores=sysconf(_SC_NPROCESSORS_ONLN);
   pthread_t threads[max_threads];
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
-    CPU_SET(i, &sets[i]);
+    CPU_SET(i%cores, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
     pthread_create(&threads[i], &attr,run,(void*)seeds);
@@ -261,13 +265,13 @@ int main(int argc, char** argv){
 
    
   /*  printTables(0);
-  h_table* temp=NULL;
-  for(int i =0;i<global->cur;i++){
-    temp=global->tt[i];
-    printf("%d - ", temp->t_size);
-    temp=temp->next;
-  }
-  printf("\n");*/
+      h_table* temp=NULL;
+      for(int i =0;i<global->cur;i++){
+      temp=global->tt[i];
+      printf("%d - ", temp->t_size);
+      temp=temp->next;
+      }
+      printf("\n");*/
 
   printf("size = %d\n", global->tt[global->cur-1]->t_size);  
   
