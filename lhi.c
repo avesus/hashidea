@@ -54,6 +54,8 @@ void removeCacheNode(int slot,block* node);
 void newCache(int new_set, hashSeeds seeds);
 void copyCache(rowptr** target, int new_set);
 int doResize(int test);
+int check(rowptr** table, unsigned int set, unsigned long val);
+
 int check(rowptr** table, unsigned int set, unsigned long val){
   //  printf("set=%u\n", set);
   pthread_rwlock_rdlock(&rwlock[set]);
@@ -140,9 +142,9 @@ int addNode(rowptr** table, unsigned int set, unsigned long val, hashSeeds seeds
     //    printf("temp = %d/%d\n", temp, initSize);
   if(temp>=initSize&&(!(temp&0x1))&&(!waitR)){
     if(doResize(temp)){
-      new_b_size=temp;
+      new_b_size=temp<<1;
     pthread_rwlock_unlock(&tcl);
-    newCache(temp, seeds);
+    newCache(temp<<1, seeds);
     return 0;
   }
   }
