@@ -1,6 +1,0 @@
-non-blocking hashing idea:
-
-hash.c does hashing using strings as a key
-
-hashint.c does hashing using unsigned longs/ints as a key
-
