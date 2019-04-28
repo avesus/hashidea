@@ -16,6 +16,7 @@
 #define in -1
 #define unk -2
 #define max_threads 32 //number of threads to test with
+#define table_bound (1<<20)
 
 int initSize=0;
 int runs=0;
@@ -140,7 +141,14 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
   }
 
   //create new table
-  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
+  int new_size=0;
+  if(global->tt[startCur-1]->t_size>table_bound&&startCur%2){
+    new_size=global->tt[startCur-1]->t_size;
+  }
+  else{
+    new_size=global->tt[startCur-1]->t_size<<1;
+  }
+  h_table* new_table=createTable(new_size);
   addDrop(ent, seeds, new_table, startCur);
 }
 
@@ -264,14 +272,14 @@ int main(int argc, char** argv){
 
 
    
-  /*  printTables(0);
+    printTables(0);
       h_table* temp=NULL;
       for(int i =0;i<global->cur;i++){
       temp=global->tt[i];
       printf("%d - ", temp->t_size);
       temp=temp->next;
       }
-      printf("\n");*/
+      printf("\n");
 
   printf("size = %d\n", global->tt[global->cur-1]->t_size);  
   
