@@ -10,13 +10,16 @@
 
 #define ssize 32 //string size of entry/vector size
 #define vsize 3 //amount of times you want to try and hash
-#define initSize (1) //starting table size
-#define runs 1<<4
+//#define initSize (1) //starting table size
+//#define runs 1<<4
 #define notIn 0 
 #define in -1
 #define unk -2
-#define num_threads 32 //number of threads to test with
+#define max_threads 32 //number of threads to test with
 
+int initSize=0;
+int runs=0;
+int num_threads=0;
 
 struct h_head* global=NULL;
 
@@ -202,12 +205,21 @@ void* run(void* argp){
     tryAdd(testAdd, seeds, 0);
   }
 }
-int main(){
+int main(int argc, char** argv){
   //   std::atomic<int> test;
   //   int ret=test.compare_exchange_weak(old,newv);
   //   printf("ret=%d, test=%d\n",ret, test.load());
   //initialize stuff
+
+  if(argc!=4){
+    printf("3 args\n");
+    exit(0);
+  }
+
   srand(time(NULL));
+  initSize=atoi(argv[1]);
+  runs=atoi(argv[2]);
+  num_threads=atoi(argv[3]);
 
   global=(h_head*)malloc(sizeof(h_head));
   global->tt=(h_table**)calloc(32,sizeof(h_table*));
@@ -228,10 +240,10 @@ int main(){
   
   //creating num_threads threads to add items in parallel
   //see run function for more details
-  pthread_t threads[num_threads];
+  pthread_t threads[max_threads];
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  cpu_set_t sets[num_threads];
+  cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
     CPU_SET(i, &sets[i]);
@@ -248,16 +260,16 @@ int main(){
 
 
    
-  printTables(0);
+  /*  printTables(0);
   h_table* temp=NULL;
   for(int i =0;i<global->cur;i++){
     temp=global->tt[i];
     printf("%d - ", temp->t_size);
     temp=temp->next;
   }
-  printf("\n");
+  printf("\n");*/
 
-  
+  printf("size = %d\n", global->tt[global->cur-1]->t_size);  
   
 
 }

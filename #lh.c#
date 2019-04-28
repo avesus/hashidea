@@ -37,17 +37,17 @@ void ptable();
 int check(rowptr** table, int set, char* buf){
 
   pthread_rwlock_rdlock(&rwlock[set]);
-    block*ptr=table[set]->head;
-    while(ptr!=NULL){
-      if(!strcmp(buf, ptr->buf)){
-	pthread_rwlock_unlock(&rwlock[set]);
-	return 1;
-      }
-      ptr=ptr->next;
-      
+  block*ptr=table[set]->head;
+  while(ptr!=NULL){
+    if(!strcmp(buf, ptr->buf)){
+      pthread_rwlock_unlock(&rwlock[set]);
+      return 1;
     }
-    pthread_rwlock_unlock(&rwlock[set]);
-    return 0;
+    ptr=ptr->next;
+      
+  }
+  pthread_rwlock_unlock(&rwlock[set]);
+  return 0;
 
 }
 void addNode(rowptr** table, int set, char* buf){
@@ -70,7 +70,7 @@ void addNode(rowptr** table, int set, char* buf){
     table[set]->head=node;
     node->prev=NULL;
   }
-    pthread_rwlock_unlock(&rwlock[set]);
+  pthread_rwlock_unlock(&rwlock[set]);
 
    
 }
@@ -140,6 +140,10 @@ int main(int argc, char** argv){
   initSize=atoi(argv[1]);
   runs=atoi(argv[2]);
   num_threads=atoi(argv[3]);
+  if(num_threads>max_threads){
+    num_threads=max_threads;
+  }
+
 
   global=(rowptr**)malloc(initSize*sizeof(rowptr*));
   for(int i =0;i<initSize;i++){
@@ -148,12 +152,14 @@ int main(int argc, char** argv){
   }
   rwlock=(pthread_rwlock_t*)malloc(initSize*sizeof(pthread_rwlock_t));
   for(int i =0;i<initSize;i++){
-      pthread_rwlock_init(&rwlock[i], NULL);
+    pthread_rwlock_init(&rwlock[i], NULL);
   }
   unsigned long * vec= initVec();
   
+
+  int cores=sysconf(_SC_NPROCESSORS_ONLN);
   pthread_t threads[max_threads];
-    pthread_attr_t attr;
+  pthread_attr_t attr;
   pthread_attr_init(&attr);
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
