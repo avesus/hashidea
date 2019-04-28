@@ -141,14 +141,14 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
   }
 
   //create new table
-   int new_size=0;
+  int new_size=0;
   if(global->tt[startCur-1]->t_size>table_bound&&startCur%2){
     new_size=global->tt[startCur-1]->t_size;
   }
   else{
     new_size=global->tt[startCur-1]->t_size<<1;
-    }
-    h_table* new_table=createTable(new_size);
+  }
+  h_table* new_table=createTable(new_size);
   addDrop(ent, seeds, new_table, startCur);
 }
 
@@ -175,24 +175,32 @@ int tryAdd(int_ent* ent, hashSeeds* seeds, int start){
 
 void printTables(int arr){
   FILE* fp = stdout;//fopen("output.txt","wa");
+  int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
-    fprintf(fp, "Table Size: %d\n", ht->t_size);
+    items[j]=0;
+    //    fprintf(fp, "Table Size: %d\n", ht->t_size);
     for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
-	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
+	//	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
+	items[j]++;
 	count++;
       }
       else{
-	fprintf(fp,"%d: NULL\n", i);
+	//	fprintf(fp,"%d: NULL\n", i);
       }
     }
-    fprintf(fp,"\n\n\n");
+    //    fprintf(fp,"\n\n\n");
     ht=ht->next;
   }
   printf("count=%d\n", count);
+  printf("items:  ");
+  for(int j=0;j<global->cur;j++){
+    printf("%d - ", items[j]);
+  }
+  printf("\n");
 }
 
 /*thoughts so far:
@@ -272,14 +280,15 @@ int main(int argc, char** argv){
 
 
    
-  //    printTables(0);
-      h_table* temp=NULL;
-      for(int i =0;i<global->cur;i++){
-      temp=global->tt[i];
-      printf("%d - ", temp->t_size);
-      temp=temp->next;
-      }
-      printf("\n");
+      printTables(0);
+  h_table* temp=NULL;
+  printf("tables: ");
+  for(int i =0;i<global->cur;i++){
+    temp=global->tt[i];
+    printf("%d - ", temp->t_size);
+    temp=temp->next;
+  }
+  printf("\n");
 
   printf("size = %d\n", global->tt[global->cur-1]->t_size);  
   
