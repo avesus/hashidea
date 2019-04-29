@@ -8,7 +8,10 @@
 #include <unistd.h>
 #include <pthread.h>
 
+
+//1048072+2095328+4076616+3767649+5883524+4784952+7124525+3552408+1197798+7432
 #define ssize 32 //string size of entry/vector size
+#define max_tables 64 //max tables to create
 #define vsize 3 //amount of times you want to try and hash
 //#define initSize (1) //starting table size
 //#define runs 1<<4
@@ -32,7 +35,7 @@ typedef struct int_ent{
 
 //a table
 typedef struct h_table{
-  struct h_table* next; //next table
+  //  struct h_table* next; //next table
   int_ent** s_table; //rows (table itself)
   int t_size; //size
 }h_table;
@@ -69,7 +72,7 @@ h_table* createTable(int n_size){
   h_table* ht=(h_table*)malloc(sizeof(h_table));
   ht->t_size=n_size;
   ht->s_table=(int_ent**)calloc(sizeof(int_ent*),(ht->t_size));
-  ht->next=NULL;
+  //  ht->next=NULL;
   return ht;
 }
 
@@ -90,6 +93,7 @@ int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
+
     tryAdd(ent, seeds,1);
   }
   else{
@@ -137,7 +141,7 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
       return ret;
     }
     startCur=global->cur;
-    ht=ht->next;
+    //    ht=ht->next;
   }
 
   //create new table
@@ -148,6 +152,7 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
   else{
     new_size=global->tt[startCur-1]->t_size<<1;
   }
+
   h_table* new_table=createTable(new_size);
   addDrop(ent, seeds, new_table, startCur);
 }
@@ -174,14 +179,14 @@ int tryAdd(int_ent* ent, hashSeeds* seeds, int start){
 //print table (smallest to largest, also computes total items)
 
 void printTables(int arr){
-  FILE* fp = stdout;//fopen("output.txt","wa");
+  //  FILE* fp = fopen("output.txt","wa");
   int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
     items[j]=0;
-    //    fprintf(fp, "Table Size: %d\n", ht->t_size);
+    //        fprintf(fp, "Table Size: %d\n", ht->t_size);
     for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
 	//	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
@@ -189,18 +194,24 @@ void printTables(int arr){
 	count++;
       }
       else{
-	//	fprintf(fp,"%d: NULL\n", i);
+	//		fprintf(fp,"%d: NULL\n", i);
       }
     }
     //    fprintf(fp,"\n\n\n");
-    ht=ht->next;
+	//    ht=ht->next;
   }
   printf("count=%d\n", count);
-  printf("items:  ");
+
+
+
+
+  h_table* temp=NULL;
+  printf("tables:\n\n");
   for(int j=0;j<global->cur;j++){
-    printf("%d - ", items[j]);
+    temp=global->tt[j];
+    printf("%d/%d\n", items[j],temp->t_size);
   }
-  printf("\n");
+
 }
 
 /*thoughts so far:
@@ -241,7 +252,7 @@ int main(int argc, char** argv){
   }
 
   global=(h_head*)malloc(sizeof(h_head));
-  global->tt=(h_table**)calloc(32,sizeof(h_table*));
+  global->tt=(h_table**)calloc(max_tables,sizeof(h_table*));
   global->cur=1;
   global->tt[0]=createTable(initSize);
 
@@ -281,16 +292,9 @@ int main(int argc, char** argv){
 
    
       printTables(0);
-  h_table* temp=NULL;
-  printf("tables: ");
-  for(int i =0;i<global->cur;i++){
-    temp=global->tt[i];
-    printf("%d - ", temp->t_size);
-    temp=temp->next;
-  }
-  printf("\n");
 
-  printf("size = %d\n", global->tt[global->cur-1]->t_size);  
+
+  printf("max size = %d\n", global->tt[global->cur-1]->t_size);  
   
 
 }

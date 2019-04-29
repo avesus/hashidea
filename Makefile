@@ -37,4 +37,4 @@ parse: parse.o
 
 
 clean:
-	rm -f *~ *.o hash hashint debug_hashint lh lhi parse
+	rm -f *~ *.o ./#* hash hashint debug_hashint lh lhi parse
