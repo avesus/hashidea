@@ -145,7 +145,7 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
   }
 
   //create new table
-  /*  int new_size=0;
+    int new_size=0;
   if(global->tt[startCur-1]->t_size>table_bound&&startCur%2){
     new_size=global->tt[startCur-1]->t_size;
   }
@@ -153,8 +153,7 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
     new_size=global->tt[startCur-1]->t_size<<1;
   }
 
-  h_table* new_table=createTable(new_size);*/
-  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
+  h_table* new_table=createTable(new_size);
   addDrop(ent, seeds, new_table, startCur);
 }
 

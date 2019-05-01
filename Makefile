@@ -2,7 +2,7 @@ C = gcc
 CFLAGS= -std=c99
 LDLIBS=  -lpthread
 
-all: hash hashint debug_hashint lhi lh parse
+all: hash hashint debug_hashint lhi lh parse hashint2
 
 hash.o: hash.c
 	$(C) $(CFLAGS) -c hash.c $(LDLIBS)
@@ -13,6 +13,11 @@ hashint.o: hashint.c
 	$(C) $(CFLAGS) -c hashint.c $(LDLIBS)
 
 hashint: hashint.o
+
+hashint2.o: hashint2.c
+	$(C) $(CFLAGS) -c hashint2.c $(LDLIBS)
+
+hashint2: hashint2.o
 
 debug_hashint.o: debug_hashint.c
 	$(C) $(CFLAGS) -c debug_hashint.c $(LDLIBS)
@@ -37,4 +42,4 @@ parse: parse.o
 
 
 clean:
-	rm -f *~ *.o ./#* hash hashint debug_hashint lh lhi parse
+	rm -f *~ *.o ./#* hash hashint debug_hashint lh lhi parse hashint2
