@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <pthread.h>
 
+//check if fail cas, volatile types
 
 //1048072+2095328+4076616+3767649+5883524+4784952+7124525+3552408+1197798+7432
 #define ssize 32 //string size of entry/vector size
@@ -57,6 +58,7 @@ typedef struct hashSeeds{
   unsigned long rand1;
   unsigned long rand2;
 }hashSeeds;
+
 int tryAdd(int_ent* ent, hashSeeds* seeds, int start);
 
 
@@ -179,7 +181,7 @@ int tryAdd(int_ent* ent, hashSeeds* seeds, int start){
 
 //print table (smallest to largest, also computes total items)
 
-void printTables(int arr){
+void printTables(hashSeeds* seeds){
   FILE* fp = stdout;//fopen("output.txt","a");
   int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
@@ -204,6 +206,9 @@ void printTables(int arr){
   }
   fprintf(fp,"------------------start----------------\n");
   fprintf(fp,"count=%d\n", count);
+  for(int i =0;i<vsize;i++){
+    printf("r1: %lu ---- r2: %lu\n", seeds[i].rand1, seeds[i].rand2);
+  }
   h_table* temp=NULL;
   fprintf(fp,"tables:\n");
   for(int j=0;j<global->cur;j++){
@@ -292,7 +297,7 @@ int main(int argc, char** argv){
 
 
    
-      printTables(0);
+      printTables(seeds);
       free(global);
       free(seeds);
 

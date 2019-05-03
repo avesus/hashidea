@@ -6,7 +6,7 @@ if len(sys.argv) == 2:
 
 for i in range(0, do_run):
     print (str(i)+" done ")
-    os.system('./debug_hashint');
+    os.system('./debug_hashint 1 262144 8 3');
     os.system('./parse');
 
 

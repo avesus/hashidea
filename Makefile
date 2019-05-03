@@ -1,8 +1,10 @@
 C = gcc
+CXX = g++
+CXXFLAGS = -std=c++11
 CFLAGS= -std=c99
-LDLIBS=  -lpthread
+LDLIBS=  -lpthread -latomic
 
-all: hash hashint debug_hashint lhi lh parse hashint2
+all: hash hashint debug_hashint lhi lh parse hashint2 non-block-ll
 
 hash.o: hash.c
 	$(C) $(CFLAGS) -c hash.c $(LDLIBS)
@@ -42,4 +44,4 @@ parse: parse.o
 
 
 clean:
-	rm -f *~ *.o ./#* hash hashint debug_hashint lh lhi parse hashint2
+	rm -f *~ *.o ./#* hash hashint debug_hashint lh lhi parse hashint2 non-block-ll

@@ -9,21 +9,23 @@ num_threads = [1,2,4,8,16,32]
 jmax =100
 imax =5
 count=0
-for i in range(imax, imax):
-    for j in range(jmax, jmax):
+for i in range(0, imax):
+    for j in range(0, jmax):
         count=count+1
         size=1
-        run=262144
-        vecs=3+4*i
-        num=32 #num_threads[i%len(num_threads)]
+        run=262144*32
+        vecs=3#+4*i
+        num=1 #num_threads[i%len(num_threads)]
         
-        print(str(count)+ ') starting hashint ' + str(size) + ' ' + str(run)+ ' ' + str(num))+' '+str(vecs);
-        os.system('echo --------- START '+ str(count)+' ------------- >> data1.txt');
-        os.system('echo hashint ' + str(size) + ' ' + str(run)+ ' ' + str(num) +' '+str(vecs)+ ' >> data1.txt');
-        os.system('(time ./hashint ' + str(size) + ' ' + str(run)+ ' ' + str(num) +' '+str(vecs)+ ') >> data1.txt 2>&1');
-        os.system('echo --------- END '+ str(count)+' ------------- >> data1.txt');
+        print(str(count)+ ') starting hashint ' + str(size) + ' ' + str(run) + ' ' + str(num) +' '+ str(vecs));
+        os.system('echo --------- START '+ str(count)+' ------------- >> debug.txt');
+        os.system('echo hashint ' + str(size) + ' ' + str(run)+ ' ' + str(num) +' '+str(vecs)+ ' >> debug.txt');
+        os.system('(time ./hashint ' + str(size) + ' ' + str(run)+ ' ' + str(num) +' '+str(vecs)+ ') >> debug.txt 2>&1');
+        os.system('echo --------- END '+ str(count)+' ------------- >> debug.txt');
 
-count=800
+#count=800
+
+exit(0)
 for i in range(3, imax):
     for j in range(0, jmax):
         count=count+1

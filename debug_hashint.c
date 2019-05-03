@@ -8,18 +8,28 @@
 #include <unistd.h>
 #include <pthread.h>
 
+
+//1048072+2095328+4076616+3767649+5883524+4784952+7124525+3552408+1197798+7432
 #define ssize 32 //string size of entry/vector size
-#define vsize 3 //amount of times you want to try and hash
-#define initSize (1) //starting table size
+#define max_tables 64 //max tables to create
+//#define vsize 15 //amount of times you want to try and hash
+//#define initSize (1) //starting table size
+//#define runs 1<<4
 #define notIn 0 
 #define in -1
 #define unk -2
-#define num_threads 32 //number of threads to test with
-#define test_num 100
-#define table_bound (1<<0)
+#define max_threads 32 //number of threads to test with
+
+#define table_bound (1<<20)
+
 
 pthread_mutex_t cm; //various locks
 int barrier=0;
+
+int initSize=0;
+int runs=0;
+int num_threads=0;
+int vsize=0;
 struct h_head* global=NULL;
 
 
@@ -30,7 +40,7 @@ typedef struct int_ent{
 
 //a table
 typedef struct h_table{
-  struct h_table* next; //next table
+  //  struct h_table* next; //next table
   int_ent** s_table; //rows (table itself)
   int t_size; //size
 }h_table;
@@ -59,7 +69,7 @@ int tryAdd(int_ent* ent, hashSeeds* seeds, int start);
 unsigned int hashInt(unsigned long val, int slots, hashSeeds seeds){
   unsigned long hash;
   hash=(seeds.rand1*val+seeds.rand2)%slots;
-  return (int)hash;
+  return (unsigned int)hash;
 }
 
 //create a new table of size n
@@ -67,7 +77,7 @@ h_table* createTable(int n_size){
   h_table* ht=(h_table*)malloc(sizeof(h_table));
   ht->t_size=n_size;
   ht->s_table=(int_ent**)calloc(sizeof(int_ent*),(ht->t_size));
-  ht->next=NULL;
+  //  ht->next=NULL;
   return ht;
 }
 
@@ -88,6 +98,7 @@ int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
+
     tryAdd(ent, seeds,1);
   }
   else{
@@ -135,18 +146,20 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
       return ret;
     }
     startCur=global->cur;
-    ht=ht->next;
+    //    ht=ht->next;
   }
 
   //create new table
-  int new_size=0;
+  /*  int new_size=0;
   if(global->tt[startCur-1]->t_size>table_bound&&startCur%2){
     new_size=global->tt[startCur-1]->t_size;
   }
   else{
     new_size=global->tt[startCur-1]->t_size<<1;
   }
-  h_table* new_table=createTable(new_size);
+
+  h_table* new_table=createTable(new_size);*/
+  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
   addDrop(ent, seeds, new_table, startCur);
 }
 
@@ -184,7 +197,6 @@ int count(){
       }
     }
     //    printf("\n\n\n");
-    ht=ht->next;
   }
   return amt;
 }
@@ -194,10 +206,7 @@ void printTables(int arr){
  int amt=count();
  fprintf(fp, "%d\n",amt);
  int debug=0;
- if(amt!=test_num){
-   debug=1;
-   fpd=fopen("debug.txt","a");
- }
+
   h_table* ht=NULL;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
@@ -221,7 +230,6 @@ void printTables(int arr){
     if(debug){
       fprintf(fpd,"\n\n\n");
     }
-    ht=ht->next;
   }
   if(debug){
    fprintf(fpd,"\n\n\n");
@@ -230,6 +238,7 @@ void printTables(int arr){
 
   }
 }
+
 
 /*thoughts so far:
   There is nothing I don't think can be done with CAS and plenty of optimizations to make.
@@ -241,8 +250,6 @@ void printTables(int arr){
 void* run(void* argp){
 
   hashSeeds* seeds=(hashSeeds*)argp;
-  FILE* fp=fopen("words.txt","r");
-  char buf[32]="";
   pthread_mutex_lock(&cm);
   barrier++;
   pthread_mutex_unlock(&cm);
@@ -250,24 +257,37 @@ void* run(void* argp){
 
   }
 
-  for(int i =0;i<(1<<10);i++){
-
+  for(int i =0;i<(runs);i++){
     int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
-    testAdd->val=rand()%test_num;
+    unsigned long temp=rand();
+    testAdd->val=rand();
+    testAdd->val=testAdd->val*temp;
+
     tryAdd(testAdd, seeds, 0);
   }
-
-
 }
-int main(){
+int main(int argc, char** argv){
   //   std::atomic<int> test;
   //   int ret=test.compare_exchange_weak(old,newv);
   //   printf("ret=%d, test=%d\n",ret, test.load());
   //initialize stuff
+
+  if(argc!=5){
+    printf("5 args\n");
+    exit(0);
+  }
+
   srand(time(NULL));
+  initSize=atoi(argv[1]);
+  runs=atoi(argv[2]);
+  num_threads=atoi(argv[3]);
+  vsize=atoi(argv[4]);
+  if(num_threads>max_threads){
+    num_threads=max_threads;
+  }
 
   global=(h_head*)malloc(sizeof(h_head));
-  global->tt=(h_table**)calloc(32,sizeof(h_table*));
+  global->tt=(h_table**)calloc(max_tables,sizeof(h_table*));
   global->cur=1;
   global->tt[0]=createTable(initSize);
 
@@ -275,7 +295,7 @@ int main(){
   for(int i =0;i<vsize;i++){
     seeds[i].rand1=rand();
     seeds[i].rand2=rand();
-    int temp=rand();
+    unsigned long temp=rand();
     seeds[i].rand1=seeds[i].rand1*temp;
     temp=rand();
     seeds[i].rand2=seeds[i].rand2*temp;
@@ -285,13 +305,14 @@ int main(){
   
   //creating num_threads threads to add items in parallel
   //see run function for more details
-  pthread_t threads[num_threads];
+  int cores=sysconf(_SC_NPROCESSORS_ONLN);
+  pthread_t threads[max_threads];
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  cpu_set_t sets[num_threads];
+  cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
-    CPU_SET(i, &sets[i]);
+    CPU_SET(i%cores, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
     pthread_create(&threads[i], &attr,run,(void*)seeds);
@@ -305,19 +326,9 @@ int main(){
 
 
    
-   printTables(0);
-   FILE * fps =fopen("results.txt", "a");
-   fprintf(fps,"-------------------- START CHECK -----------------\n");
-   fprintf(fps,"end sizes: ");
-  h_table* temp=NULL;
-  for(int i =0;i<global->cur;i++){
-    temp=global->tt[i];
-    fprintf(fps, "%d - ", temp->t_size);
-    temp=temp->next;
-  }
-  fprintf(fps,"\n");
+  printTables(0);
 
-  
+
   
 
 }

@@ -69,7 +69,7 @@ int main(){
 
   // printf("arr[8372151]=%lu\n", arr[8372150]);
    recursive(arr, 0, j-1);
-   FILE* res= fopen("results.txt", "a");
+   FILE* res= fopen("new_res.txt", "a");
    int i=1;
    for(i =1;i<j;i++){
      if(arr[i]==arr[i-1]){
