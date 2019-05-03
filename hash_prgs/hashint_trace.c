@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -26,6 +27,9 @@ int initSize=0;
 int runs=0;
 int num_threads=0;
 int vsize=0;
+char path[32]="";
+//int barrier=0;
+//pthread_mutex_t cm;
 struct h_head* global=NULL;
 
 
@@ -54,20 +58,101 @@ typedef struct h_head{
   int cur; //current max index (max exclusive)
 }h_head;
 
+
 typedef struct hashSeeds{
   unsigned long rand1;
   unsigned long rand2;
 }hashSeeds;
 
-int tryAdd(int_ent* ent, hashSeeds* seeds, int start);
+typedef struct t_args{
+  unsigned int * seeds;
+  int t_num;
+}t_args;
+
+int tryAdd(int_ent* ent, unsigned int* seeds, int start);
 
 
 //string hashing function (just universal vector hash)
-unsigned int hashInt(unsigned long val, int slots, hashSeeds seeds){
-  unsigned long hash;
-  hash=(seeds.rand1*val+seeds.rand2)%slots;
-  return (unsigned int)hash;
+
+uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
+{
+  uint32_t h = seed;
+  if (len > 3) {
+    const uint32_t* key_x4 = (const uint32_t*) key;
+    size_t i = len >> 2;
+    do {
+      uint32_t k = *key_x4++;
+      k *= 0xcc9e2d51;
+      k = (k << 15) | (k >> 17);
+      k *= 0x1b873593;
+      h ^= k;
+      h = (h << 13) | (h >> 19);
+      h = h * 5 + 0xe6546b64;
+    } while (--i);
+    key = (const uint8_t*) key_x4;
+  }
+  if (len & 3) {
+    size_t i = len & 3;
+    uint32_t k = 0;
+    key = &key[i - 1];
+    do {
+      k <<= 8;
+      k |= *key--;
+    } while (--i);
+    k *= 0xcc9e2d51;
+    k = (k << 15) | (k >> 17);
+    k *= 0x1b873593;
+    h ^= k;
+  }
+  h ^= len;
+  h ^= h >> 16;
+  h *= 0x85ebca6b;
+  h ^= h >> 13;
+  h *= 0xc2b2ae35;
+  h ^= h >> 16;
+  return h;
 }
+
+
+
+
+
+
+
+int lookupQuery(int_ent** s_table,int_ent*ent, unsigned int seeds, int slots){
+  unsigned int s=murmur3_32(&ent->val, 8, seeds)%slots;
+  if(s_table[s]==NULL){
+    return notIn;
+  }
+  else if(ent->val==s_table[s]->val){
+    return in;
+  }
+  return unk;
+}
+
+
+int checkTableQuery(int_ent* ent, unsigned int* seeds){
+  
+  h_table* ht=NULL;
+  for(int j=0;j<global->cur;j++){
+    ht=global->tt[j];
+    for(int i =0;i<vsize;i++){
+      int res=lookupQuery(ht->s_table, ent, seeds[i], ht->t_size);
+      if(res==unk){ //unkown if in our not
+	continue;
+      }
+      if(res==notIn){ //is in
+	return 0;
+      }
+      //not in (we got null so it would have been there)
+      
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
 
 //create a new table of size n
 h_table* createTable(int n_size){
@@ -86,7 +171,7 @@ int max(int a, int b){
   return a*(a>b)+b*(b>=a);
 }
 //add new table to list of tables
-int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
+int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
   h_table* expected=NULL;
   int res = __atomic_compare_exchange(&global->tt[tt_size] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
@@ -95,7 +180,6 @@ int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-
     tryAdd(ent, seeds,1);
   }
   else{
@@ -111,9 +195,12 @@ int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
 }
 
 //check if entry for a given hashing vector is in a table
-int lookup(int_ent** s_table,int_ent* ent, hashSeeds seeds, int slots){
+int lookup(int_ent** s_table,int_ent* ent, unsigned int seeds, int slots){
 
-  int s=hashInt(ent->val, slots, seeds);
+  //  unsigned int s=hashInt(ent->val, slots, seeds);
+  //  unsigned int s=murmur_hash_64(ent->val, 8, seeds.rand1, slots);
+
+    unsigned int s= murmur3_32(&ent->val, 8, seeds)%slots;
   if(s_table[s]==NULL){
     return s;
   }
@@ -124,7 +211,7 @@ int lookup(int_ent** s_table,int_ent* ent, hashSeeds seeds, int slots){
 }
 
 //check if an item is found in the table, if not make new table and store it
-ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
+ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
   int startCur=global->cur;
   h_table* ht=NULL;
   for(int j=start;j<global->cur;j++){
@@ -161,7 +248,7 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
 }
 
 //add item using ret_val struct info
-int tryAdd(int_ent* ent, hashSeeds* seeds, int start){
+int tryAdd(int_ent* ent, unsigned int* seeds, int start){
   ret_val loc=checkTable(ent, seeds, start);
   int_ent* expected=NULL;
   if(loc.ht){
@@ -181,33 +268,34 @@ int tryAdd(int_ent* ent, hashSeeds* seeds, int start){
 
 //print table (smallest to largest, also computes total items)
 
-void printTables(hashSeeds* seeds){
-  FILE* fp = stdout;//fopen("output.txt","a");
+void printTables(unsigned int* seeds){
+  FILE* fp = fopen("output.txt","wa");
   int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
     items[j]=0;
-    //        fprintf(fp, "Table Size: %d\n", ht->t_size);
+          fprintf(fp, "Table Size: %d\n", ht->t_size);
     for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
-	//	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
+       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
 	free(ht->s_table[i]);
 	items[j]++;
 	count++;
       }
       else{
-	//		fprintf(fp,"%d: NULL\n", i);
+			fprintf(fp,"%d: NULL\n", i);
       }
     }
-    //    fprintf(fp,"\n\n\n");
+       fprintf(fp,"\n\n\n");
 	//    ht=ht->next;
   }
-  fprintf(fp,"------------------start----------------\n");
+
+    fprintf(fp,"------------------start----------------\n");
   fprintf(fp,"count=%d\n", count);
   for(int i =0;i<vsize;i++){
-    printf("r1: %lu ---- r2: %lu\n", seeds[i].rand1, seeds[i].rand2);
+    printf("r1: %u\n", seeds[i]);
   }
   h_table* temp=NULL;
   fprintf(fp,"tables:\n");
@@ -228,15 +316,45 @@ void printTables(hashSeeds* seeds){
   hash in parrallel so really work is logn but span is basically O(1)*/
 void* run(void* argp){
 
-  hashSeeds* seeds=(hashSeeds*)argp;
-  for(int i =0;i<(runs);i++){
-    int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
-    unsigned long temp=rand();
-    testAdd->val=rand();
-    testAdd->val=testAdd->val*temp;
-    tryAdd(testAdd, seeds, 0);
+ t_args* args = (t_args*)argp;
+
+ unsigned int* seeds=args->seeds;
+ int t_num=args->t_num;
+ free(args);
+ char local_path[64]="";
+ sprintf(local_path,"%sp%d.txt", path, t_num);
+
+  FILE* fp=fopen(local_path, "r");
+  char buf[32]="";
+  while(fgets(buf, 32, fp)!=NULL){
+    if(buf[0]=='A'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      tryAdd(testAdd, seeds, 0);
+    }
+    else if(buf[0]=='T'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      checkTableQuery(testAdd, seeds);
+	//printf("BIG FUCK UP %lu\n", testAdd->val);
+      
+    }
+    else if(buf[0]=='Q'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      if(checkTableQuery(testAdd, seeds)){
+	printf("questionable hit on %lu\n", testAdd->val);
+      }
+    }
+    else{
+      printf("bad file %s\n", buf);
+    }
   }
-}
+  fclose(fp);
+ }
 int main(int argc, char** argv){
   //   std::atomic<int> test;
   //   int ret=test.compare_exchange_weak(old,newv);
@@ -250,9 +368,9 @@ int main(int argc, char** argv){
 
   srand(time(NULL));
   initSize=atoi(argv[1]);
-  runs=atoi(argv[2]);
-  num_threads=atoi(argv[3]);
-  vsize=atoi(argv[4]);
+  num_threads=atoi(argv[2]);
+  vsize=atoi(argv[3]);
+  strcpy(path, argv[4]);
   if(num_threads>max_threads){
     num_threads=max_threads;
   }
@@ -262,14 +380,16 @@ int main(int argc, char** argv){
   global->cur=1;
   global->tt[0]=createTable(initSize);
 
-  hashSeeds* seeds=(hashSeeds*)malloc(sizeof(hashSeeds)*vsize);
+  //  hashSeeds* seeds=(hashSeeds*)malloc(sizeof(hashSeeds)*vsize);
+  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
   for(int i =0;i<vsize;i++){
-    seeds[i].rand1=rand();
-    seeds[i].rand2=rand();
-    unsigned long temp=rand();
-    seeds[i].rand1=seeds[i].rand1*temp;
-    temp=rand();
-    seeds[i].rand2=seeds[i].rand2*temp;
+    //    seeds[i].rand1=rand();
+    //    seeds[i].rand2=rand();
+    //    unsigned long temp=rand();
+    //    seeds[i].rand1=seeds[i].rand1*temp;
+    //    temp=rand();
+    //    seeds[i].rand2=seeds[i].rand2*temp;
+    seeds[i]=rand();
 
   }
 
@@ -283,10 +403,13 @@ int main(int argc, char** argv){
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
-    CPU_SET(i%cores, &sets[i]);
+    CPU_SET(i, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
-    pthread_create(&threads[i], &attr,run,(void*)seeds);
+    t_args* temp=(t_args*)malloc(sizeof(t_args));
+    temp->seeds=seeds;
+    temp->t_num=i;
+    pthread_create(&threads[i], &attr,run,(void*)temp);
 
 
   }

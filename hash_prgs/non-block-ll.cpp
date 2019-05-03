@@ -9,11 +9,11 @@
 #include <vector>
 #include <thread>
 
-//make: g++ -std=c++11 non-block-ll.cpp -o non-block-ll -lpthread -latomic
-#define max_threads 8
+//make: g++ -std=c++11 non-block-ll.cpp -o non-block-ll -mcx16 -lpthread -ggdb
+#define max_threads 32
 int num_threads=0;
 int runs=0;
-int initSize=1<<23;
+int initSize=1<<25;
 
 
 
@@ -27,6 +27,7 @@ hashSeeds seeds;
 unsigned int hashInt(unsigned long val, int slots, hashSeeds seeds){
   unsigned long hash;
   hash=(seeds.rand1*val+seeds.rand2)%slots;
+
   return (unsigned int)hash;
 }
 
@@ -79,7 +80,8 @@ public:
 
 
   void enqueue(T value) {
-    int bucket=hashInt(value, initSize, seeds);
+    unsigned int bucket=hashInt(value, initSize, seeds);
+
     // Node is initialized in ctor, so three lines in one
     auto node = new node_t{value}; // E1, E2, E3
     decltype(Tail[bucket].load()) tail;
@@ -152,22 +154,22 @@ int main(int argc, char** argv){
   seeds.rand2=seeds.rand2*ran;
   printf("%lu - %lu\n", seeds.rand1, seeds.rand2);
 
-  int cores=sysconf(_SC_NPROCESSORS_ONLN);
+  //  int cores=sysconf(_SC_NPROCESSORS_ONLN);
+  //  printf("cores=%d\n", cores);
   pthread_t threads[max_threads];
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   cpu_set_t sets[max_threads];
-  for(int i =0;i<num_threads;i++){
-    CPU_ZERO(&sets[i]);
-    CPU_SET(i%cores, &sets[i]);
-    threads[i]=pthread_self();
-    pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
-    pthread_create(&threads[i], &attr,run,NULL);
 
-
+  for(int r =0;r<num_threads;r++){
+    CPU_ZERO(&sets[r]);
+    CPU_SET(r, &sets[r]);
+    threads[r]=pthread_self();
+    pthread_setaffinity_np(threads[r], sizeof(cpu_set_t),&sets[r]);
+    pthread_create(&threads[r], &attr,run,NULL);
   }
-  for(int i =0;i<num_threads;i++){
-    pthread_join(threads[i], NULL);
+  for(int r =0;r<num_threads;r++){
+    pthread_join(threads[r], NULL);
     
   }
   int count=0;

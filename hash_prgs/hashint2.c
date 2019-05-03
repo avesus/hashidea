@@ -2,6 +2,7 @@
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
 #include <time.h>
 #include <sys/types.h>
@@ -60,6 +61,103 @@ typedef struct hashSeeds{
 int tryAdd(int_ent* ent, hashSeeds* seeds, int start);
 
 
+
+
+uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
+{
+  uint32_t h = seed;
+  if (len > 3) {
+    const uint32_t* key_x4 = (const uint32_t*) key;
+    size_t i = len >> 2;
+    do {
+      uint32_t k = *key_x4++;
+      k *= 0xcc9e2d51;
+      k = (k << 15) | (k >> 17);
+      k *= 0x1b873593;
+      h ^= k;
+      h = (h << 13) | (h >> 19);
+      h = h * 5 + 0xe6546b64;
+    } while (--i);
+    key = (const uint8_t*) key_x4;
+  }
+  if (len & 3) {
+    size_t i = len & 3;
+    uint32_t k = 0;
+    key = &key[i - 1];
+    do {
+      k <<= 8;
+      k |= *key--;
+    } while (--i);
+    k *= 0xcc9e2d51;
+    k = (k << 15) | (k >> 17);
+    k *= 0x1b873593;
+    h ^= k;
+  }
+  h ^= len;
+  h ^= h >> 16;
+  h *= 0x85ebca6b;
+  h ^= h >> 13;
+  h *= 0xc2b2ae35;
+  h ^= h >> 16;
+  return h;
+}
+
+
+uint32_t murmur_hash_64(const void * key, int len, uint64_t seed, int slots)
+{
+  const uint64_t m = 0xc6a4a7935bd1e995ULL;
+  const int r = 47;
+
+  uint64_t h = seed ^ (len * m);
+
+  const uint64_t * data = (const uint64_t *)key;
+  const uint64_t * end = data + (len>>3);
+
+  while (data != end)
+    {
+#ifdef PLATFORM_BIG_ENDIAN
+      uint64_t k = *data++;
+      char *p = (char *)&k;
+      char c;
+      c = p[0]; p[0] = p[7]; p[7] = c;
+      c = p[1]; p[1] = p[6]; p[6] = c;
+      c = p[2]; p[2] = p[5]; p[5] = c;
+      c = p[3]; p[3] = p[4]; p[4] = c;
+#else
+      uint64_t k = *data++;
+#endif
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h ^= k;
+      h *= m;
+    }
+
+  const unsigned char * data2 = (const unsigned char*)data;
+
+  switch (len & 7)
+    {
+    case 7: h ^= (uint64_t)(data2[6]) << 48;
+    case 6: h ^= (uint64_t)(data2[5]) << 40;
+    case 5: h ^= (uint64_t)(data2[4]) << 32;
+    case 4: h ^= (uint64_t)(data2[3]) << 24;
+    case 3: h ^= (uint64_t)(data2[2]) << 16;
+    case 2: h ^= (uint64_t)(data2[1]) << 8;
+    case 1: h ^= (uint64_t)(data2[0]);
+      h *= m;
+    };
+
+  h ^= h >> r;
+  h *= m;
+  h ^= h >> r;
+
+  return ((unsigned int)h)%slots;
+  }
+
+
+
 //string hashing function (just universal vector hash)
 unsigned int hashInt(unsigned long val, int slots, hashSeeds seeds){
   unsigned long hash;
@@ -111,7 +209,10 @@ int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
 //check if entry for a given hashing vector is in a table
 int lookup(int_ent** s_table,int_ent* ent, hashSeeds seeds, int slots){
 
-  int s=hashInt(ent->val, slots, seeds);
+  //unsigned int s=hashInt(ent->val, slots, seeds);
+//  unsigned int s=murmur_hash_64(ent->val, 8, seeds.rand1, slots);
+
+   unsigned int s= murmur3_32(&ent->val, 8, (uint32_t)(seeds.rand1/17))%slots;
   if(s_table[s]==NULL){
     return s;
   }
@@ -277,7 +378,7 @@ int main(int argc, char** argv){
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
-    CPU_SET(i%cores, &sets[i]);
+    CPU_SET(i, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
     pthread_create(&threads[i], &attr,run,(void*)seeds);
