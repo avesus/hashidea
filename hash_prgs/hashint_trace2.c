@@ -22,11 +22,13 @@
 #define unk -2
 #define max_threads 32 //number of threads to test with
 #define table_bound (1<<20)
+#define d_size  sizeof(struct int_ent)
 
 int initSize=0;
 int runs=0;
 int num_threads=0;
 int vsize=0;
+char path[32]="";
 //int barrier=0;
 //pthread_mutex_t cm;
 struct h_head* global=NULL;
@@ -62,6 +64,11 @@ typedef struct hashSeeds{
   unsigned long rand1;
   unsigned long rand2;
 }hashSeeds;
+
+typedef struct t_args{
+  unsigned int * seeds;
+  int t_num;
+}t_args;
 
 int tryAdd(int_ent* ent, unsigned int* seeds, int start);
 
@@ -114,12 +121,12 @@ uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 
 
 int lookupQuery(int_ent** s_table,int_ent*ent, unsigned int seeds, int slots){
-  unsigned int s=murmur3_32(&ent->val, 8, seeds)%slots;
+  unsigned int s=murmur3_32(&ent->val, d_size, seeds)%slots;
   if(s_table[s]==NULL){
     return notIn;
   }
   else if(ent->val==s_table[s]->val){
-    return s;
+    return in;
   }
   return unk;
 }
@@ -194,7 +201,7 @@ int lookup(int_ent** s_table,int_ent* ent, unsigned int seeds, int slots){
   //  unsigned int s=hashInt(ent->val, slots, seeds);
   //  unsigned int s=murmur_hash_64(ent->val, 8, seeds.rand1, slots);
 
-    unsigned int s= murmur3_32(&ent->val, 8, seeds)%slots;
+    unsigned int s= murmur3_32(&ent->val, d_size, seeds)%slots;
   if(s_table[s]==NULL){
     return s;
   }
@@ -228,7 +235,7 @@ ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
   }
 
   //create new table
-  /*  int new_size=0;
+  int new_size=0;
   if(global->tt[startCur-1]->t_size>table_bound&&startCur%2){
     new_size=global->tt[startCur-1]->t_size;
   }
@@ -236,8 +243,7 @@ ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
     new_size=global->tt[startCur-1]->t_size<<1;
   }
 
-  h_table* new_table=createTable(new_size);*/
-  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
+  h_table* new_table=createTable(new_size);
   addDrop(ent, seeds, new_table, startCur);
 }
 
@@ -263,34 +269,32 @@ int tryAdd(int_ent* ent, unsigned int* seeds, int start){
 //print table (smallest to largest, also computes total items)
 
 void printTables(unsigned int* seeds){
-  FILE* fp = fopen("output.txt","wa");
+  FILE* fp = fopen("output.txt","a");
   int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
     items[j]=0;
-          fprintf(fp, "Table Size: %d\n", ht->t_size);
+    //          fprintf(fp, "Table Size: %d\n", ht->t_size);
     for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
-       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
+	//       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
 	free(ht->s_table[i]);
 	items[j]++;
 	count++;
       }
       else{
-			fprintf(fp,"%d: NULL\n", i);
+	//		fprintf(fp,"%d: NULL\n", i);
       }
     }
-       fprintf(fp,"\n\n\n");
+    //       fprintf(fp,"\n\n\n");
 	//    ht=ht->next;
   }
 
-    fprintf(fp,"------------------start----------------\n");
+  fprintf(fp,"------------------start %d %d----------------\n", initSize, vsize);
   fprintf(fp,"count=%d\n", count);
-  for(int i =0;i<vsize;i++){
-    printf("r1: %u\n", seeds[i]);
-  }
+
   h_table* temp=NULL;
   fprintf(fp,"tables:\n");
   for(int j=0;j<global->cur;j++){
@@ -301,27 +305,72 @@ void printTables(unsigned int* seeds){
   fprintf(fp,"------------------end----------------\n");
 }
 
-
+/*thoughts so far:
+  There is nothing I don't think can be done with CAS and plenty of optimizations to make.
+  The only tricky case I imagine is when resizing will have to CAS with size of tail before
+  adding to it, otherwise race condition for not founds to double size at same time. This 
+  means have to allocate ahead of time and if CAS fails free that memory (kind of sucks). 
+  Basically everything in here is parallizable (i.e could search each table in parallel/each
+  hash in parrallel so really work is logn but span is basically O(1)*/
 void* run(void* argp){
 
-  unsigned int* seeds=(unsigned int*)argp;
+ t_args* args = (t_args*)argp;
 
+ unsigned int* seeds=args->seeds;
+ int t_num=args->t_num;
+ free(args);
+ char local_path[64]="";
+ sprintf(local_path,"%sp%d.txt", path, t_num);
 
+  FILE* fp=fopen(local_path, "r");
+  char buf[64]="";
+  // int total=0;
+ // int adds=0;
+ // int qs=0;
+ // int ts=0;
+ // int hits=0;
 
-  for(int i =0;i<(runs);i++){
-    int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
-    unsigned long temp=rand();
-    testAdd->val=rand();
-    testAdd->val=testAdd->val*temp;
-    tryAdd(testAdd, seeds, 0);
-    
-   
+  while(fgets(buf, 64, fp)!=NULL){
+    //    total++;
+    if(buf[0]=='A'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      //      adds++;
+      testAdd->val=strtoull(buf+2,&end, 10);
+      tryAdd(testAdd, seeds, 0);
+    }
+    else if(buf[0]=='T'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      //      ts++;
+      //      hits+=checkTableQuery(testAdd, seeds);
+checkTableQuery(testAdd, seeds);
+	//printf("BIG FUCK UP %lu\n", testAdd->val);
+      
+    }
+    else if(buf[0]=='Q'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      //     qs++;
+      //      hits+=checkTableQuery(testAdd, seeds);
+checkTableQuery(testAdd, seeds);
+	
      
-    
+    }
+    else{
+      printf("bad file %s\n", buf);
+    }
   }
-}
+  fclose(fp);
+//  printf("qs: %d, ts: %d = %d, ad: %d|| %d == %d\n",qs, ts, hits, adds, qs+ts+adds, total);
+ }
 int main(int argc, char** argv){
-
+  //   std::atomic<int> test;
+  //   int ret=test.compare_exchange_weak(old,newv);
+  //   printf("ret=%d, test=%d\n",ret, test.load());
+  //initialize stuff
 
   if(argc!=5){
     printf("5 args\n");
@@ -330,9 +379,9 @@ int main(int argc, char** argv){
 
   srand(time(NULL));
   initSize=atoi(argv[1]);
-  runs=atoi(argv[2]);
-  num_threads=atoi(argv[3]);
-  vsize=atoi(argv[4]);
+  num_threads=atoi(argv[2]);
+  vsize=atoi(argv[3]);
+  strcpy(path, argv[4]);
   if(num_threads>max_threads){
     num_threads=max_threads;
   }
@@ -345,6 +394,12 @@ int main(int argc, char** argv){
   //  hashSeeds* seeds=(hashSeeds*)malloc(sizeof(hashSeeds)*vsize);
   unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
   for(int i =0;i<vsize;i++){
+    //    seeds[i].rand1=rand();
+    //    seeds[i].rand2=rand();
+    //    unsigned long temp=rand();
+    //    seeds[i].rand1=seeds[i].rand1*temp;
+    //    temp=rand();
+    //    seeds[i].rand2=seeds[i].rand2*temp;
     seeds[i]=rand();
 
   }
@@ -362,17 +417,23 @@ int main(int argc, char** argv){
     CPU_SET(i, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
-    pthread_create(&threads[i], &attr,run,(void*)seeds);
+    t_args* temp=(t_args*)malloc(sizeof(t_args));
+    temp->seeds=seeds;
+    temp->t_num=i;
+    pthread_create(&threads[i], &attr,run,(void*)temp);
+
+
   }
   for(int i =0;i<num_threads;i++){
     pthread_join(threads[i], NULL);
+    
   }
 
 
-   
-      printTables(seeds);
-      free(global);
-      free(seeds);
+  //   
+              printTables(seeds);
+            free(global);
+            free(seeds);
 
   
 

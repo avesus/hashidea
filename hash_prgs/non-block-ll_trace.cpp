@@ -11,11 +11,12 @@
 #include <thread>
 #include <string.h>
 
-//make: g++ -std=c++11 non-block-ll.cpp -o non-block-ll -mcx16 -lpthread -ggdb
+//make: g++ -std=c++11 non-block-ll_trace.cpp -o non-block-ll_trace -mcx16 -lpthread -ggdb
 #define max_threads 32
 int num_threads=0;
 int runs=0;
-int initSize=1<<10;
+int initSize=1<<12;
+char path[64]="";
 
 
 
@@ -181,10 +182,27 @@ public:
 void* run(void* argp){
   int* t_num = (int*)argp;
 
-  for(int i =0;i<(runs);i++){
-    unsigned long val=rand();
-    val=val*rand();
-    queue.enqueue(val);
+ char local_path[64]="";
+ sprintf(local_path,"%sp%d.txt", path, *t_num);
+ FILE* fp=fopen(local_path, "r");
+ char buf[64]="";
+  while(fgets(buf, 64, fp)!=NULL){
+
+    if(buf[0]=='A'){
+      char* end;
+      queue.enqueue(strtoull(buf+2, &end,10));
+    }
+    else if(buf[0]=='T'){
+      char* end;
+	queue.searchq(strtoull(buf+2, &end,10));
+    }
+    else if(buf[0]=='Q'){
+      char* end;
+	queue.searchq(strtoull(buf+2, &end,10));
+    }
+    else {
+      printf("bad file %s\n", buf);
+    }
   }
 }
 
@@ -197,7 +215,7 @@ int main(int argc, char** argv){
     printf("usage: prog runs num_threads\n");
   }
   num_threads=atoi(argv[1]);
-  runs=atoi(argv[2]);
+  strcpy(path, argv[2]);
   seeds=rand();
 
   //  int cores=sysconf(_SC_NPROCESSORS_ONLN);
@@ -219,18 +237,17 @@ int main(int argc, char** argv){
     pthread_join(threads[r], NULL);
     
   }
+
+
+  //comment this out for performance test.
     int count=0;
   for(int i =0;i<initSize;i++){
   auto temp =queue.Head[i].load();
   temp=temp.ptr->next;
-  //  printf("%d: ", i);
   while(temp.ptr){
-
-    //    printf("%lu,", temp.ptr->value);
        count++;
     temp=temp.ptr->next;
   }
-  //  printf("\n");
   }
   printf("count=%d\n",count);
 }

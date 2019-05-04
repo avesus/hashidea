@@ -58,7 +58,7 @@ typedef struct hashSeeds{
   unsigned long rand1;
   unsigned long rand2;
 }hashSeeds;
-int tryAdd(int_ent* ent, hashSeeds* seeds, int start);
+int tryAdd(int_ent* ent, unsigned int* seeds, int start);
 
 
 
@@ -182,7 +182,7 @@ int max(int a, int b){
   return a*(a>b)+b*(b>=a);
 }
 //add new table to list of tables
-int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
+int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
   h_table* expected=NULL;
   int res = __atomic_compare_exchange(&global->tt[tt_size] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
@@ -207,12 +207,12 @@ int addDrop(int_ent* ent, hashSeeds* seeds,h_table* toadd, int tt_size){
 }
 
 //check if entry for a given hashing vector is in a table
-int lookup(int_ent** s_table,int_ent* ent, hashSeeds seeds, int slots){
+int lookup(int_ent** s_table,int_ent* ent, unsigned int seeds, int slots){
 
   //unsigned int s=hashInt(ent->val, slots, seeds);
 //  unsigned int s=murmur_hash_64(ent->val, 8, seeds.rand1, slots);
 
-   unsigned int s= murmur3_32(&ent->val, 8, (uint32_t)(seeds.rand1/17))%slots;
+   unsigned int s= murmur3_32(&ent->val, 8,seeds)%slots;
   if(s_table[s]==NULL){
     return s;
   }
@@ -223,7 +223,7 @@ int lookup(int_ent** s_table,int_ent* ent, hashSeeds seeds, int slots){
 }
 
 //check if an item is found in the table, if not make new table and store it
-ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
+ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
   int startCur=global->cur;
   h_table* ht=NULL;
   for(int j=start;j<global->cur;j++){
@@ -259,7 +259,7 @@ ret_val checkTable(int_ent* ent, hashSeeds* seeds, int start){
 }
 
 //add item using ret_val struct info
-int tryAdd(int_ent* ent, hashSeeds* seeds, int start){
+int tryAdd(int_ent* ent, unsigned int* seeds, int start){
   ret_val loc=checkTable(ent, seeds, start);
   int_ent* expected=NULL;
   if(loc.ht){
@@ -323,7 +323,7 @@ void printTables(int arr){
   hash in parrallel so really work is logn but span is basically O(1)*/
 void* run(void* argp){
 
-  hashSeeds* seeds=(hashSeeds*)argp;
+  unsigned int* seeds=(unsigned int*)argp;
   for(int i =0;i<(runs);i++){
     int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
     unsigned long temp=rand();
@@ -357,15 +357,9 @@ int main(int argc, char** argv){
   global->cur=1;
   global->tt[0]=createTable(initSize);
 
-  hashSeeds* seeds=(hashSeeds*)malloc(sizeof(hashSeeds)*vsize);
+  unsigned int* seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
   for(int i =0;i<vsize;i++){
-    seeds[i].rand1=rand();
-    seeds[i].rand2=rand();
-    unsigned long temp=rand();
-    seeds[i].rand1=seeds[i].rand1*temp;
-    temp=rand();
-    seeds[i].rand2=seeds[i].rand2*temp;
-
+    seeds[i]=rand();
   }
 
   
