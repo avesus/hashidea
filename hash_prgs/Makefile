@@ -4,7 +4,7 @@ CXXFLAGS = -std=c++11
 CFLAGS= -std=c99
 LDLIBS=  -lpthread
 
-all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2
+all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2 me-nb-ll
 
 hash.o: hash.c
 	$(C) $(CFLAGS) -c hash.c $(LDLIBS)
@@ -15,6 +15,11 @@ hashint.o: hashint.c
 	$(C) $(CFLAGS) -c hashint.c $(LDLIBS)
 
 hashint: hashint.o
+
+me-nb-ll.o: me-nb-ll.c
+	$(C) $(CFLAGS) -c me-nb-ll.c $(LDLIBS)
+
+me-nb-ll: me-nb-ll.o
 
 hashint_trace.o: hashint_trace.c
 	$(C) $(CFLAGS) -c hashint_trace.c $(LDLIBS)
@@ -42,4 +47,4 @@ lh.o: lh.c
 lh: lh.o
 
 clean:
-	rm -f *~ *.o ./#* hash hashint lh lhi hashint2 hashint_trace hashint_trace2 non-block-ll non-block-ll_trace
+	rm -f *~ *.o ./#* hash hashint lh lhi hashint2 hashint_trace hashint_trace2 non-block-ll non-block-ll_trace me-nb-ll
