@@ -1,10 +1,8 @@
 C = gcc
-CXX = g++
-CXXFLAGS = -std=c++11
-CFLAGS= -std=c99
+CFLAGS= -std=c99 -O3
 LDLIBS=  -lpthread
 
-all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2 me-nb-ll
+all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2 me-nb-ll me-nb-ll_trace
 
 hash.o: hash.c
 	$(C) $(CFLAGS) -c hash.c $(LDLIBS)
@@ -20,6 +18,11 @@ me-nb-ll.o: me-nb-ll.c
 	$(C) $(CFLAGS) -c me-nb-ll.c $(LDLIBS)
 
 me-nb-ll: me-nb-ll.o
+
+me-nb-ll_trace.o: me-nb-ll_trace.c
+	$(C) $(CFLAGS) -c me-nb-ll_trace.c $(LDLIBS)
+
+me-nb-ll_trace: me-nb-ll_trace.o
 
 hashint_trace.o: hashint_trace.c
 	$(C) $(CFLAGS) -c hashint_trace.c $(LDLIBS)
@@ -47,4 +50,4 @@ lh.o: lh.c
 lh: lh.o
 
 clean:
-	rm -f *~ *.o ./#* hash hashint lh lhi hashint2 hashint_trace hashint_trace2 non-block-ll non-block-ll_trace me-nb-ll
+	rm -f core.* *~ *.o ./#* hash hashint lh lhi hashint2 hashint_trace hashint_trace2 non-block-ll non-block-ll_trace me-nb-ll me-nb-ll_trace

@@ -12,6 +12,7 @@
 //make: gcc ms.c -o ms -lpthread -latomic
 int num_threads=0;
 int runs=0;
+char path[64]="";
 int initSize=0;
 //pthread_mutex_t cm; //various locks
 //int barrier=0;
@@ -33,7 +34,10 @@ typedef struct que{
   volatile struct pointer tail;
 }que;
   
-
+typedef struct t_args{
+  que ** q;
+  int t_num;
+}t_args;
 
 uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 {
@@ -91,7 +95,23 @@ volatile pointer makeFrom(volatile node* new_node){
   return p;
 }
 
+int searchq(que** q, unsigned long val){
+  //  printf("start search\n");
+  unsigned int bucket= murmur3_32(&val, 8, seeds)%initSize;
+  volatile pointer tail=q[bucket]->head;
+  while(tail.ptr!=NULL){
+    if(tail.ptr->val==val){
+      //  printf("end search\n");
+      return 1;
+    }
+    tail=tail.ptr->next;
+  }
+  //  printf("end search\n");
+  return 0;
+}
+
 void enq(que** q, unsigned long val){
+  //  printf("start add\n");
   unsigned int bucket= murmur3_32(&val, 8, seeds)%initSize;
   node* new_node = (node*)malloc(sizeof(node));
   new_node->next.ptr=NULL;
@@ -102,14 +122,15 @@ void enq(que** q, unsigned long val){
   while(1){
 
   while(tail.ptr!=q[bucket]->tail.ptr){
-
     if(tail.ptr->val==val){
+      //  printf("end add\n");
       return;
     }
     tail=tail.ptr->next;
   }
  next=tail.ptr->next;
  if(tail.ptr->val==val){
+   //   printf("end add\n");
    return;
  }
     if(tail.ptr==q[bucket]->tail.ptr){
@@ -120,6 +141,7 @@ void enq(que** q, unsigned long val){
 	}
 	else{
 	  if(next.ptr->val==val){
+	    //	    printf("end add\n");
 	    return;
 	  }
 	  volatile pointer p2=makeFrom(next.ptr);
@@ -132,32 +154,60 @@ void enq(que** q, unsigned long val){
   volatile pointer p3=makeFrom(new_node);
   if(__atomic_compare_exchange((pointer*)&q[bucket]->tail ,(pointer*)&tail, (pointer*)&p3, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
   }
+  //  printf("end add\n");
 }
 
 void* run(void* argp){
-  que** q=(que**)argp;
-  /*  pthread_mutex_lock(&cm);
-  barrier++;
-  pthread_mutex_unlock(&cm);
-  while(barrier<num_threads){
+  t_args* args=(t_args*)argp;
+  que** q= args->q;
+  int t_num=args->t_num;
+  free(args);
+   char local_path[64]="";
 
-  }*/
+   //getting its own trace file (p<num>.txt)
+        sprintf(local_path,"%sp%d.txt", path, t_num);
+     FILE* fp=fopen(local_path, "r");
+  char buf[64]="";
 
+  //running
+  while(fgets(buf, 64, fp)!=NULL){
 
-  for(int i =0;i<(runs);i++){
-        unsigned long val=rand();
-        val=val*rand();
-    enq(q, i);
+    //case to insert an item
+    if(buf[0]=='A'){
+      char* end;
+      enq(q, strtoull(buf+2,&end, 10));
+    }
+
+    //case to query (high chance its in there)
+    else if(buf[0]=='T'){
+      char* end;
+      if(!searchq(q, strtoull(buf+2,&end, 10))){
+	//	printf("big fuck up\n");
+      }
+    }
+
+    //case2 to query (very lower chance its in there if using ULL)
+    else if(buf[0]=='Q'){
+      char* end;
+      if(searchq(q, strtoull(buf+2,&end, 10))){
+	//	printf("questionable hit\n");
+      }
+    }
+    else{
+      //if you see this something is wrong
+      printf("bad file %s\n", buf);
+    }
   }
+  fclose(fp);
 }
 
 int main(int argc, char**argv){
   if(argc!=4){
-    printf("usage: prog initsize runs num_threads\n");
+    printf("usage: prog initsize num_threads tracefile\n");
   }
   initSize=atoi(argv[1]);
-  runs=atoi(argv[2]);
-  num_threads=atoi(argv[3]);
+  num_threads=atoi(argv[2]);
+  strcpy(path, argv[3]);
   que** q=(que**)malloc(sizeof(que*)*initSize);
   start(q, initSize);
 
@@ -171,7 +221,12 @@ int main(int argc, char**argv){
     CPU_SET(i%cores, &sets[i]);
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
-    pthread_create(&threads[i], &attr,run,(void*)q);
+
+    t_args* temp=(t_args*)malloc(sizeof(t_args));
+    temp->q=q;
+    temp->t_num=i;
+
+    pthread_create(&threads[i], &attr,run,(void*)temp);
 
 
   }
@@ -193,6 +248,5 @@ int main(int argc, char**argv){
 
   }
   }
-  printf("amt=%d\n", amt-initSize);
-  }*/
+  printf("amt=%d\n", amt-initSize);*/
 }

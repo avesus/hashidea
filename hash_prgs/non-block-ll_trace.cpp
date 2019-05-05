@@ -14,8 +14,7 @@
 //make: g++ -std=c++11 non-block-ll_trace.cpp -o non-block-ll_trace -mcx16 -lpthread -ggdb
 #define max_threads 32
 int num_threads=0;
-int runs=0;
-int initSize=1<<12;
+int initSize=1<<20;
 char path[64]="";
 
 
@@ -142,7 +141,7 @@ public:
         while (true) { // E4
       if(!(Head[bucket].load() == Tail[bucket].load())){
 	//      tail = Head.load(); // E5
-	tail=tail.ptr->next;
+	//	tail=tail.ptr->next;
 
       while((tail.ptr!=NULL)){
 	if(tail.ptr->value==value){
@@ -173,7 +172,10 @@ public:
     } // E16
 
     Tail[bucket].compare_exchange_weak(tail, pointer_t{node, tail.count + 1}); // E17
-  }
+    }
+      
+
+
 };
 
 
@@ -212,7 +214,7 @@ void* run(void* argp){
 int main(int argc, char** argv){
   srand(time(NULL));
   if(argc!=3){
-    printf("usage: prog runs num_threads\n");
+    printf("usage: prog num_threads path\n");
   }
   num_threads=atoi(argv[1]);
   strcpy(path, argv[2]);
@@ -240,7 +242,7 @@ int main(int argc, char** argv){
 
 
   //comment this out for performance test.
-    int count=0;
+  /*    int count=0;
   for(int i =0;i<initSize;i++){
   auto temp =queue.Head[i].load();
   temp=temp.ptr->next;
@@ -249,5 +251,5 @@ int main(int argc, char** argv){
     temp=temp.ptr->next;
   }
   }
-  printf("count=%d\n",count);
+  printf("count=%d\n",count);*/
 }

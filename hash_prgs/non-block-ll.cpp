@@ -15,7 +15,7 @@
 #define max_threads 32
 int num_threads=0;
 int runs=0;
-int initSize=1<<10;
+int initSize=1<<20;
 
 
 
@@ -141,7 +141,7 @@ public:
         while (true) { // E4
       if(!(Head[bucket].load() == Tail[bucket].load())){
 	//      tail = Head.load(); // E5
-	tail=tail.ptr->next;
+	//tail=tail.ptr->next;
 
       while((tail.ptr!=NULL)){
 	if(tail.ptr->value==value){
@@ -219,10 +219,10 @@ int main(int argc, char** argv){
     pthread_join(threads[r], NULL);
     
   }
-    int count=0;
-  for(int i =0;i<initSize;i++){
-  auto temp =queue.Head[i].load();
-  temp=temp.ptr->next;
+  //    int count=0;
+  //  for(int i =0;i<initSize;i++){
+  //  auto temp =queue.Head[i].load();
+  /*  temp=temp.ptr->next;
   //  printf("%d: ", i);
   while(temp.ptr){
 
@@ -232,5 +232,5 @@ int main(int argc, char** argv){
   }
   //  printf("\n");
   }
-  printf("count=%d\n",count);
+  printf("count=%d\n",count);*/
 }

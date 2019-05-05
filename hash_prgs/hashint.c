@@ -22,13 +22,15 @@
 #define unk -2
 #define max_threads 32 //number of threads to test with
 #define table_bound (1<<20)
+//#define expec 100
 
 int initSize=0;
 int runs=0;
 int num_threads=0;
 int vsize=0;
-//int barrier=0;
-//pthread_mutex_t cm;
+int barrier=0;
+pthread_mutex_t cm;
+
 struct h_head* global=NULL;
 
 
@@ -49,6 +51,7 @@ typedef struct ret_val{
   h_table* ht;
   int slot;
   int index;
+  int snum;
 }ret_val;
 
 //head of cache
@@ -63,7 +66,7 @@ typedef struct hashSeeds{
   unsigned long rand2;
 }hashSeeds;
 
-int tryAdd(int_ent* ent, unsigned int* seeds, int start);
+int checkTable(int_ent* ent, unsigned int* seeds, int start);
 
 
 //string hashing function (just universal vector hash)
@@ -152,7 +155,7 @@ int checkTableQuery(int_ent* ent, unsigned int* seeds){
 h_table* createTable(int n_size){
   h_table* ht=(h_table*)malloc(sizeof(h_table));
   ht->t_size=n_size;
-  ht->s_table=(int_ent**)calloc(sizeof(int_ent*),(ht->t_size));
+  ht->s_table=(int_ent**)malloc(sizeof(int_ent*)*(ht->t_size));
   //  ht->next=NULL;
   return ht;
 }
@@ -161,9 +164,6 @@ void freeTable(h_table* ht){
   free(ht);
 }
 
-int max(int a, int b){
-  return a*(a>b)+b*(b>=a);
-}
 //add new table to list of tables
 int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
   h_table* expected=NULL;
@@ -174,7 +174,7 @@ int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    tryAdd(ent, seeds,1);
+    checkTable(ent, seeds,1);
   }
   else{
     freeTable(toadd);
@@ -183,7 +183,7 @@ int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    tryAdd(ent, seeds, 1);
+    checkTable(ent, seeds, 1);
   }
   return 0;
 }
@@ -205,7 +205,37 @@ int lookup(int_ent** s_table,int_ent* ent, unsigned int seeds, int slots){
 }
 
 //check if an item is found in the table, if not make new table and store it
-ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
+/*
+ret_val checkTable(int_ent* ent, unsigned int* seeds, int start, int seed_num){
+  int startCur=global->cur;
+  h_table* ht=NULL;
+  for(int j=start;j<global->cur;j++){
+    ht=global->tt[j];
+    for(int i =seed_num;i<vsize;i++){
+      int res=lookup(ht->s_table, ent, seeds[i], ht->t_size);
+      if(res==unk){ //unkown if in our not
+	continue;
+      }
+      if(res==in){ //is in
+	ret_val ret={ .ht=NULL, .slot=0, .index=j, .snum=i};
+	return ret;
+      }
+      //not in (we got null so it would have been there)
+      ret_val ret={ .ht=ht, .slot=res, .index=j, .snum=i};
+      return ret;
+    }
+    startCur=global->cur;
+    //    ht=ht->next;
+  }
+
+  
+  
+  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
+  addDrop(ent, seeds, new_table, startCur);
+}
+*/
+
+int checkTable(int_ent* ent, unsigned int* seeds, int start){
   int startCur=global->cur;
   h_table* ht=NULL;
   for(int j=start;j<global->cur;j++){
@@ -216,12 +246,22 @@ ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
 	continue;
       }
       if(res==in){ //is in
-	ret_val ret={ .ht=NULL, .slot=0, .index=j};
-	return ret;
+	return 0;
       }
-      //not in (we got null so it would have been there)
-      ret_val ret={ .ht=ht, .slot=res, .index=j};
-      return ret;
+
+      int_ent* expected=NULL;
+      int cmp= __atomic_compare_exchange(&ht->s_table[res],
+					&expected,
+					&ent,
+					1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+      if(cmp){
+	return 0;
+      }
+      else{
+	if(ht->s_table[res]->val==ent->val){
+	  return 0;
+	}
+      }
     }
     startCur=global->cur;
     //    ht=ht->next;
@@ -241,9 +281,10 @@ ret_val checkTable(int_ent* ent, unsigned int* seeds, int start){
   addDrop(ent, seeds, new_table, startCur);
 }
 
+
 //add item using ret_val struct info
-int tryAdd(int_ent* ent, unsigned int* seeds, int start){
-  ret_val loc=checkTable(ent, seeds, start);
+int tryAdd(int_ent* ent, unsigned int* seeds, int start, int seed_num){
+  ret_val loc;//=checkTable(ent, seeds, start);//, seed_num);
   int_ent* expected=NULL;
   if(loc.ht){
     int res = __atomic_compare_exchange(&loc.ht->s_table[loc.slot],
@@ -254,7 +295,7 @@ int tryAdd(int_ent* ent, unsigned int* seeds, int start){
       return 0;
     }
     else{
-      tryAdd(ent, seeds, loc.index);
+      tryAdd(ent, seeds, loc.index, loc.snum-(loc.snum!=0));
     }
   }
   return 0;
@@ -263,31 +304,35 @@ int tryAdd(int_ent* ent, unsigned int* seeds, int start){
 //print table (smallest to largest, also computes total items)
 
 void printTables(unsigned int* seeds){
-  FILE* fp = fopen("output.txt","wa");
+  FILE* fp = stdout;//fopen("output.txt","wa");
   int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
     items[j]=0;
-          fprintf(fp, "Table Size: %d\n", ht->t_size);
+    //     fprintf(fp, "Table Size: %d\n", ht->t_size);
     for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
-       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
+	//	       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
+	//	fprintf(fp, "%lu", ht->s_table[i]->val);
 	free(ht->s_table[i]);
 	items[j]++;
 	count++;
       }
       else{
-			fprintf(fp,"%d: NULL\n", i);
+	//		fprintf(fp,"%d: NULL\n", i);
       }
     }
-       fprintf(fp,"\n\n\n");
+    //       fprintf(fp,"\n\n\n");
 	//    ht=ht->next;
   }
-
-    fprintf(fp,"------------------start----------------\n");
-  fprintf(fp,"count=%d\n", count);
+  
+  //    fprintf(fp,"------------------start----------------\n");
+  //      if(count!=expec){
+  //      printf("fuck up\n");
+  //    }
+     fprintf(fp,"count=%d\n", count);
   for(int i =0;i<vsize;i++){
     printf("r1: %u\n", seeds[i]);
   }
@@ -299,21 +344,28 @@ void printTables(unsigned int* seeds){
     free(temp);
   }
   fprintf(fp,"------------------end----------------\n");
+
 }
 
 
 void* run(void* argp){
 
   unsigned int* seeds=(unsigned int*)argp;
-
-
+  //    pthread_mutex_lock(&cm);
+    //    barrier++;
+    //    pthread_mutex_unlock(&cm);
+    //    printf("here, %d, %d\n", barrier, num_threads);
+    //    while(barrier<num_threads){
+      //    printf("here2, %d, %d\n", barrier, num_threads);    
+    //    }
 
   for(int i =0;i<(runs);i++){
     int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
     unsigned long temp=rand();
-    testAdd->val=rand();
-    testAdd->val=testAdd->val*temp;
-    tryAdd(testAdd, seeds, 0);
+      testAdd->val=rand();
+        testAdd->val=testAdd->val*temp;
+    //    testAdd->val=rand()%expec;
+    checkTable(testAdd, seeds, 0);
     
    
      
@@ -338,7 +390,7 @@ int main(int argc, char** argv){
   }
 
   global=(h_head*)malloc(sizeof(h_head));
-  global->tt=(h_table**)calloc(max_tables,sizeof(h_table*));
+  global->tt=(h_table**)malloc(max_tables*sizeof(h_table*));
   global->cur=1;
   global->tt[0]=createTable(initSize);
 
@@ -363,6 +415,7 @@ int main(int argc, char** argv){
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
     pthread_create(&threads[i], &attr,run,(void*)seeds);
+
   }
   for(int i =0;i<num_threads;i++){
     pthread_join(threads[i], NULL);
@@ -370,9 +423,9 @@ int main(int argc, char** argv){
 
 
    
-      printTables(seeds);
-      free(global);
-      free(seeds);
+  //         printTables(seeds);
+  //       free(global);
+  //       free(seeds);
 
   
 
