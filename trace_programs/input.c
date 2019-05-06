@@ -14,10 +14,10 @@ int main(int argc, char** argv){
   amt=1<<amt;
   char buf[32]="";
   if(b){
-    sprintf(buf,"inputs/ull%d.txt" ,amt);
+    sprintf(buf,"../inputs/ull%d.txt" ,amt);
   }
   else{
-    sprintf(buf,"inputs/int%d.txt" ,amt);
+    sprintf(buf,"../inputs/int%d.txt" ,amt);
   }
   FILE* fp = fopen(buf,"wa");
   for(int i =0;i<amt;i++){

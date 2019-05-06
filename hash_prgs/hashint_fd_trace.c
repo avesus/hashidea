@@ -8,69 +8,64 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
+#include<sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+//todo: check if fail cas, volatile types
 
-//check if fail cas, volatile types
 
-//1048072+2095328+4076616+3767649+5883524+4784952+7124525+3552408+1197798+7432
-#define ssize 32 //string size of entry/vector size
 #define max_tables 64 //max tables to create
-//#define vsize 15 //amount of times you want to try and hash
-//#define initSize (1) //starting table size
-//#define runs 1<<4
+
+//constants for returns of lookup fun
 #define notIn 0 
 #define in -1
 #define unk -2
-#define max_threads 32 //number of threads to test with
-#define table_bound (1<<20)
-//#define expec 100
 
+
+#define max_threads 32 //number of threads to test with
+
+//size of struct (for murmur_hash)
+#define d_size  sizeof(struct int_ent)
+
+//globals defining what to do
 int initSize=0;
 int runs=0;
 int num_threads=0;
 int vsize=0;
-int barrier=0;
-pthread_mutex_t cm;
-int failed=0;
+char path[32]="";
+
+//pointer to table
 struct h_head* global=NULL;
 
 
 //items to be hashed
 typedef struct int_ent{
-  unsigned long val;
+   unsigned long val;
 }int_ent;
 
 //a table
 typedef struct h_table{
-  //  struct h_table* next; //next table
-  int_ent** s_table; //rows (table itself)
-  int t_size; //size
+   int_ent** s_table; //rows (table itself)
+   int t_size; //size
 }h_table;
 
-//return value for a match, can look up item in slot of table
-typedef struct ret_val{
-  h_table* ht;
-  int slot;
-  int index;
-  int snum;
-}ret_val;
 
 //head of cache
 typedef struct h_head{
-  h_table** tt; //array of tables
-  int cur; //current max index (max exclusive)
+   h_table** tt; //array of tables
+   int cur; //current max index (max exclusive)
 }h_head;
 
+typedef struct t_args{
+    unsigned int * seeds;
+    int t_num;
+}t_args;
 
-typedef struct hashSeeds{
-  unsigned long rand1;
-  unsigned long rand2;
-}hashSeeds;
-
-int checkTable(int_ent* ent, unsigned int* seeds, int start);
+int checkTable(   int_ent* ent, unsigned int* seeds, int start);
 
 
-//string hashing function (just universal vector hash)
-
+//murmur hash, a little research made me think this is best one to use
+//this implimentation copied from wikipedia
 uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 {
   uint32_t h = seed;
@@ -115,22 +110,23 @@ uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 
 
 
-
-int lookupQuery(int_ent** s_table,int_ent*ent, unsigned int seeds, int slots){
-  unsigned int s=murmur3_32(&ent->val, 8, seeds)%slots;
+//exact same as lookup but different returns
+int lookupQuery(   int_ent** s_table,   int_ent*ent, unsigned int seeds, int slots){
+  unsigned int s=murmur3_32(&ent->val, d_size, seeds)%slots;
   if(s_table[s]==NULL){
     return notIn;
   }
   else if(ent->val==s_table[s]->val){
-    return s;
+    return in;
   }
   return unk;
 }
 
 
-int checkTableQuery(int_ent* ent, unsigned int* seeds){
+//basically exact same logic as checktable but different returns
+int checkTableQuery(  int_ent* ent, unsigned int* seeds){
   
-  h_table* ht=NULL;
+     h_table* ht=NULL;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
     for(int i =0;i<vsize;i++){
@@ -138,10 +134,10 @@ int checkTableQuery(int_ent* ent, unsigned int* seeds){
       if(res==unk){ //unkown if in our not
 	continue;
       }
-      if(res==notIn){ //is in
+      if(res==notIn){ //not in (we got null)
 	return 0;
       }
-      //not in (we got null so it would have been there)
+      //is in 
       
       return 1;
     }
@@ -152,24 +148,27 @@ int checkTableQuery(int_ent* ent, unsigned int* seeds){
 
 
 //create a new table of size n
-h_table* createTable(int n_size){
-  h_table* ht=(h_table*)malloc(sizeof(h_table));
+   h_table* createTable(int n_size){
+    h_table* ht=(h_table*)malloc(sizeof(h_table));
   ht->t_size=n_size;
-  ht->s_table=(int_ent**)malloc(sizeof(int_ent*)*(ht->t_size));
+  ht->s_table=(   int_ent**)malloc(sizeof(int_ent*)*(ht->t_size));
   //  ht->next=NULL;
   return ht;
 }
 
-void freeTable(h_table* ht){
-  free(ht);
+//very complicated function here
+void freeTable(   h_table* ht){
+  free((void*)ht);
 }
 
+
 //add new table to list of tables
-int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
+int addDrop(   int_ent* ent, unsigned int* seeds,   h_table* toadd, int tt_size){
+  printf("here\n");
   h_table* expected=NULL;
   int res = __atomic_compare_exchange(&global->tt[tt_size] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
-    int newSize=tt_size+1;
+       int newSize=tt_size+1;
     __atomic_compare_exchange(&global->cur,
 			      &tt_size,
 			      &newSize,
@@ -178,7 +177,7 @@ int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
   }
   else{
     freeTable(toadd);
-    int newSize=tt_size+1;
+      int newSize=tt_size+1;
     __atomic_compare_exchange(&global->cur,
 			      &tt_size,
 			      &newSize,
@@ -189,13 +188,10 @@ int addDrop(int_ent* ent, unsigned int* seeds,h_table* toadd, int tt_size){
 }
 
 //check if entry for a given hashing vector is in a table
-int lookup(int_ent** s_table,int_ent* ent, unsigned int seeds, int slots){
-
-  //  unsigned int s=hashInt(ent->val, slots, seeds);
-  //  unsigned int s=murmur_hash_64(ent->val, 8, seeds.rand1, slots);
-
-    unsigned int s= murmur3_32(&ent->val, 8, seeds)%slots;
+int lookup(   int_ent** s_table,   int_ent* ent, unsigned int seeds, int slots){
+  unsigned int s= murmur3_32(&ent->val, d_size, seeds)%slots;
   if(s_table[s]==NULL){
+    //nothing there so return slot so can try and CAS
     return s;
   }
   else if(s_table[s]->val==ent->val){
@@ -204,40 +200,12 @@ int lookup(int_ent** s_table,int_ent* ent, unsigned int seeds, int slots){
   return unk;
 }
 
-//check if an item is found in the table, if not make new table and store it
-/*
-ret_val checkTable(int_ent* ent, unsigned int* seeds, int start, int seed_num){
-  int startCur=global->cur;
-  h_table* ht=NULL;
-  for(int j=start;j<global->cur;j++){
-    ht=global->tt[j];
-    for(int i =seed_num;i<vsize;i++){
-      int res=lookup(ht->s_table, ent, seeds[i], ht->t_size);
-      if(res==unk){ //unkown if in our not
-	continue;
-      }
-      if(res==in){ //is in
-	ret_val ret={ .ht=NULL, .slot=0, .index=j, .snum=i};
-	return ret;
-      }
-      //not in (we got null so it would have been there)
-      ret_val ret={ .ht=ht, .slot=res, .index=j, .snum=i};
-      return ret;
-    }
-    startCur=global->cur;
-    //    ht=ht->next;
-  }
 
-  
-  
-  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
-  addDrop(ent, seeds, new_table, startCur);
-}
-*/
 
-int checkTable(int_ent* ent, unsigned int* seeds, int start){
+
+int checkTable(   int_ent* ent, unsigned int* seeds, int start){
   int startCur=global->cur;
-  h_table* ht=NULL;
+     h_table* ht=NULL;
   for(int j=start;j<global->cur;j++){
     ht=global->tt[j];
     for(int i =0;i<vsize;i++){
@@ -249,7 +217,7 @@ int checkTable(int_ent* ent, unsigned int* seeds, int start){
 	return 0;
       }
 
-      int_ent* expected=NULL;
+         int_ent* expected=NULL;
       int cmp= __atomic_compare_exchange(&ht->s_table[res],
 					&expected,
 					&ent,
@@ -258,7 +226,6 @@ int checkTable(int_ent* ent, unsigned int* seeds, int start){
 	return 0;
       }
       else{
-	failed++;
 	if(ht->s_table[res]->val==ent->val){
 	  return 0;
 	}
@@ -266,7 +233,7 @@ int checkTable(int_ent* ent, unsigned int* seeds, int start){
     }
     startCur=global->cur;
     //    ht=ht->next;
-  }
+    }
 
   //create new table
   /*  int new_size=0;
@@ -278,45 +245,27 @@ int checkTable(int_ent* ent, unsigned int* seeds, int start){
   }
 
   h_table* new_table=createTable(new_size);*/
-  h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
+     h_table* new_table=createTable(global->tt[startCur-1]->t_size<<1);
   addDrop(ent, seeds, new_table, startCur);
 }
 
 
-//add item using ret_val struct info
-int tryAdd(int_ent* ent, unsigned int* seeds, int start, int seed_num){
-  ret_val loc;//=checkTable(ent, seeds, start);//, seed_num);
-  int_ent* expected=NULL;
-  if(loc.ht){
-    int res = __atomic_compare_exchange(&loc.ht->s_table[loc.slot],
-					&expected,
-					&ent,
-					1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    if(res){
-      return 0;
-    }
-    else{
-      tryAdd(ent, seeds, loc.index, loc.snum-(loc.snum!=0));
-    }
-  }
-  return 0;
-}
-
 //print table (smallest to largest, also computes total items)
-
+//and some other useful information
 void printTables(unsigned int* seeds){
-  FILE* fp = stdout;//fopen("output.txt","wa");
+  FILE* fp = stdout;//fopen("output.txt","a"); //outputs to file, change fp to whatever you want
   int* items=(int*)malloc(sizeof(int)*global->cur);
   h_table* ht=NULL;
   int count=0;
   for(int j=0;j<global->cur;j++){
     ht=global->tt[j];
     items[j]=0;
-    //     fprintf(fp, "Table Size: %d\n", ht->t_size);
+    //uncomment these prints if you want to see exact output (dont do this for big files)
+
+    //          fprintf(fp, "Table Size: %d\n", ht->t_size);
     for(int i =0;i<ht->t_size;i++){
       if(ht->s_table[i]!=NULL){
-	//	       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val);
-	//	fprintf(fp, "%lu", ht->s_table[i]->val);
+	//       	fprintf(fp, "%d: %lu\n",i,ht->s_table[i]->val); 
 	free(ht->s_table[i]);
 	items[j]++;
 	count++;
@@ -326,17 +275,12 @@ void printTables(unsigned int* seeds){
       }
     }
     //       fprintf(fp,"\n\n\n");
-	//    ht=ht->next;
   }
-  
-  //    fprintf(fp,"------------------start----------------\n");
-  //      if(count!=expec){
-  //      printf("fuck up\n");
-  //    }
-     fprintf(fp,"count=%d\n", count);
-  for(int i =0;i<vsize;i++){
-    printf("r1: %u\n", seeds[i]);
-  }
+
+  //like report I find useful
+  fprintf(fp,"------------------start %d %d----------------\n", initSize, vsize);
+  fprintf(fp,"count=%d\n", count);
+
   h_table* temp=NULL;
   fprintf(fp,"tables:\n");
   for(int j=0;j<global->cur;j++){
@@ -345,61 +289,89 @@ void printTables(unsigned int* seeds){
     free(temp);
   }
   fprintf(fp,"------------------end----------------\n");
-
 }
 
 
+//each threas function
 void* run(void* argp){
 
-  unsigned int* seeds=(unsigned int*)argp;
-  //    pthread_mutex_lock(&cm);
-    //    barrier++;
-    //    pthread_mutex_unlock(&cm);
-    //    printf("here, %d, %d\n", barrier, num_threads);
-    //    while(barrier<num_threads){
-      //    printf("here2, %d, %d\n", barrier, num_threads);    
-    //    }
+  t_args* args = (t_args*)argp;
 
-  for(int i =0;i<(runs);i++){
-    int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
-    unsigned long temp=rand();
-      testAdd->val=rand();
-        testAdd->val=testAdd->val*temp;
-    //    testAdd->val=rand()%expec;
-    checkTable(testAdd, seeds, 0);
-    
-   
-     
-    
+  unsigned int* seeds=args->seeds;
+  int t_num=args->t_num;
+  free(args);
+   char local_path[64]="";
+
+  //getting its own trace file (p<num>.txt)
+    sprintf(local_path,"%sp%d.txt", path, t_num);
+    //      FILE* fp=fopen(local_path, "r");
+    int fd=open(local_path,O_CREAT | O_RDONLY, S_IRUSR | S_IWUSR);
+    char buf[64]="";
+
+  //running
+    int re =0;
+    while((re=read(fd, &buf, 22))>0){
+    //case to insert an item
+    if(buf[0]=='A'){
+      char* end;
+         int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      checkTable(testAdd, seeds, 0);
+    }
+
+    //case to query (high chance its in there)
+    else if(buf[0]=='T'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      checkTableQuery(testAdd, seeds);
+    }
+
+    //case2 to query (very lower chance its in there if using ULL)
+    else if(buf[0]=='Q'){
+      char* end;
+      int_ent* testAdd=(int_ent*)malloc(sizeof(int_ent));
+      testAdd->val=strtoull(buf+2,&end, 10);
+      checkTableQuery(testAdd, seeds);
+    }
+    else{
+
+      //if you see this something is wrong
+      printf("bad file %s\n", buf);
+    }
   }
+  close(fd);
 }
 int main(int argc, char** argv){
 
-
+  //check args
   if(argc!=5){
     printf("5 args\n");
     exit(0);
   }
 
+  //srand each time for new seeds etc..
   srand(time(NULL));
+
+  //initialize values from usage input
   initSize=atoi(argv[1]);
-  runs=atoi(argv[2]);
-  num_threads=atoi(argv[3]);
-  vsize=atoi(argv[4]);
+  num_threads=atoi(argv[2]);
+  vsize=atoi(argv[3]);
+  strcpy(path, argv[4]);
   if(num_threads>max_threads){
     num_threads=max_threads;
   }
 
-  global=(h_head*)malloc(sizeof(h_head));
-  global->tt=(h_table**)malloc(max_tables*sizeof(h_table*));
+  //initialize first table
+  global=(  h_head*)malloc(sizeof(h_head));
+  global->tt=(  h_table**)malloc(max_tables*sizeof(h_table*));
   global->cur=1;
   global->tt[0]=createTable(initSize);
 
-  //  hashSeeds* seeds=(hashSeeds*)malloc(sizeof(hashSeeds)*vsize);
+  //create hash seeds
   unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
   for(int i =0;i<vsize;i++){
     seeds[i]=rand();
-
   }
 
   
@@ -412,21 +384,23 @@ int main(int argc, char** argv){
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
     CPU_ZERO(&sets[i]);
-    CPU_SET(i, &sets[i]);
+    CPU_SET(i, &sets[i]); //mode i by num cores if you are doing more threads than cores
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
-    pthread_create(&threads[i], &attr,run,(void*)seeds);
-
+    t_args* temp=(t_args*)malloc(sizeof(t_args));
+    temp->seeds=seeds;
+    temp->t_num=i;
+    pthread_create(&threads[i], &attr,run,(void*)temp);
   }
   for(int i =0;i<num_threads;i++){
     pthread_join(threads[i], NULL);
   }
 
-  printf("failed = %d\n", failed);
-   
-  //           printTables(seeds);
-	   //         free(global);
-	 //       free(seeds);
+
+  //comment these out for performance testing   
+       printTables(seeds);
+            free(global);
+          free(seeds);
 
   
 

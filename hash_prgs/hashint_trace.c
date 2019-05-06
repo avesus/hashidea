@@ -23,7 +23,7 @@
 #define max_threads 32 //number of threads to test with
 
 //size of struct (for murmur_hash)
-#define d_size  sizeof(struct int_ent)
+
 
 //globals defining what to do
 int initSize=0;
@@ -33,7 +33,7 @@ int vsize=0;
 char path[32]="";
 
 //pointer to table
-volatile struct h_head* global=NULL;
+struct h_head* global=NULL;
 
 
 //items to be hashed
@@ -110,7 +110,7 @@ uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
 
 //exact same as lookup but different returns
 int lookupQuery(   int_ent** s_table,   int_ent*ent, unsigned int seeds, int slots){
-  unsigned int s=murmur3_32(&ent->val, d_size, seeds)%slots;
+  unsigned int s=murmur3_32(&ent->val, 8, seeds)%slots;
   if(s_table[s]==NULL){
     return notIn;
   }
@@ -186,7 +186,7 @@ int addDrop(   int_ent* ent, unsigned int* seeds,   h_table* toadd, int tt_size)
 
 //check if entry for a given hashing vector is in a table
 int lookup(   int_ent** s_table,   int_ent* ent, unsigned int seeds, int slots){
-  unsigned int s= murmur3_32(&ent->val, d_size, seeds)%slots;
+  unsigned int s= murmur3_32(&ent->val, 8, seeds)%slots;
   if(s_table[s]==NULL){
     //nothing there so return slot so can try and CAS
     return s;
@@ -298,8 +298,7 @@ void* run(void* argp){
   int t_num=args->t_num;
   free(args);
    char local_path[64]="";
-
-  //getting its own trace file (p<num>.txt)
+   //getting its own trace file (p<num>.txt)
     sprintf(local_path,"%sp%d.txt", path, t_num);
   FILE* fp=fopen(local_path, "r");
   char buf[64]="";
@@ -376,11 +375,12 @@ int main(int argc, char** argv){
   int cores=sysconf(_SC_NPROCESSORS_ONLN);
   pthread_t threads[max_threads];
   pthread_attr_t attr;
-  pthread_attr_init(&attr);
+    pthread_attr_init(&attr);
   cpu_set_t sets[max_threads];
   for(int i =0;i<num_threads;i++){
+
     CPU_ZERO(&sets[i]);
-    CPU_SET(i, &sets[i]); //mode i by num cores if you are doing more threads than cores
+    CPU_SET(i%cores, &sets[i]); //mode i by num cores if you are doing more threads than cores
     threads[i]=pthread_self();
     pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
     t_args* temp=(t_args*)malloc(sizeof(t_args));
@@ -394,9 +394,9 @@ int main(int argc, char** argv){
 
 
   //comment these out for performance testing   
-  //      printTables(seeds);
-      //      free(global);
-      //    free(seeds);
+		      //       printTables(seeds);
+		      //            free(global);
+		      //          free(seeds);
 
   
 

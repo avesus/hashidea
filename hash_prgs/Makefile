@@ -1,5 +1,5 @@
 C = gcc
-CFLAGS= -std=c99 -O3
+CFLAGS= -std=c99
 LDLIBS=  -lpthread
 
 all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2 me-nb-ll me-nb-ll_trace
