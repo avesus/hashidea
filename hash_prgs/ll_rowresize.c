@@ -204,14 +204,13 @@ void enq(node* new_node){
    return;
  }
 
+
    if(getPtr(tail.ptr)==getPtr(t->q[bucket]->tail.ptr)){
      if(getPtr(next.ptr)==NULL){
        
        int pval=getAmt(tail.ptr)+1;
+       // printf("pval=%d\n",pval);
        if(pval>=max_ele){
-	 //	 if(searchq(t->q, getPtr(new_node)->val)){
-	 //	   return;
-	 //	 }
 	 break;
        }
        volatile pointer p=makeFrom(new_node, pval);
@@ -224,12 +223,13 @@ void enq(node* new_node){
 	    return;
 	  }
 	  int pval=getAmt(next.ptr);
-	  if(pval>=max_ele){
-	    //	    if(searchq(t->q, getPtr(new_node)->val)){
-	    //	      return;
-	    //	    }
+	  //	         printf("pval=%d\n",pval);
+	  /*	  if(pval>=max_ele){
+	    	    if(searchq(t->q, getPtr(new_node)->val)){
+	    	      return;
+	    	    }
 	    break;
-	  }
+	    }*/
 	  volatile pointer p2=makeFrom(next.ptr, pval);
 	  if(__atomic_compare_exchange((pointer*)&t->q[bucket]->tail ,(pointer*)&tail, (pointer*)&p2, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
 	  }
@@ -238,7 +238,8 @@ void enq(node* new_node){
     }
   }
   if(should_hit){
-    int pval=getAmt(t->q[bucket]->tail.ptr);
+    int pval=getAmt(t->q[bucket]->tail.ptr)+1;
+    //    printf("pval=%d\n",pval);
     volatile pointer p3=makeFrom(new_node, pval);
   if(__atomic_compare_exchange((pointer*)&t->q[bucket]->tail ,(pointer*)&tail, (pointer*)&p3, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
   }
@@ -258,7 +259,7 @@ void printTable(int todo){
   int r_amt=0;
   for(int j =0;j<global->cur;j++){
     t=global->t[j];
-    //        printf("Table %d Size %d\n", j, t->size);
+            printf("Table %d Size %d\n", j, t->size);
     extra+=t->size;
  for(int i =0;i<t->size;i++){
    volatile node* temp=getPtr(t->q[i]->head.ptr);
@@ -275,7 +276,7 @@ void printTable(int todo){
       if(todo)
 	printf("%p - (%d) %lu, ", getPtr(temp),pval,temp->val);
       if(pval!=r_amt||pval>=max_ele){
-	//	printf("fuck up\n");
+		printf("fuck up\n");
       }
       
       pval=getAmt(temp->next.ptr);
@@ -301,7 +302,6 @@ void* run(void* argp){
   while(barrier<num_threads){
 
   }
-
   for(int i =0;i<(runs);i++){
         unsigned long val=rand();
         val=val*rand();
@@ -309,7 +309,7 @@ void* run(void* argp){
 	
 	new_node->next.ptr=NULL;
 	new_node->val=i;
-    enq(new_node);
+	enq(new_node);
   }
 }
 

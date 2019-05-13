@@ -48,7 +48,7 @@ typedef struct g_head{
 }g_head;
 
 
-void enq(node* new_node, int start);
+void enq(node* new_node, int start, int b);
 void freeTable(table* toadd){
   for(int i =0;i<toadd->size;i++){
     free(toadd->q[i]);
@@ -86,7 +86,7 @@ int addDrop(node* ele ,table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    enq(ele,0);
+    enq(ele,0,-1);
   }
   else{
     freeTable(toadd);
@@ -95,7 +95,7 @@ int addDrop(node* ele ,table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    enq(ele,0);
+    enq(ele,0,-1);
   }
   return 0;
 }
@@ -148,14 +148,19 @@ volatile pointer makeFrom(volatile node* new_node){
   return p;
 }
 
-void enq(node* new_node, int start){
+void enq(node* new_node, int start, int b){
   //  printf("adding %lu\n", new_node->val);
   int startCur=global->cur;
   table* t;
   for(int i =start;i<global->cur;i++){
     t=global->t[i];
-  unsigned int bucket= murmur3_32(&new_node->val, 8, seeds)%t->size;
-
+    unsigned int bucket;
+    if(b>=0){
+      bucket=b;
+    }
+  else{
+    bucket= murmur3_32(&new_node->val, 8, seeds)%t->size;
+  }
   volatile pointer tail;
   volatile pointer next;
   tail=t->q[bucket]->head;
@@ -176,6 +181,7 @@ void enq(node* new_node, int start){
  }
  if(!t->q[bucket]->tail.ptr->val){
    if(new_node->val){
+     //printf("next at %lu in %d\n", new_node->val, i);
    break;
    }
    else{
@@ -183,12 +189,13 @@ void enq(node* new_node, int start){
    }
  }
  if(t->items>(max_ele*t->size)&&new_node->val){
+   //   printf("here at %lu in %d\n", new_node->val, i);
    node* end_node = (node*)malloc(sizeof(node));
    end_node->next.ptr=NULL;
    end_node->val=0;
-   enq(end_node, i);
-
+   enq(end_node, i, bucket);
  }
+ // printf("add at %lu in %d\n", new_node->val, i);
 
     if(tail.ptr==t->q[bucket]->tail.ptr){
       if(next.ptr==NULL){
@@ -229,7 +236,7 @@ void printTable(int todo){
   int extra=0;
   for(int j =0;j<global->cur;j++){
     t=global->t[j];
-    //    printf("Table %d Size %d\n", j, t->size);
+    printf("Table %d Size %d vs %d\n", j, t->size, t->items);
     extra+=t->size;
  for(int i =0;i<t->size;i++){
   volatile node* temp=t->q[i]->head.ptr;
@@ -272,7 +279,7 @@ void* run(void* argp){
 	
 	new_node->next.ptr=NULL;
 	new_node->val=i;
-	enq(new_node, 0);
+	enq(new_node, 0,-1);
   }
 }
 
