@@ -2,6 +2,8 @@
 #include "timing.h"
 #include "util.h"
 
+extern int verbose;
+
 ////////////////////////////////////////////////////////////////
 // first version: Use clock_gettime, clock_getres
 //
@@ -28,10 +30,10 @@ endTimer(TimingStruct* ts) {
   s = clock_getres(clockID, &res);
   if (s) errdie("Could not get resolution");
   
-  fprintf(stderr, 
-	  "%ld %ld -> %ld %ld = %ld %ld by %ld %ld: %lu\n", 
-	  ts->tv_sec, ts->tv_nsec, end.tv_sec, end.tv_nsec, 
-	  secs, nano, res.tv_sec, res.tv_nsec, ((long)secs)*1000000000 + nano);
+  if (verbose) fprintf(stderr, 
+		       "%ld %ld -> %ld %ld = %ld %ld by %ld %ld: %lu\n", 
+		       ts->tv_sec, ts->tv_nsec, end.tv_sec, end.tv_nsec, 
+		       secs, nano, res.tv_sec, res.tv_nsec, ((long)secs)*1000000000 + nano);
   return ((long)secs)*1000000000L + nano;
 }
 
