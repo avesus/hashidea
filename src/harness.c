@@ -27,6 +27,7 @@ int nthreads = 1;
 int showthreadattr = 0;
 int trialsToRun = 0;
 double stopError = 0.0;
+int numInsertions = 100;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
@@ -50,6 +51,7 @@ static ArgOption args[] = {
   { KindOption, Set, 		"-v", 		0, &verbose, 		"Turn on verbosity" },
   { KindOption, Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
   { KindOption, Integer, 	"-l", 		0, &level, 		"Level" },
+  { KindOption, Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
   { KindOption, Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
   { KindOption, Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
   { KindOption, Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
@@ -178,6 +180,23 @@ endThreadTimer(int tid) {
 }
 
 ////////////////////////////////////////////////////////////////
+// probability distribution
+
+long int
+getVal(void)
+{
+  return random();
+}
+
+void
+insertTrial(HashTable* table, int n) {
+  for (int i=0; i<n; i++) {
+    long int val = getVal();
+    insertTable(table, val);
+  }
+}
+
+////////////////////////////////////////////////////////////////
 // main thread function: run
 
 void*
@@ -188,16 +207,23 @@ run(void* arg) {
 
   // if showing thread info, do so now
   if (showthreadattr) showThreadInfo();
+
+  int nipt = numInsertions/nthreads;
   
   notDone = 1;
   do {
+    // allocate hash table
+    HashTable* table = createTable(hsize);
     startThreadTimer(tid);
     // run trial
 
+    insertTrial(table, numInsertions);
+    
     // end trial
     nanoseconds ns = endThreadTimer(tid);
     // record time and see if we are done
     if (tid == 0) {
+      printf("%2d %9llu\n", trialNumber, ns);
       trialTimes[trialNumber++] = ns;
       if ((stopError != 0)&&(trialNumber > trialsToRun)) {
 	double median = getMedian(trialTimes, trialNumber);
@@ -211,6 +237,9 @@ run(void* arg) {
       } 
     }
     myBarrier(&endLoopBarrier);
+    // free table
+    freeTable(table);
+    
   } while (notDone);
 
   // when all done, let main thread know
