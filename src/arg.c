@@ -299,7 +299,8 @@ checkArgDef(ArgDefs* def)
   if (!hashelp) die(def, "No help string");
 }
 
-int parseArgs(int argc, char** argv, ArgDefs* def)
+int 
+parseArgs(int argc, char** argv, ArgDefs* def)
 {
   // get program name and commandline as a string
   pname = argv[0];
