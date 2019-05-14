@@ -13,8 +13,8 @@
 int num_threads=0;
 int runs=0;
 int initSize=0;
-//pthread_mutex_t cm; //various locks
-//int barrier=0;
+pthread_mutex_t cm; //various locks
+int barrier=0;
 unsigned int seeds=0;
 
 #define max_threads 32
@@ -136,15 +136,15 @@ void enq(que** q, unsigned long val){
 
 void* run(void* argp){
   que** q=(que**)argp;
-  /*  pthread_mutex_lock(&cm);
+    pthread_mutex_lock(&cm);
   barrier++;
   pthread_mutex_unlock(&cm);
   while(barrier<num_threads){
 
-  }*/
+  }
 
 
-  for(int i =0;i<(runs);i++){
+  for(int i =1;i<=(runs);i++){
         unsigned long val=rand();
         val=val*rand();
     enq(q, i);
@@ -182,7 +182,7 @@ int main(int argc, char**argv){
 
 
 
-  /*  int amt=0;
+    int amt=0;
   for(int i =0;i<initSize;i++){
   volatile node* temp=q[i]->head.ptr;
 
@@ -194,5 +194,5 @@ int main(int argc, char**argv){
   }
   }
   printf("amt=%d\n", amt-initSize);
-  }*/
 }
+

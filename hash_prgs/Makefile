@@ -2,7 +2,7 @@ C = gcc
 CFLAGS= -std=c99
 LDLIBS=  -lpthread
 
-all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2 me-nb-ll me-nb-ll_trace
+all: hash hashint lhi lh hashint2 hashint_trace hashint_trace2 me-nb-ll me-nb-ll_trace ll_rowresize ll_totalresize
 
 hash.o: hash.c
 	$(C) $(CFLAGS) -c hash.c $(LDLIBS)
@@ -18,6 +18,17 @@ me-nb-ll.o: me-nb-ll.c
 	$(C) $(CFLAGS) -c me-nb-ll.c $(LDLIBS)
 
 me-nb-ll: me-nb-ll.o
+
+ll_rowresize.o: ll_rowresize.c
+	$(C) $(CFLAGS) -c ll_rowresize.c $(LDLIBS)
+
+ll_rowresize: ll_rowresize.o
+
+ll_totalresize.o: ll_totalresize.c
+	$(C) $(CFLAGS) -c ll_totalresize.c $(LDLIBS)
+
+ll_totalresize: ll_totalresize.o
+
 
 me-nb-ll_trace.o: me-nb-ll_trace.c
 	$(C) $(CFLAGS) -c me-nb-ll_trace.c $(LDLIBS)
@@ -50,4 +61,4 @@ lh.o: lh.c
 lh: lh.o
 
 clean:
-	rm -f core.* *~ *.o ./#* hash hashint lh lhi hashint2 hashint_trace hashint_trace2 non-block-ll non-block-ll_trace me-nb-ll me-nb-ll_trace
+	rm -f core.* *~ *.o ./#* hash hashint lh lhi hashint2 hashint_trace hashint_trace2 non-block-ll non-block-ll_trace me-nb-ll me-nb-ll_trace ll_rowresize ll_totalresize
