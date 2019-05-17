@@ -142,3 +142,65 @@ getMax(nanoseconds* trialTimes, int trialNumber) {
   return m;
 }
 
+
+
+double
+getMedianFloat(double* trialTimes, int trialNumber)
+{
+  double* tt = mycalloc(trialNumber, sizeof(double));
+  memcpy(tt, trialTimes, trialNumber*sizeof(double));
+  qsort(tt, trialNumber, sizeof(double), nanocomp);
+  double median;
+  if (trialNumber & 1) median = tt[trialNumber >> 1];
+  else median = (tt[trialNumber >> 1] + tt[(trialNumber >> 1)+1])/2.0;
+  free(tt);
+  return median;
+}
+
+double
+getMeanFloat(double* trialTimes, int trialNumber)
+{
+  double total = 0.0;
+  for (int x = 0; x<trialNumber; x++) {
+    total += (double)trialTimes[x];
+  }
+  return total/(double)trialNumber;
+}
+
+double
+getSDFloat(double* trialTimes, int trialNumber)
+{
+  double sum = 0.0;
+  double mean;
+  double sd = 0.0;
+  int i;
+
+  for(i=0; i<trialNumber; i++) {
+    sum += trialTimes[i];
+  }
+
+  mean = sum/(double)trialNumber;
+
+  for(i=0; i<trialNumber; i++)
+    sd += pow(trialTimes[i] - mean, 2);
+
+  return sqrt(sd/trialNumber);
+}
+
+double 
+getMinFloat(double* trialTimes, int trialNumber) {
+  double m = trialTimes[0];
+  for(int i=0; i<trialNumber; i++)
+    if (m > trialTimes[i]) m = trialTimes[i];
+  return m;
+}
+
+
+double 
+getMaxFloat(double* trialTimes, int trialNumber) {
+  double m = trialTimes[0];
+  for(int i=0; i<trialNumber; i++)
+    if (m < trialTimes[i]) m = trialTimes[i];
+  return m;
+}
+

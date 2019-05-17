@@ -2,8 +2,8 @@
 #include "hash.h"
 
 
-int lookupQuery(HashTable* ht, entry* ent, unsigned int seeds){
-  unsigned int s=murmur3_32(&ent->val, 8, seeds)%ht->TableSize;
+int lookupQuery(HashTable* ht, entry* ent, unsigned int seed){
+  unsigned int s=murmur3_32((const uint8_t *)&ent->val, 8, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
@@ -13,12 +13,12 @@ int lookupQuery(HashTable* ht, entry* ent, unsigned int seeds){
   return unk;
 }
 
-int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int HashAttempts){
+int checkTableQuery(TableHead* head, entry* ent){
   HashTable* ht=NULL;
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
-    for(int i =0;i<HashAttempts;i++){
-      int res=lookupQuery(ht->InnerTable, ent, seeds[i]);
+    for(int i =0;i<head->hashAttempts;i++){
+      int res=lookupQuery(ht, ent, head->seeds[i]);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -32,26 +32,30 @@ int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int HashAt
   return 0;
 }
 
-void freeAll(TableHead* head){
+double freeAll(TableHead* head, int last){
   
-  int* items=(int*)malloc(sizeof(int)*head->cur);
   HashTable* ht=NULL;
-  int count=0;
+  float count=0;
 
   for(int i = 0;i<head->cur; i++){
     ht=head->TableArray[i];
-    items[i]=0;
     for(int j =0;j<ht->TableSize;j++){
       if(ht->InnerTable[j]!=NULL){
 	free(ht->InnerTable[j]);
-	items[i]++;
 	count++;
       }
     }
     free(ht);
   }
-  free(head);
-  free(items);
+
+  
+  
+  free(head->TableArray);  
+  if(last){
+    free(head->seeds);
+    free(head);
+  }
+  return (double)((double)count)/(((double)(1<<head->cur)-1));
 }
 
 void freeTable(HashTable* ht){
@@ -60,9 +64,9 @@ void freeTable(HashTable* ht){
 
 
 //check if entry for a given hashing vector is in a table
-int lookup(HashTable* ht, entry* ent, unsigned int seeds){
+int lookup(HashTable* ht, entry* ent, unsigned int seed){
 
-  unsigned int s= murmur3_32(&ent->val, 8, seeds)%ht->TableSize;
+  unsigned int s= murmur3_32((const uint8_t *)&ent->val, 8, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return s;
   }
@@ -74,7 +78,7 @@ int lookup(HashTable* ht, entry* ent, unsigned int seeds){
 
 
 
-int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent, unsigned int* seeds, int HashAttempts){
+int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent){
   HashTable* expected=NULL;
   int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
@@ -83,7 +87,7 @@ int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent, unsigned
 			      &AddSlot,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    insertTable(head, 1, ent, seeds, HashAttempts);
+    insertTable(head, 1, ent);
   }
   else{
     freeTable(toadd);
@@ -93,21 +97,21 @@ int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent, unsigned
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 
-    insertTable(head, 1, ent, seeds, HashAttempts);
+    insertTable(head, 1, ent);
   }
   return 0;
 }
 
 
 
-int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, int HashAttempts){
+int insertTable(TableHead* head,  int start, entry* ent){
 
   HashTable* ht=NULL;
   int LocalCur=head->cur;
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
-    for(int i =0;i<HashAttempts;i++){
-      int res=lookup(ht, ent, seeds[i]);
+    for(int i =0;i<head->hashAttempts;i++){
+      int res=lookup(ht, ent, head->seeds[i]);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -117,9 +121,9 @@ int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, in
 
       entry* expected=NULL;
       int cmp= __atomic_compare_exchange(&ht->InnerTable[res],
-					&expected,
-					&ent,
-					1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+					 &expected,
+					 &ent,
+					 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
       if(cmp){
 	return 1;
       }
@@ -132,13 +136,27 @@ int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, in
     LocalCur=head->cur;
   }
   HashTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
-  addDrop(head, new_table, LocalCur, ent, seeds, HashAttempts);
+  addDrop(head, new_table, LocalCur, ent);
 }
 
 
-TableHead* initTable(int InitSize){
-  TableHead* head=(TableHead*)calloc(1,sizeof(TableHead));
-  head->TableArray=(HashTable*)calloc(max_tables,sizeof(HashTable*));
+unsigned int*
+initSeeds(int HashAttempts){
+  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
+  for(int i =0;i<HashAttempts;i++){
+    seeds[i]=random();
+  }
+  return seeds;
+}
+
+
+TableHead* initTable(TableHead* head, int InitSize, int HashAttempts){
+  if(!head){
+    head=(TableHead*)calloc(1,sizeof(TableHead));
+    head->seeds=initSeeds(HashAttempts);
+    head->hashAttempts=HashAttempts;
+  }
+  head->TableArray=(HashTable**)calloc(max_tables,sizeof(HashTable*));
   head->TableArray[0]=createTable(InitSize);
   head->cur=1;
   return head;

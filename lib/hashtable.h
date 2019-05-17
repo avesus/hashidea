@@ -7,7 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pthread.h>
-
+#include <math.h>
 
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
@@ -32,17 +32,21 @@ typedef struct HashTable{
 //head of cache
 typedef struct TableHead{
   HashTable** TableArray; //array of tables
+  unsigned int * seeds;
+  int hashAttempts;
   int cur; //current max index (max exclusive)
 }TableHead;
 
 
-void freeAll(TableHead* head);
+double freeAll(TableHead* head, int last);
 
-int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int HashAttempts);
+int checkTableQuery(TableHead* head, entry* ent);
+
+unsigned int* initSeeds(int HashAttempts);
 
 int lookupQuery(HashTable* ht, entry* ent, unsigned int seeds);
 
-TableHead* initTable(int InitSize);
+TableHead* initTable(TableHead* head, int InitSize, int HashAttempts);
 
 HashTable* createTable(int hsize);
 
@@ -50,10 +54,10 @@ HashTable* createTable(int hsize);
 void freeTable(HashTable* table);
 
 // return 1 if inserted, 0 if already there
-int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, int HashAttempts);
+int insertTable(TableHead* head,  int start, entry* ent);
 
 //creates new hashtable in the tablearray
-int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent, unsigned int* seeds, int HashAttempts);
+int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
 int lookup(HashTable* ht, entry* ent, unsigned int seeds);

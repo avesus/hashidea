@@ -35,6 +35,7 @@ TableHead* globalHead=NULL;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
+double* trialUtils;
 
 typedef struct targs{
   unsigned int* seeds;
@@ -204,17 +205,8 @@ getVal(void)
   return random();
 }
 
-unsigned int*
-initSeeds(int HashAttempts){
-  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
-  for(int i =0;i<HashAttempts;i++){
-    seeds[i]=random();
-  }
-  return seeds;
-}
-
 void
-insertTrial(TableHead* head, int hatt, unsigned int* seeds, int n) {
+insertTrial(TableHead* head, int n) {
 
 
 
@@ -223,7 +215,7 @@ insertTrial(TableHead* head, int hatt, unsigned int* seeds, int n) {
     entry* ent=(entry*)malloc(sizeof(entry));
     ent->val = getVal();
     //    ent->val=ent->val*getVal();
-    insertTable(head, 0, ent, seeds, hatt);
+    insertTable(head, 0, ent);
   }
 }
 
@@ -234,7 +226,7 @@ void*
 run(void* arg) {
   targs* args=(targs*)arg;
   int tid=args->tid;
-  unsigned int * seeds=args->seeds;
+  unsigned int* seeds=NULL;
   free(args);
   
   threadId = tid;
@@ -252,32 +244,34 @@ run(void* arg) {
 
     //start timer
     if(!tid){
-      globalHead=initTable(InitSize);
+      globalHead=initTable(globalHead, InitSize, HashAttempts);
+
     }
     startThreadTimer(tid);
+
     // run trial
-    printf("here on %d and %p\n", tid, globalHead);
-    insertTrial(globalHead, HashAttempts, seeds, numInsertions);
+    insertTrial(globalHead, numInsertions);
     
     // end timer
     nanoseconds ns = endThreadTimer(tid);
-    if(!tid){
-      freeAll(globalHead);
-    }
+
     // record time and see if we are done
     if (tid == 0) {
       printf("%2d %9llu\n", trialNumber, ns);
-      trialTimes[trialNumber++] = ns;
-      if ((stopError != 0)&&(trialNumber > trialsToRun)) {
-	double median = getMedian(trialTimes, trialNumber);
-	double mean = getMean(trialTimes, trialNumber);
-	double stddev = getSD(trialTimes, trialNumber);
+      trialTimes[trialNumber] = ns;
+      if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
+	double median = getMedian(trialTimes, trialNumber+1);
+	double mean = getMean(trialTimes, trialNumber+1);
+	double stddev = getSD(trialTimes, trialNumber+1);
 	if (stddev <= stopError) notDone = 0;
-	else if (trialNumber > 10*trialsToRun) notDone = 0;
+	else if (trialNumber+1 > 10*trialsToRun) notDone = 0;
 	if (verbose) printf("Med:%lf, Avg:%lf, SD:%lf\n", median, mean, stddev);
-      } else if (trialNumber > trialsToRun) {
+      } else if (trialNumber+1 > trialsToRun) {
 	notDone = 0;
-      } 
+      }
+
+      trialUtils[trialNumber]= freeAll(globalHead, !notDone);
+      trialNumber++;
     }
     myBarrier(&endLoopBarrier);
     
@@ -295,6 +289,7 @@ main(int argc, char**argv)
 {
   progname = argv[0];
   randomSeed = time(NULL);
+  srand(randomSeed);
   int ok = parseArgs(argc, argv, &argp);
   if (ok) die("Error parsing arguments");
 
@@ -305,6 +300,7 @@ main(int argc, char**argv)
     trialsToRun = 1;
   }
   trialTimes = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(nanoseconds));
+  trialUtils = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(double));
 
   //creating num_threads threads to add items in parallel
   //see run function for more details
@@ -316,11 +312,8 @@ main(int argc, char**argv)
   // setup various barriers
   initBarrier(&loopBarrier);
   initBarrier(&endLoopBarrier);
-
+  
   // start threads
-  unsigned int* seeds = initSeeds(HashAttempts);
-  TableHead* head=initTable(InitSize);
-  printf("head=%p\n", head);
   for(int i =0; i<nthreads; i++) {
     pthread_attr_t attr;
     result = pthread_attr_init(&attr);
@@ -335,7 +328,6 @@ main(int argc, char**argv)
     if (result) die("setaffinitity fails: %d", result);
     
     targs* temp_args=malloc(sizeof(targs));
-    temp_args->seeds=seeds;
     temp_args->tid=i;
     
     result = pthread_create(&threadids[i], &attr, run, (void*)temp_args);
@@ -353,9 +345,27 @@ main(int argc, char**argv)
   // exit and print out any results
   double min = getMin(trialTimes, trialNumber);
   double max = getMax(trialTimes, trialNumber);
-  printf("Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+  printf("\n\n------- Time Data -------\n\n");
+  printf("Nanoseconds::\n Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
 	 min, max, max-min, 
 	 getMean(trialTimes, trialNumber), 
 	 getMedian(trialTimes, trialNumber), 
 	 getSD(trialTimes, trialNumber));
+
+  printf("\nMilliseconds:\n Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
+	 getMean(trialTimes, trialNumber)/1000000.0, 
+	 getMedian(trialTimes, trialNumber)/1000000.0, 
+	 getSD(trialTimes, trialNumber)/1000000.0);
+  printf("\n\n------- Utilization Data -------\n\n");
+
+  min = getMinFloat(trialUtils, trialNumber);
+  max = getMaxFloat(trialUtils, trialNumber);
+  printf("Memusage: Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+	 min, max, max-min, 
+	 getMeanFloat(trialUtils, trialNumber), 
+	 getMedianFloat(trialUtils, trialNumber), 
+	 getSDFloat(trialUtils, trialNumber));
+
+
 }

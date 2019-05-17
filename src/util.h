@@ -35,4 +35,11 @@ double getSD(long long unsigned* trialTimes, int trialNumber);
 double getMin(long long unsigned* trialTimes, int trialNumber);
 double getMax(long long unsigned* trialTimes, int trialNumber);
 
+double getMedianFloat(double* trialUtils, int trialNumber);
+double getMeanFloat(double* trialUtils, int trialNumber);
+double getSDFloat(double* trialUtils, int trialNumber);
+double getMinFloat(double* trialUtils, int trialNumber);
+double getMaxFloat(double* trialUtils, int trialNumber);
+
+
 #endif
