@@ -302,30 +302,95 @@ checkArgDef(ArgDefs* def)
 int 
 parseArgs(int argc, char** argv, ArgDefs* def)
 {
+  ArgParserNode n = { 1, def, NULL };
+  ArgParser ap = { n, def };
+  return parseArguments(&ap, argc, argv);
+}
+
+////////////////////////////////////////////////////////////////
+// multiple argument parsers
+
+ArgParser* 
+createArgumentParser(ArgDefs* def)
+{
+  ArgParser* ap = mycalloc(1, sizeof(ArgParser));
+  ap->parsers = mycalloc(1, sizeof(ArgParserNode));
+  ap->parsers->parser = def;
+  ap->parsers->main = 1;
+  ap->mainProg = def;
+  return ap;
+}
+
+void 
+freeArgumentParser(ArgParser* ap)
+{
+  ArgParserNode* next;
+  ArgParserNode* p;
+  for (p=ap->parsers; p; p=next) {
+    next = p->next;
+    free(p);
+  }
+  free(ap);
+}
+
+void 
+addArgumentParser(ArgParser* ap, ArgDefs* def, int order)
+{
+  ArgParserNode* p = mycalloc(1, sizeof(ArgParserNode));
+  p->parser = def;
+  p->next = NULL;
+  p->main = 0;
+  
+  if (order > 0) {
+    ArgParserNode* nextp;
+    for (nextp = ap->parsers; nextp->next; nextp = nextp->next);
+    nextp->next = p;
+  } else {
+    p->next = ap->parsers;
+    ap->parsers = p;
+  }
+}
+
+int 
+parseArguments(ArgParser* ap, int argc, char**argv)
+{
   // get program name and commandline as a string
   pname = argv[0];
   makeCommandline(argc, argv);
   argv++; argc--;
 
-  checkArgDef(def);
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    checkArgDef(apn->parser);
+  }
 
   // process args
-  ArgOption* desc = def->args;  
   if (verbose) fprintf(stderr, "Processing args for %s: %d\n", pname, argc);
   int maxarg = argc;
   int i;
-  for (i=0; i<argc; i++) {
+  bool optionsPossible = true;
+  for (i=0; (i<argc)&&optionsPossible; i++) {
     char* arg = argv[i];
     if (verbose) fprintf(stderr, "%d -> [%s]\n", i, arg);
-    if ((arg[0] == '-')&&(desc[i].kind < KindPositional)) {
+    if (arg[0] == '-') {
       // Handle options
       bool ok = false;
-      for (int j=0; desc[j].kind != KindEnd; j++) {
-	if (strcmp(desc[j].longarg, arg) == 0) {
-	  // process it
-	  ok = true;
-	  int consumed = assignArg(desc+j, argc-i, argv+i, def);
-	  i += consumed;
+      bool notfound = true;
+      for (ArgParserNode* apn = ap->parsers; notfound && apn; apn=apn->next) {
+	ArgOption* desc = apn->parser->args;  
+	
+	for (int j=0; notfound && (desc[j].kind != KindEnd); j++) {
+	  if (strcmp(desc[j].longarg, arg) == 0) {
+	    ok = true;
+	    notfound = false;
+	    // see if it is special
+	    if (desc[j].type == EndOptions) {
+	      optionsPossible = false;
+	      break;
+	    }
+	    // process it
+	    int consumed = assignArg(desc+j, argc-i, argv+i, def);
+	    i += consumed;
+	  }
 	}
       }
       if (!ok) 
@@ -336,6 +401,15 @@ parseArgs(int argc, char** argv, ArgDefs* def)
     }
   }
   // ok, now we handle positional args, we handle them in the order they are declared
+  // only the main parser can define positional args
+  ArgOption* desc = NULL;
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    if (apn->main) {
+      desc = apn->parser;
+      break;
+    }
+  }
+  assert(desc != NULL);
   int baseArg = i;
   int baseDestOffset;
   for (baseDestOffset=0; desc[baseDestOffset].kind != KindEnd; baseDestOffset++) {
@@ -359,7 +433,19 @@ parseArgs(int argc, char** argv, ArgDefs* def)
   // see if we have a variable number of args at end
   if (desc[baseDestOffset+j].type == KindRest)
     die(def, "Haven't implemented Rest args yets");
+
+  // if user defined a post parsing function, call it - main prog called last
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    if ((apn->parser-main != 1) && (apn->parser->doneParsing != NULL)) {
+      (*(apn->parser->doneParsing))();
+    }
+  }
+  if (ap->mainProg->doneParsing) {
+    (*(ap->mainProg->doneParsing))();
+  }
+
   return 0;
 }
+
 
 

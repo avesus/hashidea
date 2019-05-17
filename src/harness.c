@@ -61,13 +61,11 @@ static ArgOption args[] = {
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
   { KindHelp,     Help, 	"-h" },  
+  { KindOption, Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
+  { KindOption,     Integer,      "-i",           0, &InitSize,            "Set table size for starting table" },
   { KindEnd }
-  { HashAttempts, Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
-  { InitSize,     Integer,      "-i",           0, InitSize,            "Set table size for starting table" }
- 
-  
 };
-static ArgDefs argp = { args, "Harness for parallel hashing", Version };
+static ArgDefs argp = { args, "Harness for parallel hashing", Version, NULL };
 
 pthread_t* threadids;		/* array of thread ids */
 sem_t threadsDone;		/* used to signal when all threads are done */
@@ -279,7 +277,9 @@ main(int argc, char**argv)
 {
   progname = argv[0];
   randomSeed = time(NULL);
-  int ok = parseArgs(argc, argv, &argp);
+  ArgParser* ap = createArgumentParser(&argp);
+  addArgumentParser(ap, getProbDistArgParsing(), 0);
+  int ok = parseArguments(argc, argv, ap);
   if (ok) die("Error parsing arguments");
 
   // setup to track different trials

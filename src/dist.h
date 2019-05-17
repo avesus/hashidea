@@ -18,4 +18,7 @@ void freeRandGenerator(ProbDist* pd);
 long int getRandLong(ProbDist* p, long range);
 void initProbDist(void);
 
+// this returns an ArgDefs*, but make it void so we can easuly reuse this without arg.h
+void* getProbDistArgParsing(void);
+
 #endif

@@ -1,15 +1,41 @@
 #include "dist.h"
 #include "util.h"
 #include "math.h"
+#include "arg.h"
 
+#define VERSION 0.1
 static const gsl_rng_type * T;
+static int useEnv = 0;
+static const defaultRngType = gsl_rng_mt19937;
+
+void
+postArgs(void)
+{
+  fprintf(stderr, "post args for rand library: %d\n", useEnv);
+}
+
+static ArgOption args[] = {
+  // Kind, 	  Method,		name,	    reqd,  variable,		help
+  { KindOption,   Set, 		"--rand:useenv",0, &useEnv, 		"use GSL env vars to define random number generator" },
+};
+static ArgDefs argp = { args, "prob dist library", Version, postArgs };
+
+void* 
+getProbDistArgParsing(void)
+{
+  return &argp;
+}
 
 // initialize prob dists, called once from main
 void
 initProbDist(void)
 {
-  gsl_rng_env_setup();
-  T = gsl_rng_default;
+  if (useEnv) {
+    gsl_rng_env_setup();
+    T = gsl_rng_default;
+  } else {
+    T = defaultRngType;
+  }
 }
 
 // destory and free memory
