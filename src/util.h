@@ -29,10 +29,10 @@ void initBarrierN(Barrier* b, int n);
 
 // stats
 
-double getMedian(nanoseconds* trialTimes, int trialNumber);
-double getMean(nanoseconds* trialTimes, int trialNumber);
-double getSD(nanoseconds* trialTimes, int trialNumber);
-double getMin(nanoseconds* trialTimes, int trialNumber);
-double getMax(nanoseconds* trialTimes, int trialNumber);
+double getMedian(long long unsigned* trialTimes, int trialNumber);
+double getMean(long long unsigned* trialTimes, int trialNumber);
+double getSD(long long unsigned* trialTimes, int trialNumber);
+double getMin(long long unsigned* trialTimes, int trialNumber);
+double getMax(long long unsigned* trialTimes, int trialNumber);
 
 #endif
