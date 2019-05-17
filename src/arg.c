@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
+#include "util.h"
 #include "arg.h"
 
 #define false 0
@@ -32,10 +33,10 @@ static char* type2fmt[] = {
   "",
   "" };
   
-static void usage(const char* pname, ArgDefs* def);
+static void usage(const char* pname, ArgParser* def);
 
 static void
-die(ArgDefs* def, const char* fmt, ...)
+argdie(ArgParser* def, const char* fmt, ...)
 {
     va_list ap;
 
@@ -110,56 +111,61 @@ arg2str(ArgOption* desc)
 
 
 static void 
-usage(const char* pname, ArgDefs* def)
+usage(const char* pname, ArgParser* ap)
 {
   fprintf(stderr, "%s: ", pname);
   // print out shorthand for arguments
-  ArgOption* args = def->args;
-  int i;
-  while (args[i].kind != KindEnd) {
-    fprintf(stderr, " %s", arg2str(args+i));
-    i++;
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    ArgOption* args = apn->parser->args;
+    int i=0;
+    while (args[i].kind != KindEnd) {
+      fprintf(stderr, " %s", arg2str(args+i));
+      i++;
+    }
+    fprintf(stderr, "\n%s\n", apn->parser->progdoc);
   }
-  fprintf(stderr, "\n%s\n", def->progdoc);
 
   // Now print individual descriptions
-  i = 0;
-  while (args[i].kind != KindEnd) {
-    fprintf(stderr, "   %20s\t%s\t", arg2str(args+i), args[i].kind == KindHelp ? "Print this message" : args[i].desc);
-    switch (args[i].type) {
-    case Increment:
-    case Integer:
-      fprintf(stderr, "(default: %d)", *(int *)(args[i].dest));
-      break;
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    ArgOption* args = apn->parser->args;
+    int i = 0;
+    while (args[i].kind != KindEnd) {
+      fprintf(stderr, "   %20s\t%s\t", arg2str(args+i), args[i].kind == KindHelp ? "Print this message" : args[i].desc);
+      switch (args[i].type) {
+      case Increment:
+      case Integer:
+	fprintf(stderr, "(default: %d)", *(int *)(args[i].dest));
+	break;
 
-    case Character:
-      fprintf(stderr, "(default: %c)", *(char *)(args[i].dest));
-      break;
+      case Character:
+	fprintf(stderr, "(default: %c)", *(char *)(args[i].dest));
+	break;
 
-    case String:
-      fprintf(stderr, "(default: %s)", (char*)(args[i].dest));
-      break;
+      case String:
+	fprintf(stderr, "(default: %s)", (char*)(args[i].dest));
+	break;
 
-    case Toggle:
-    case Set:
-    case Boolean:
-      fprintf(stderr, "(default: %s)", *(int *)(args[i].dest) ? "true" : "false");
-      break;
+      case Toggle:
+      case Set:
+      case Boolean:
+	fprintf(stderr, "(default: %s)", *(int *)(args[i].dest) ? "true" : "false");
+	break;
 
-    case Double:
-      fprintf(stderr, "(default: %lf)", *(double *)(args[i].dest));
-      break;
+      case Double:
+	fprintf(stderr, "(default: %lf)", *(double *)(args[i].dest));
+	break;
 
-    case Function:
-      fprintf(stderr, "(default: %s)", (*(argOptionParser)(args[i].dest))(ArgGetDefault, NULL));
-      break;
+      case Function:
+	fprintf(stderr, "(default: %s)", (*(argOptionParser)(args[i].dest))(ArgGetDefault, NULL));
+	break;
 
-    case Help:
-      break;
+      case Help:
+	break;
+      }
+      fprintf(stderr, "\n");
+      i++;
     }
-    fprintf(stderr, "\n");
-    i++;
-  }  
+  }
 }
 
 
@@ -183,7 +189,7 @@ makeCommandline(int argc, char** argv)
 }
 
 static int
-assignArg(ArgOption* desc, int argc, char** argv, ArgDefs* def)
+assignArg(ArgOption* desc, int argc, char** argv, ArgParser* ap)
 {
   switch (desc->type) {
   case Increment:
@@ -249,7 +255,7 @@ assignArg(ArgOption* desc, int argc, char** argv, ArgDefs* def)
     break;
 
   case Help:
-    usage(pname, def);
+    usage(pname, ap);
     exit(-1);
 
   default:
@@ -275,67 +281,153 @@ kind2str(ArgKind k)
 }
 
 
-void
-checkArgDef(ArgDefs* def)
+// return true if has help
+bool
+checkArgDef(ArgParser* ap, ArgDefs* def, bool main)
 {
   // optional/help come before postional before rest
   int state = KindOption;
   ArgOption* desc = def->args;  
-  int hashelp = 0;
+  int hashelp = false;
   
   for (int i=0; desc[i].kind != KindEnd; i++) {
     if (desc[i].kind > KindEnd)
-      die(def, "Bad kind - no KindEnd?");
+      argdie(ap, "Bad kind - no KindEnd?");
     if (desc[i].kind != state) {
       if ((state == KindOption) && (desc[i].kind == KindHelp)&&(desc[i].longarg != NULL)) {
-	hashelp = 1;
+	hashelp = true;
 	continue;
       }
       if (desc[i].kind < state)
-	die(def, "Bad order of arg defs: %s comes before last of %s", kind2str(state),  kind2str(desc[i].kind));
+	argdie(ap, "Bad order of arg defs: %s comes before last of %s", kind2str(state),  kind2str(desc[i].kind));
       state = desc[i].kind;
     }
+    if (((state == KindPositional)||(state == KindRest))&&!main)
+      argdie(ap, "positional args but not main");
   }
-  if (!hashelp) die(def, "No help string");
+  return hashelp;
 }
+
+static void
+checkArgParser(ArgParser* ap) {
+  bool hashelp = false;
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    hashelp |= checkArgDef(ap, apn->parser, apn->main);
+  }
+  if (!hashelp) 
+    argdie(ap, "No help string");
+}
+
 
 int 
 parseArgs(int argc, char** argv, ArgDefs* def)
+{
+  ArgParserNode n = { 1, def, NULL };
+  ArgParser ap = { &n, def };
+  return parseArguments(&ap, argc, argv);
+}
+
+////////////////////////////////////////////////////////////////
+// multiple argument parsers
+
+ArgParser* 
+createArgumentParser(ArgDefs* def)
+{
+  ArgParser* ap = mycalloc(1, sizeof(ArgParser));
+  ap->parsers = mycalloc(1, sizeof(ArgParserNode));
+  ap->parsers->parser = def;
+  ap->parsers->main = 1;
+  ap->mainProg = def;
+  return ap;
+}
+
+void 
+freeArgumentParser(ArgParser* ap)
+{
+  ArgParserNode* next;
+  ArgParserNode* p;
+  for (p=ap->parsers; p; p=next) {
+    next = p->next;
+    free(p);
+  }
+  free(ap);
+}
+
+void 
+addArgumentParser(ArgParser* ap, ArgDefs* def, int order)
+{
+  ArgParserNode* p = mycalloc(1, sizeof(ArgParserNode));
+  p->parser = def;
+  p->next = NULL;
+  p->main = 0;
+  
+  if (order > 0) {
+    ArgParserNode* nextp;
+    for (nextp = ap->parsers; nextp->next; nextp = nextp->next);
+    nextp->next = p;
+  } else {
+    p->next = ap->parsers;
+    ap->parsers = p;
+  }
+}
+
+int 
+parseArguments(ArgParser* ap, int argc, char**argv)
 {
   // get program name and commandline as a string
   pname = argv[0];
   makeCommandline(argc, argv);
   argv++; argc--;
 
-  checkArgDef(def);
+  checkArgParser(ap);
 
   // process args
-  ArgOption* desc = def->args;  
   if (verbose) fprintf(stderr, "Processing args for %s: %d\n", pname, argc);
   int maxarg = argc;
   int i;
-  for (i=0; i<argc; i++) {
+  bool optionsPossible = true;
+  for (i=0; (i<argc)&&optionsPossible; i++) {
     char* arg = argv[i];
     if (verbose) fprintf(stderr, "%d -> [%s]\n", i, arg);
-    if ((arg[0] == '-')&&(desc[i].kind < KindPositional)) {
+    if (arg[0] == '-') {
       // Handle options
       bool ok = false;
-      for (int j=0; desc[j].kind != KindEnd; j++) {
-	if (strcmp(desc[j].longarg, arg) == 0) {
-	  // process it
-	  ok = true;
-	  int consumed = assignArg(desc+j, argc-i, argv+i, def);
-	  i += consumed;
+      bool notfound = true;
+      for (ArgParserNode* apn = ap->parsers; notfound && apn; apn=apn->next) {
+	ArgOption* desc = apn->parser->args;  
+	
+	for (int j=0; notfound && (desc[j].kind != KindEnd); j++) {
+	  if (strcmp(desc[j].longarg, arg) == 0) {
+	    ok = true;
+	    notfound = false;
+	    // see if it is special
+	    if (desc[j].type == EndOptions) {
+	      optionsPossible = false;
+	      break;
+	    }
+	    // process it
+	    int consumed = assignArg(desc+j, argc-i, argv+i, ap);
+	    i += consumed;
+	  }
 	}
       }
       if (!ok) 
-	die(def, "Do not understand the flag [%s]\n", arg);
+	argdie(ap, "Do not understand the flag [%s]\n", arg);
     } else {
       // No more options
       break;
     }
   }
   // ok, now we handle positional args, we handle them in the order they are declared
+  // only the main parser can define positional args
+  ArgOption* desc = NULL;
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    if (apn->main) {
+      desc = apn->parser->args;
+      break;
+    }
+  }
+  assert(desc != NULL);
   int baseArg = i;
   int baseDestOffset;
   for (baseDestOffset=0; desc[baseDestOffset].kind != KindEnd; baseDestOffset++) {
@@ -347,19 +439,31 @@ parseArgs(int argc, char** argv, ArgDefs* def)
   int j=0;			/* positional offset */
   while ( (desc[baseDestOffset+j].kind == KindPositional) && ((baseArg+j) < argc) ) {
     if (verbose) printf("%d: %s\n", j, baseArg+desc[baseDestOffset+j].longarg);
-    int consumed = assignArg(desc+baseDestOffset+j, argc-(baseArg+j), argv+baseArg+j, def);
+    int consumed = assignArg(desc+baseDestOffset+j, argc-(baseArg+j), argv+baseArg+j, ap);
     j += consumed;
   }
   // check that we used all the arguments and don't have any extra
   if (desc[baseDestOffset+j].type == KindPositional)
-    die(def, "Expected more arguments, only given %d", j);
+    argdie(ap, "Expected more arguments, only given %d", j);
   else if ((desc[baseDestOffset+j].type == KindEnd)&&((baseArg+j) < argc)) {
-    die(def, "Too many arguments, given %d", j);
+    argdie(ap, "Too many arguments, given %d", j);
   }
   // see if we have a variable number of args at end
   if (desc[baseDestOffset+j].type == KindRest)
-    die(def, "Haven't implemented Rest args yets");
+    argdie(ap, "Haven't implemented Rest args yets");
+
+  // if user defined a post parsing function, call it - main prog called last
+  for (ArgParserNode* apn = ap->parsers; apn; apn=apn->next) {
+    if ((apn->main != 1) && (apn->parser->doneParsing != NULL)) {
+      (*(apn->parser->doneParsing))();
+    }
+  }
+  if (ap->mainProg->doneParsing) {
+    (*(ap->mainProg->doneParsing))();
+  }
+
   return 0;
 }
+
 
 
