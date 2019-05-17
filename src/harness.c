@@ -28,6 +28,8 @@ int showthreadattr = 0;
 int trialsToRun = 0;
 double stopError = 0.0;
 int numInsertions = 100;
+int InitSize = 1;
+int HashAttempts = 1;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
@@ -47,19 +49,23 @@ setRandom(int argc, char** argv)
 }
 
 static ArgOption args[] = {
-  // Kind, 	Method,		name,	    reqd,  variable,		help
-  { KindOption, Set, 		"-v", 		0, &verbose, 		"Turn on verbosity" },
-  { KindOption, Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
-  { KindOption, Integer, 	"-l", 		0, &level, 		"Level" },
-  { KindOption, Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
-  { KindOption, Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
-  { KindOption, Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
-  { KindOption, Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
-  { KindOption, Set, 		"-T", 		0, &timeit, 		"Time the run" },    
-  { KindOption, Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
-  { KindOption, Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
-  { KindHelp,   Help, 		"-h" },  
+  // Kind, 	  Method,		name,	    reqd,  variable,		help
+  { KindOption,   Set, 		"-v", 		0, &verbose, 		"Turn on verbosity" },
+  { KindOption,   Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
+  { KindOption,   Integer, 	"-l", 		0, &level, 		"Level" },
+  { KindOption,   Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
+  { KindOption,   Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
+  { KindOption,   Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
+  { KindOption,   Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
+  { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
+  { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
+  { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
+  { KindHelp,     Help, 	"-h" },  
   { KindEnd }
+  { HashAttempts, Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
+  { InitSize,     Integer,      "-i",           0, InitSize,            "Set table size for starting table" }
+ 
+  
 };
 static ArgDefs argp = { args, "Harness for parallel hashing", Version };
 
@@ -188,17 +194,25 @@ getVal(void)
   return random();
 }
 
-void
-insertTrial(TableHead* head, HashTable* table, int n, int hash_attempts) {
+unsigned int*
+initSeeds(int HashAttempts){
   unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
-  for(int i =0;i<hash_attempts;i++){
+  for(int i =0;i<HashAttempts;i++){
     seeds[i]=random();
   }
+  return seeds;
+}
+
+void
+insertTrial(TableHead* head, int hatt, unsigned int* seeds, int n) {
+
+
+
   
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
     entry->val = getVal();
-    insertTable(head, 0, ent, seeds, hash_attempts);
+    insertTable(head, 0, ent, seeds, hatt);
   }
 }
 
@@ -219,14 +233,19 @@ run(void* arg) {
   notDone = 1;
   do {
     // allocate hash table
-    HashTable* table = createTable(hsize);
+
+    TableHead* head=initTable(InitSize);
+    unsigned int* seeds = initSeeds(HashAttempts);
+    
     startThreadTimer(tid);
     // run trial
 
-    insertTrial(table, numInsertions);
+    insertTrial(head, HashAttempts, seeds, numInsertions);
     
     // end trial
     nanoseconds ns = endThreadTimer(tid);
+
+    freeAll(head);
     // record time and see if we are done
     if (tid == 0) {
       printf("%2d %9llu\n", trialNumber, ns);
