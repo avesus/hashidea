@@ -31,9 +31,17 @@ double stopError = 0.0;
 int numInsertions = 100;
 int InitSize = 1;
 int HashAttempts = 1;
+TableHead* globalHead=NULL;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
+
+typedef struct targs{
+  unsigned int* seeds;
+  int tid;
+
+
+}targs;
 
 const char*
 setRandom(int argc, char** argv)
@@ -61,10 +69,11 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
-  { KindHelp,     Help, 	"-h" },  
-  { KindEnd },
+  { KindHelp,     Help, 	"-h" },
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
-  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table" }
+  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table" },
+  { KindEnd }
+
  
   
 };
@@ -213,6 +222,7 @@ insertTrial(TableHead* head, int hatt, unsigned int* seeds, int n) {
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
     ent->val = getVal();
+    //    ent->val=ent->val*getVal();
     insertTable(head, 0, ent, seeds, hatt);
   }
 }
@@ -222,7 +232,11 @@ insertTrial(TableHead* head, int hatt, unsigned int* seeds, int n) {
 
 void*
 run(void* arg) {
-  int tid = (int)(long int)arg;
+  targs* args=(targs*)arg;
+  int tid=args->tid;
+  unsigned int * seeds=args->seeds;
+  free(args);
+  
   threadId = tid;
   if (verbose) fprintf(stderr, "Starting thread: %d\n", tid);
 
@@ -232,21 +246,24 @@ run(void* arg) {
   int nipt = numInsertions/nthreads;
   
   notDone = 1;
-  do {
-    // allocate hash table
+  
 
-    TableHead* head=initTable(InitSize);
-    unsigned int* seeds = initSeeds(HashAttempts);
-    
+  do {
+
+    //start timer
+    if(!tid){
+      globalHead=initTable(InitSize);
+    }
     startThreadTimer(tid);
     // run trial
-
-    insertTrial(head, HashAttempts, seeds, numInsertions);
+    printf("here on %d and %p\n", tid, globalHead);
+    insertTrial(globalHead, HashAttempts, seeds, numInsertions);
     
-    // end trial
+    // end timer
     nanoseconds ns = endThreadTimer(tid);
-
-    freeAll(head);
+    if(!tid){
+      freeAll(globalHead);
+    }
     // record time and see if we are done
     if (tid == 0) {
       printf("%2d %9llu\n", trialNumber, ns);
@@ -263,7 +280,6 @@ run(void* arg) {
       } 
     }
     myBarrier(&endLoopBarrier);
-    // free table
     
   } while (notDone);
 
@@ -302,6 +318,9 @@ main(int argc, char**argv)
   initBarrier(&endLoopBarrier);
 
   // start threads
+  unsigned int* seeds = initSeeds(HashAttempts);
+  TableHead* head=initTable(InitSize);
+  printf("head=%p\n", head);
   for(int i =0; i<nthreads; i++) {
     pthread_attr_t attr;
     result = pthread_attr_init(&attr);
@@ -314,7 +333,12 @@ main(int argc, char**argv)
     
     result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     if (result) die("setaffinitity fails: %d", result);
-    result = pthread_create(&threadids[i], &attr, run, (void*)(long int)i);
+    
+    targs* temp_args=malloc(sizeof(targs));
+    temp_args->seeds=seeds;
+    temp_args->tid=i;
+    
+    result = pthread_create(&threadids[i], &attr, run, (void*)temp_args);
     if (result) errdie("Can't create threads");
   }
 

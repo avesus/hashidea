@@ -8,6 +8,7 @@ murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
     const uint32_t* key_x4 = (const uint32_t*) key;
     size_t i = len >> 2;
     do {
+
       uint32_t k = *key_x4++;
       k *= 0xcc9e2d51;
       k = (k << 15) | (k >> 17);
