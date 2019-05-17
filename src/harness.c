@@ -11,6 +11,7 @@
 #include "arg.h"
 #include "timing.h"
 #include "util.h"
+#include "../lib/hashtable.h"
 
 
 #define Version "0.1"
@@ -61,9 +62,9 @@ static ArgOption args[] = {
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
   { KindHelp,     Help, 	"-h" },  
-  { KindEnd }
-  { HashAttempts, Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
-  { InitSize,     Integer,      "-i",           0, InitSize,            "Set table size for starting table" }
+  { KindEnd },
+  { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
+  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table" }
  
   
 };
@@ -196,7 +197,7 @@ getVal(void)
 
 unsigned int*
 initSeeds(int HashAttempts){
-  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
+  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
   for(int i =0;i<HashAttempts;i++){
     seeds[i]=random();
   }
@@ -211,7 +212,7 @@ insertTrial(TableHead* head, int hatt, unsigned int* seeds, int n) {
   
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
-    entry->val = getVal();
+    ent->val = getVal();
     insertTable(head, 0, ent, seeds, hatt);
   }
 }
@@ -263,7 +264,6 @@ run(void* arg) {
     }
     myBarrier(&endLoopBarrier);
     // free table
-    freeTable(table);
     
   } while (notDone);
 

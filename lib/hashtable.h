@@ -1,4 +1,3 @@
-#define _GNU_SOURCE
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,7 +25,7 @@ typedef struct entry{
 
 //a table
 typedef struct HashTable{
-  int_ent** InnerTable; //rows (table itself)
+  entry** InnerTable; //rows (table itself)
   int TableSize; //size
 }HashTable;
 
@@ -37,22 +36,24 @@ typedef struct TableHead{
 }TableHead;
 
 
-int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int hash_attempts);
+void freeAll(TableHead* head);
+
+int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int HashAttempts);
 
 int lookupQuery(HashTable* ht, entry* ent, unsigned int seeds);
 
-TableHead* initTable(int init_size);
+TableHead* initTable(int InitSize);
 
-HashTable* createTable(size_t hsize);
+HashTable* createTable(int hsize);
 
 // free table
 void freeTable(HashTable* table);
 
 // return 1 if inserted, 0 if already there
-int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, int hash_attempts);
+int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, int HashAttempts);
 
 //creates new hashtable in the tablearray
-int addDrop(TableHead* head, HashTable* toadd, int toadd_slot, entry* ent, unsigned int* seeds);
+int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent, unsigned int* seeds, int HashAttempts);
 
 //lookup function in insertTrial to check a given inner table
 int lookup(HashTable* ht, entry* ent, unsigned int seeds);

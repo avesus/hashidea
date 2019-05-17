@@ -14,9 +14,9 @@ int lookupQuery(HashTable* ht, entry* ent, unsigned int seeds){
 }
 
 int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int HashAttempts){
-  h_table* ht=NULL;
+  HashTable* ht=NULL;
   for(int j=0;j<head->cur;j++){
-    ht=head->tt[j];
+    ht=head->TableArray[j];
     for(int i =0;i<HashAttempts;i++){
       int res=lookupQuery(ht->InnerTable, ent, seeds[i]);
       if(res==unk){ //unkown if in our not
@@ -34,11 +34,11 @@ int checkTableQuery(TableHead* head, entry* ent, unsigned int* seeds, int HashAt
 
 void freeAll(TableHead* head){
   
-  int* items=(int*)malloc(sizeof(int)*global->cur);
+  int* items=(int*)malloc(sizeof(int)*head->cur);
   HashTable* ht=NULL;
   int count=0;
 
-  for(int i = head->cur; i++){
+  for(int i = 0;i<head->cur; i++){
     ht=head->TableArray[i];
     
     for(int j =0;j<ht->TableSize;j++){
@@ -74,22 +74,22 @@ int lookup(HashTable* ht, entry* ent, unsigned int seeds){
 
 
 
-int addDrop(TableHead* head, HashTable* toadd, int toadd_slot, entry* ent, unsigned int* seeds, int HashAttempts){
-  h_table* expected=NULL;
-  int res = __atomic_compare_exchange(&head->TableArray[toadd_slot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent, unsigned int* seeds, int HashAttempts){
+  HashTable* expected=NULL;
+  int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
-    int newSize=toadd_slot+1;
+    int newSize=AddSlot+1;
     __atomic_compare_exchange(&head->cur,
-			      &toadd_slot,
+			      &AddSlot,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
     insertTable(head, 1, ent, seeds, HashAttempts);
   }
   else{
     freeTable(toadd);
-    int newSize=toadd_slot+1;
+    int newSize=AddSlot+1;
     __atomic_compare_exchange(&head->cur,
-			      &toadd_slot,
+			      &AddSlot,
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 
@@ -100,8 +100,8 @@ int addDrop(TableHead* head, HashTable* toadd, int toadd_slot, entry* ent, unsig
 
 
 
-int insertTable(TableHead* head,  int start, long int val, unsigned int* seeds, int HashAttempts){
-  int startCur=head->cur;
+int insertTable(TableHead* head,  int start, entry* ent, unsigned int* seeds, int HashAttempts){
+  int LocalCur=head->cur;
   HashTable* ht=NULL;
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
@@ -128,10 +128,10 @@ int insertTable(TableHead* head,  int start, long int val, unsigned int* seeds, 
 	}
       }
     }
-    startCur=head->cur;
+    LocalCur=head->cur;
   }
-  HashTable* new_table=createTable(head->TableArray[startCur-1]->TableSize<<1);
-  addDrop(head, new_table, startCur, ent, seeds, HashAttempts);
+  HashTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
+  addDrop(head, new_table, LocalCur, ent, seeds, HashAttempts);
 }
 
 
