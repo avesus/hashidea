@@ -1,0 +1,101 @@
+#include "hashtable.h"
+#include "hash.h"
+
+void freeTable(h_table* ht){
+  free(ht);
+}
+
+
+//check if entry for a given hashing vector is in a table
+int lookup(HashTable* ht, entry* ent, unsigned int seeds){
+
+  //  unsigned int s=hashInt(ent->val, slots, seeds);
+  //  unsigned int s=murmur_hash_64(ent->val, 8, seeds.rand1, slots);
+
+  unsigned int s= murmur3_32(&ent->val, 8, seeds)%ht->TableSize;
+  if(ht->InnerTable[s]==NULL){
+    return s;
+  }
+  else if(ht->InnerTable[s]->val==ent->val){
+    return in;
+  }
+  return unk;
+}
+
+
+
+int addDrop(TableHead* global, HashTable* toadd, int toadd_slot, entry* ent, unsigned int* seeds){
+  h_table* expected=NULL;
+  int res = __atomic_compare_exchange(&global->TableArray[toadd_slot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+  if(res){
+    int newSize=toadd_slot+1;
+    __atomic_compare_exchange(&global->cur,
+			      &toadd_slot,
+			      &newSize,
+			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
+    insertTrial(global, 1, ent, seeds);
+  }
+  else{
+    freeTable(toadd);
+    int newSize=toadd_slot+1;
+    __atomic_compare_exchange(&global->cur,
+			      &toadd_slot,
+			      &newSize,
+			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+
+    insertTrial(global, 1, ent, seeds);
+  }
+  return 0;
+}
+
+
+
+int insertTrial(TableHead* global,  int start, long int val, unsigned int* seeds){
+  //int insertTrial(int_ent* ent, unsigned int* seeds, int start){
+  int startCur=global->cur;
+  HashTable* ht=NULL;
+  for(int j=start;j<global->cur;j++){
+    ht=global->TableArray[j];
+    for(int i =0;i<vsize;i++){
+      int res=lookup(ht, ent, seeds[i]);
+      if(res==unk){ //unkown if in our not
+	continue;
+      }
+      if(res==in){ //is in
+	return 0;
+      }
+
+      entry* expected=NULL;
+      int cmp= __atomic_compare_exchange(&ht->InnerTable[res],
+					&expected,
+					&ent,
+					1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+      if(cmp){
+	return 0;
+      }
+      else{
+	if(ht->InnerTable[res]->val==ent->val){
+	  return 0;
+	}
+      }
+    }
+    startCur=global->cur;
+  }
+  HashTable* new_table=createTable(global->TableArray[startCur-1]->TableSize<<1);
+  addDrop(global, new_table, startCur, ent, seeds);
+}
+
+
+TableHead* initTable(int init_size){
+  TableHead* global=(TableHead*)malloc(sizeof(TableHead));
+  global->TableArray=(HashTable*)malloc(max_tables*sizeof(HashTable*));
+  global->TableArray[0]=createTable(init_size);
+  global->cur=1;
+}
+
+HashTable* createTable(int tsize){
+  HashTable* ht=(HashTable*)malloc(sizeof(HashTable));
+  ht->TableSize=tsize;
+  ht->InnerTable=(entry**)malloc(sizeof(entry*)*(ht->TableSize));
+  return ht;
+}

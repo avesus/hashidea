@@ -189,10 +189,16 @@ getVal(void)
 }
 
 void
-insertTrial(HashTable* table, int n) {
+insertTrial(TableHead* head, HashTable* table, int n, int hash_attempts) {
+  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*vsize);
+  for(int i =0;i<hash_attempts;i++){
+    seeds[i]=random();
+  }
+  
   for (int i=0; i<n; i++) {
-    long int val = getVal();
-    insertTable(table, val);
+    entry* ent=(entry*)malloc(sizeof(entry));
+    entry->val = getVal();
+    insertTable(head, 0, ent, seeds, hash_attempts);
   }
 }
 
