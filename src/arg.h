@@ -19,7 +19,8 @@ typedef enum {
   Help,
   Increment,
   Set,
-  Toggle
+  Toggle,
+  EndOptions			/* use this to allow user to indicate end of positional args, typically it will be for -- */
 } ArgType;
 
 // don't renumber these.  We depend on value of KindPositional >
@@ -58,8 +59,30 @@ struct _argdef
   ArgOption* args;
   const char* progdoc;
   const char* version;
+  void (*doneParsing)(void);
 };
   
 int parseArgs(int argc, char** argv, ArgDefs* def);
+
+////////////////////////////////////////////////////////////////
+// for more complicated arg parsing, i.e., including parsers of submodules, make an ArgParser, then call parse on it
+
+typedef struct _argparserlist ArgParserNode;
+struct _argparserlist {
+  int main;
+  ArgDefs* parser;
+  ArgParserNode* next;
+};
+
+typedef struct _argParser ArgParser;
+struct _argParser {
+  ArgParserNode* parsers;
+  ArgDefs* mainProg;
+};
+
+ArgParser* createArgumentParser(ArgDefs* def);
+void freeArgumentParser(ArgParser* ap);
+void addArgumentParser(ArgParser* ap, ArgDefs* def, int order);
+int parseArguments(ArgParser* ap, int argc, char**argv);
 
 #endif
