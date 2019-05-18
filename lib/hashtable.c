@@ -79,30 +79,30 @@ int checkTableQuery(TableHead* head, entry* ent){
   return 0;
 }
 
-double freeAll(TableHead* head, int last){
-  
-  HashTable* ht=NULL;
-  float count=0;
 
+double freeAll(TableHead* head, int last){
+  HashTable* ht=NULL;
+  double count=0;
+  double totalSize=0;
   for(int i = 0;i<head->cur; i++){
     ht=head->TableArray[i];
+    totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
       if(ht->InnerTable[j]!=NULL){
+
 	free(ht->InnerTable[j]);
 	count++;
       }
     }
     free(ht);
   }
-
-  
   
   free(head->TableArray);  
   if(last){
     free(head->seeds);
     free(head);
   }
-  return (double)((double)count)/(((double)(1<<head->cur)-1));
+  return count/totalSize;  
 }
 
 static void 
