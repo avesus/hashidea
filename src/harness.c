@@ -33,6 +33,8 @@ int InitSize = 1;
 int HashAttempts = 1;
 TableHead* globalHead=NULL;
 
+
+
 int trialNumber = 0;
 nanoseconds* trialTimes;
 double* trialUtils;
@@ -43,6 +45,25 @@ typedef struct targs{
 
 
 }targs;
+
+double alpha = 0.5;
+double beta = 0.5;
+
+const char*
+initAlphaBeta(int argc, char** argv)
+{
+  static char buffer[64];
+  if (argc == ArgGetDefault) {
+    sprintf(buffer, "%lf,%lf", alpha, beta);
+    return buffer;
+  } else if (argc == ArgGetDesc) {
+    return "<alpha>,<beta>";
+  }
+  if (sscanf(argv[1], "%lf,%lf", &alpha, &beta) != 2) {
+    errdie("expected 2 floats, e.g., <alpha>,<beta>");
+  }
+  return (const char*)1;
+}
 
 const char*
 setRandom(int argc, char** argv)
@@ -68,6 +89,7 @@ static ArgOption args[] = {
   { KindOption,   Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
   { KindOption,   Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
   { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
+  { KindOption,   Function,	"--ab",		0, &initAlphaBeta, 	"default alpha beta for keys" },
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
   { KindHelp,     Help, 	"-h" },
@@ -254,7 +276,7 @@ run(void* arg) {
 
     // record time and see if we are done
     if (tid == 0) {
-      printf("%2d %9llu\n", trialNumber, ns);
+      if (verbose) printf("%2d %9llu\n", trialNumber, ns);
       trialTimes[trialNumber] = ns;
       if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
 	double median = getMedian(trialTimes, trialNumber+1);

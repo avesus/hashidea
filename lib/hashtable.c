@@ -1,8 +1,55 @@
+#include <sched.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <pthread.h>
+#include <math.h>
+
 #include "hashtable.h"
 #include "hash.h"
 
 
-int lookupQuery(HashTable* ht, entry* ent, unsigned int seed){
+//a sub table (this should be hidden)
+typedef struct HashTable {
+  entry** InnerTable; //rows (table itself)
+  int TableSize; //size
+} HashTable;
+
+// head of cache: this is the main hahstable
+typedef struct TableHead{
+  HashTable** TableArray; //array of tables
+  unsigned int * seeds;
+  int hashAttempts;
+  int cur; //current max index (max exclusive)
+} TableHead;
+
+
+#define max_tables 64 //max tables to create
+
+//return values for checking table.  Returned by lookupQuery
+#define notIn 0 
+#define in -1
+#define unk -2
+
+// create a sub table
+static HashTable* createTable(int hsize);
+// free a subtable 
+static void freeTable(HashTable* table);
+
+//creates new hashtable in the tablearray
+static int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent);
+
+//lookup function in insertTrial to check a given inner table
+static int lookup(HashTable* ht, entry* ent, unsigned int seeds);
+
+
+
+static int 
+lookupQuery(HashTable* ht, entry* ent, unsigned int seed){
   unsigned int s=murmur3_32((const uint8_t *)&ent->val, 8, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return notIn;
@@ -32,8 +79,8 @@ int checkTableQuery(TableHead* head, entry* ent){
   return 0;
 }
 
+
 double freeAll(TableHead* head, int last){
-  
   HashTable* ht=NULL;
   double count=0;
   double totalSize=0;
@@ -49,24 +96,23 @@ double freeAll(TableHead* head, int last){
     }
     free(ht);
   }
-
-  
   
   free(head->TableArray);  
   if(last){
     free(head->seeds);
     free(head);
   }
-  return count/totalSize;
+  return count/totalSize;  
 }
 
-void freeTable(HashTable* ht){
+static void 
+freeTable(HashTable* ht){
   free(ht);
 }
 
 
 //check if entry for a given hashing vector is in a table
-int lookup(HashTable* ht, entry* ent, unsigned int seed){
+static int lookup(HashTable* ht, entry* ent, unsigned int seed){
 
   unsigned int s= murmur3_32((const uint8_t *)&ent->val, 8, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
@@ -80,7 +126,7 @@ int lookup(HashTable* ht, entry* ent, unsigned int seed){
 
 
 
-int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent){
+static int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent){
   HashTable* expected=NULL;
   int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
@@ -142,7 +188,7 @@ int insertTable(TableHead* head,  int start, entry* ent){
 }
 
 
-unsigned int*
+static unsigned int*
 initSeeds(int HashAttempts){
   unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
   for(int i =0;i<HashAttempts;i++){
@@ -164,7 +210,8 @@ TableHead* initTable(TableHead* head, int InitSize, int HashAttempts){
   return head;
 }
 
-HashTable* createTable(int tsize){
+static HashTable* 
+createTable(int tsize){
   HashTable* ht=(HashTable*)calloc(1,sizeof(HashTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
