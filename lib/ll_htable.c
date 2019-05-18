@@ -1,51 +1,6 @@
-#define _GNU_SOURCE
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <pthread.h>
-#include <stdint.h>
+#include "hash.h"
+#include "ll_htable.h"
 
-//make: gcc ms.c -o ms -lpthread -latomic
-int num_threads=0;
-int runs=0;
-int initSize=0;
-int max_ele=0;
-
-pthread_mutex_t cm; //various locks
-int barrier=0;
-unsigned int seeds=0;
-struct g_head* global=NULL;
-#define max_threads 32
-#define max_tables 64
-typedef struct pointer{
-  volatile struct node* ptr;
-  //if want deletion gotta add count var here (need to update atomic to 16 byte version then) 
-}pointer;
-
-typedef struct node{
-  volatile unsigned long val;
-  volatile struct pointer next;
-}node;
-
-typedef struct que{
-  volatile struct pointer head;
-  volatile struct pointer tail;
-}que;
-
-typedef struct table{
-  que ** q;
-  int size;
-}table;
-
-typedef struct g_head{
-  table** t;
-  int cur;
-
-}g_head;
 
 int getAmt(volatile node* ptr){
   return ((unsigned long)ptr)&0xf;
@@ -63,7 +18,6 @@ void incPtr(volatile node** ptr){
   int amt=getAmt(*ptr)+1;
   *ptr=(void*)(((unsigned long)getPtr(*ptr))|amt);
 }
-void enq(node* new_node);
 void freeTable(table* toadd){
   for(int i =0;i<toadd->size;i++){
     free(toadd->q[i]);
@@ -71,7 +25,9 @@ void freeTable(table* toadd){
   free(toadd->q);
   free(toadd);
 
+ 
 }
+
 table* createTable(int n_size){
   table* t=(table*)malloc(sizeof(table));
   t->size=n_size;
@@ -88,7 +44,7 @@ table* createTable(int n_size){
 
   return t;
 }
-uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
+
 int searchq(que** q, unsigned long val){
   //  printf("start search\n");
   unsigned int bucket= murmur3_32(&val, 8, seeds)%initSize;
@@ -127,48 +83,6 @@ int addDrop(node* ele ,table* toadd, int tt_size){
   }
   return 0;
 }
-
-
-
-uint32_t murmur3_32(const uint8_t* key, size_t len, uint32_t seed)
-{
-  uint32_t h = seed;
-  if (len > 3) {
-    const uint32_t* key_x4 = (const uint32_t*) key;
-    size_t i = len >> 2;
-    do {
-      uint32_t k = *key_x4++;
-      k *= 0xcc9e2d51;
-      k = (k << 15) | (k >> 17);
-      k *= 0x1b873593;
-      h ^= k;
-      h = (h << 13) | (h >> 19);
-      h = h * 5 + 0xe6546b64;
-    } while (--i);
-    key = (const uint8_t*) key_x4;
-  }
-  if (len & 3) {
-    size_t i = len & 3;
-    uint32_t k = 0;
-    key = &key[i - 1];
-    do {
-      k <<= 8;
-      k |= *key--;
-    } while (--i);
-    k *= 0xcc9e2d51;
-    k = (k << 15) | (k >> 17);
-    k *= 0x1b873593;
-    h ^= k;
-  }
-  h ^= len;
-  h ^= h >> 16;
-  h *= 0x85ebca6b;
-  h ^= h >> 13;
-  h *= 0xc2b2ae35;
-  h ^= h >> 16;
-  return h;
-}
-
 
 
 volatile pointer makeFrom(volatile node* new_node, int amt){
@@ -251,7 +165,8 @@ void enq(node* new_node){
   table* new_table=createTable(global->t[startCur-1]->size<<1);
   addDrop(new_node, new_table, startCur);
 }
-void printTable(int todo){
+
+double freeAll(){
 
   int amt=0;
   table* t;
@@ -290,64 +205,7 @@ void printTable(int todo){
    if(todo)
      printf("\n\n\n");
   }
-  printf("amt=%d\n", amt);
+ 
 
-
-}
-void* run(void* argp){
-  //que** q=(que**)argp;
-    pthread_mutex_lock(&cm);
-  barrier++;
-  pthread_mutex_unlock(&cm);
-  while(barrier<num_threads){
-
-  }
-  for(int i =0;i<(runs);i++){
-        unsigned long val=rand();
-        val=val*rand();
-	node* new_node = (node*)malloc(sizeof(node));
-	
-	new_node->next.ptr=NULL;
-	new_node->val=i;
-	enq(new_node);
-  }
-}
-
-int main(int argc, char**argv){
-  if(argc!=5){
-    printf("usage: prog initsize runs num_threads\n");
-  }
-  initSize=atoi(argv[1]);
-  runs=atoi(argv[2]);
-  num_threads=atoi(argv[3]);
-  max_ele=atoi(argv[4]);
-  global=(g_head*)malloc(sizeof(g_head));
-  global->t=(table**)malloc(max_tables*sizeof(table*));
-  global->cur=1;
-  global->t[0]=createTable(initSize);
-  //  que** q=(que**)malloc(sizeof(que*)*initSize);
-  //  start(q, initSize);
-
-  int cores=sysconf(_SC_NPROCESSORS_ONLN);
-  pthread_t threads[max_threads];
-  pthread_attr_t attr;
-  pthread_attr_init(&attr);
-  cpu_set_t sets[max_threads];
-  for(int i =0;i<num_threads;i++){
-    CPU_ZERO(&sets[i]);
-    CPU_SET(i%cores, &sets[i]);
-    threads[i]=pthread_self();
-    pthread_setaffinity_np(threads[i], sizeof(cpu_set_t),&sets[i]);
-    pthread_create(&threads[i], &attr,run,NULL);
-
-
-  }
-  for(int i =0;i<num_threads;i++){
-    pthread_join(threads[i], NULL);
-    
-  }
-
-
-      printTable(0);
 
 }
