@@ -31,7 +31,7 @@ double stopError = 0.0;
 int numInsertions = 100;
 int InitSize = 1;
 int HashAttempts = 1;
-TableHead* globalHead=NULL;
+HashTable* globalHead=NULL;
 
 
 
@@ -225,7 +225,7 @@ getVal(void)
 }
 
 void
-insertTrial(TableHead* head, int n) {
+insertTrial(HashTable* head, int n) {
 
 
 

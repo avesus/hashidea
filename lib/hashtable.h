@@ -1,7 +1,7 @@
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
 
-typedef struct TableHead HashTable;
+typedef struct HashTable HashTable;
 
 typedef struct entry{
   unsigned long val;
@@ -14,7 +14,7 @@ double freeAll(HashTable* head, int last);
 int checkTableQuery(HashTable* head, entry* ent);
 
 // initialize a new main hashtable
-TableHead* initTable(HashTable* head, int InitSize, int HashAttempts);
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts);
 
 
 // return 1 if inserted, 0 if already there

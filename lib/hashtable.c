@@ -14,18 +14,18 @@
 
 
 //a sub table (this should be hidden)
-typedef struct HashTable {
+typedef struct SubTable {
   entry** InnerTable; //rows (table itself)
   int TableSize; //size
-} HashTable;
+} SubTable;
 
 // head of cache: this is the main hahstable
-typedef struct TableHead{
-  HashTable** TableArray; //array of tables
+typedef struct HashTable{
+  SubTable** TableArray; //array of tables
   unsigned int * seeds;
   int hashAttempts;
   int cur; //current max index (max exclusive)
-} TableHead;
+} HashTable;
 
 
 #define max_tables 64 //max tables to create
@@ -36,20 +36,20 @@ typedef struct TableHead{
 #define unk -2
 
 // create a sub table
-static HashTable* createTable(int hsize);
+static SubTable* createTable(int hsize);
 // free a subtable 
-static void freeTable(HashTable* table);
+static void freeTable(SubTable* table);
 
 //creates new hashtable in the tablearray
-static int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent);
+static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
-static int lookup(HashTable* ht, entry* ent, unsigned int seeds);
+static int lookup(SubTable* ht, entry* ent, unsigned int seeds);
 
 
 
 static int 
-lookupQuery(HashTable* ht, entry* ent, unsigned int seed){
+lookupQuery(SubTable* ht, entry* ent, unsigned int seed){
   unsigned int s=murmur3_32((const uint8_t *)&ent->val, 8, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return notIn;
@@ -60,8 +60,8 @@ lookupQuery(HashTable* ht, entry* ent, unsigned int seed){
   return unk;
 }
 
-int checkTableQuery(TableHead* head, entry* ent){
-  HashTable* ht=NULL;
+int checkTableQuery(HashTable* head, entry* ent){
+  SubTable* ht=NULL;
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
     for(int i =0;i<head->hashAttempts;i++){
@@ -80,8 +80,8 @@ int checkTableQuery(TableHead* head, entry* ent){
 }
 
 
-double freeAll(TableHead* head, int last){
-  HashTable* ht=NULL;
+double freeAll(HashTable* head, int last){
+  SubTable* ht=NULL;
   double count=0;
   double totalSize=0;
   for(int i = 0;i<head->cur; i++){
@@ -106,13 +106,13 @@ double freeAll(TableHead* head, int last){
 }
 
 static void 
-freeTable(HashTable* ht){
+freeTable(SubTable* ht){
   free(ht);
 }
 
 
 //check if entry for a given hashing vector is in a table
-static int lookup(HashTable* ht, entry* ent, unsigned int seed){
+static int lookup(SubTable* ht, entry* ent, unsigned int seed){
 
   unsigned int s= murmur3_32((const uint8_t *)&ent->val, 8, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
@@ -126,8 +126,8 @@ static int lookup(HashTable* ht, entry* ent, unsigned int seed){
 
 
 
-static int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent){
-  HashTable* expected=NULL;
+static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
+  SubTable* expected=NULL;
   int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
     int newSize=AddSlot+1;
@@ -152,9 +152,9 @@ static int addDrop(TableHead* head, HashTable* toadd, int AddSlot, entry* ent){
 
 
 
-int insertTable(TableHead* head,  int start, entry* ent){
+int insertTable(HashTable* head,  int start, entry* ent){
 
-  HashTable* ht=NULL;
+  SubTable* ht=NULL;
   int LocalCur=head->cur;
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
@@ -183,7 +183,7 @@ int insertTable(TableHead* head,  int start, entry* ent){
     }
     LocalCur=head->cur;
   }
-  HashTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
+  SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
   addDrop(head, new_table, LocalCur, ent);
 }
 
@@ -198,21 +198,21 @@ initSeeds(int HashAttempts){
 }
 
 
-TableHead* initTable(TableHead* head, int InitSize, int HashAttempts){
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts){
   if(!head){
-    head=(TableHead*)calloc(1,sizeof(TableHead));
+    head=(HashTable*)calloc(1,sizeof(HashTable));
     head->seeds=initSeeds(HashAttempts);
     head->hashAttempts=HashAttempts;
   }
-  head->TableArray=(HashTable**)calloc(max_tables,sizeof(HashTable*));
+  head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
   head->cur=1;
   return head;
 }
 
-static HashTable* 
+static SubTable* 
 createTable(int tsize){
-  HashTable* ht=(HashTable*)calloc(1,sizeof(HashTable));
+  SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
   return ht;
