@@ -6,11 +6,12 @@
 #define VERSION "0.1"
 static const gsl_rng_type * T;
 static int useEnv = 0;
+static double initAlpha;
+static double initBeta;
 
 void
 postArgs(void)
 {
-  fprintf(stderr, "post args for rand library: %d\n", useEnv);
 }
 
 static ArgOption args[] = {
