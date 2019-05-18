@@ -1,24 +1,11 @@
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
 
+typedef struct TableHead TableHead;
+
 typedef struct entry{
   unsigned long val;
 }entry;
-
-//a sub table (this should be hidden)
-typedef struct HashTable {
-  entry** InnerTable; //rows (table itself)
-  int TableSize; //size
-} HashTable;
-
-// head of cache: this is the main hahstable
-typedef struct TableHead{
-  HashTable** TableArray; //array of tables
-  unsigned int * seeds;
-  int hashAttempts;
-  int cur; //current max index (max exclusive)
-} TableHead;
-
 
 // free hash table when done
 double freeAll(TableHead* head, int last);

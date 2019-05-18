@@ -276,7 +276,7 @@ run(void* arg) {
 
     // record time and see if we are done
     if (tid == 0) {
-      printf("%2d %9llu\n", trialNumber, ns);
+      if (verbose) printf("%2d %9llu\n", trialNumber, ns);
       trialTimes[trialNumber] = ns;
       if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
 	double median = getMedian(trialTimes, trialNumber+1);

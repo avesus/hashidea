@@ -12,6 +12,22 @@
 #include "hashtable.h"
 #include "hash.h"
 
+
+//a sub table (this should be hidden)
+typedef struct HashTable {
+  entry** InnerTable; //rows (table itself)
+  int TableSize; //size
+} HashTable;
+
+// head of cache: this is the main hahstable
+typedef struct TableHead{
+  HashTable** TableArray; //array of tables
+  unsigned int * seeds;
+  int hashAttempts;
+  int cur; //current max index (max exclusive)
+} TableHead;
+
+
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
