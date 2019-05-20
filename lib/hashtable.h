@@ -22,4 +22,9 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid);
 
 int getStart(HashTable* head);
 
+////////////////////////////////////////////////////////////////
+// used only for testing and timing
+
+extern const char* tablename;
+
 #endif

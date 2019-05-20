@@ -16,6 +16,16 @@
 
 #define Version "0.1"
 
+static char*
+getProgramPrefix(void) {
+  static char* prefix = NULL;
+  if (prefix == NULL) {
+    prefix = mycalloc(strlen(tablename)+16, 1);
+    sprintf(prefix, "%s:harness:%s", tablename, Version);
+  }
+  return prefix;
+}
+
 ////////////////////////////////////////////////////////////////
 // arguments, description, version, etc.
 
@@ -365,23 +375,37 @@ main(int argc, char**argv)
   // exit and print out any results
   double min = getMin(trialTimes, trialNumber);
   double max = getMax(trialTimes, trialNumber);
-  printf("\n\n------- Time Data -------\n\n");
+#if 0 
   printf("Nanoseconds::\n Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
 	 min, max, max-min, 
 	 getMean(trialTimes, trialNumber), 
 	 getMedian(trialTimes, trialNumber), 
 	 getSD(trialTimes, trialNumber));
-
-  printf("\nMilliseconds:\n Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+#endif
+  printf("%s:Milliseconds:\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf",
+	 getProgramPrefix(),
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
 	 getMean(trialTimes, trialNumber)/1000000.0, 
 	 getMedian(trialTimes, trialNumber)/1000000.0, 
 	 getSD(trialTimes, trialNumber)/1000000.0);
-  printf("\n\n------- Utilization Data -------\n\n");
+  if (trialNumber > 4) {
+    nanoseconds* trimmedTimes = mycalloc(trialNumber, sizeof(sizeof(nanoseconds)));
+    int n = trialNumber-2;
+    trimData(trialNumber, trialTimes, trimmedTimes);
+    min = getMin(trimmedTimes, n);
+    max = getMax(trimmedTimes, n);
+    printf("\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf", 
+	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
+	 getMean(trimmedTimes, n)/1000000.0, 
+	 getMedian(trimmedTimes, n)/1000000.0, 
+	 getSD(trimmedTimes, n)/1000000.0);
+  }
+  printf("\n");
 
   min = getMinFloat(trialUtils, trialNumber);
   max = getMaxFloat(trialUtils, trialNumber);
-  printf("Memusage: Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+  printf("%s:Memusage:\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+	 getProgramPrefix(),
 	 min, max, max-min, 
 	 getMeanFloat(trialUtils, trialNumber), 
 	 getMedianFloat(trialUtils, trialNumber), 
