@@ -225,7 +225,7 @@ getVal(void)
 }
 
 void
-insertTrial(HashTable* head, int n) {
+insertTrial(HashTable* head, int n, int tid) {
 
 
 
@@ -233,8 +233,7 @@ insertTrial(HashTable* head, int n) {
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
     ent->val = getVal();
-    //    ent->val=ent->val*getVal();
-    insertTable(head, 0, ent);
+    insertTable(head, getStart(head), ent, tid);
   }
 }
 
@@ -263,13 +262,13 @@ run(void* arg) {
 
     //start timer
     if(!tid){
-      globalHead=initTable(globalHead, InitSize, HashAttempts);
+      globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads);
 
     }
     startThreadTimer(tid);
 
     // run trial
-    insertTrial(globalHead, numInsertions);
+    insertTrial(globalHead, numInsertions, tid);
     
     // end timer
     nanoseconds ns = endThreadTimer(tid);
@@ -289,7 +288,7 @@ run(void* arg) {
 	notDone = 0;
       }
 
-      trialUtils[trialNumber]= freeAll(globalHead, !notDone);
+      trialUtils[trialNumber]= freeAll(globalHead, !notDone, verbose);
       trialNumber++;
     }
     myBarrier(&endLoopBarrier);

@@ -21,9 +21,9 @@ unsigned int seeds=0;
 struct g_head* global=NULL;
 #define max_threads 32
 #define max_tables 64
+
 typedef struct pointer{
   volatile struct node* ptr;
-  //if want deletion gotta add count var here (need to update atomic to 16 byte version then) 
 }pointer;
 
 typedef struct node{
@@ -46,6 +46,7 @@ typedef struct g_head{
   int cur;
 
 }g_head;
+
 
 int getAmt(volatile node* ptr){
   return ((unsigned long)ptr)&0xf;
