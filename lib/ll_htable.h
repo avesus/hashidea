@@ -1,3 +1,6 @@
+#ifndef _LL_HTABLE_H_
+#define _LL_HTABLE_H_
+
 #include <sched.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -8,9 +11,6 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
-
-#ifndef _LL_HTABLE_H_
-#define _LL_HTABLE_H_
 
 typedef struct pointer{
   volatile struct node* ptr;
@@ -37,3 +37,5 @@ typedef struct g_head{
   int cur;
   int bucketMax;
 }g_head;
+
+#endif
