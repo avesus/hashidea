@@ -1,12 +1,13 @@
 CC = gcc
 CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE
 LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm -latomic
-Hashtable = hashtable.o
+Hashtable = hashtable_lazy.o
 Hashfunction = hash.o 
 
 all:	harness testrand
 
 harness: harness.o arg.o  util.o timing.o dist.o ../lib/$(Hashtable) ../lib/$(Hashfunction)
+
 testrand: testrand.o dist.o util.o
 
 harness.o: harness.c arg.h timing.h util.h ../lib/hashtable.h 
