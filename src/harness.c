@@ -12,6 +12,7 @@
 #include "timing.h"
 #include "util.h"
 #include "../lib/hashtable.h"
+#include "../lib/hashstat.h"
 #include "dist.h"
 
 #define Version "0.1"
@@ -112,7 +113,7 @@ static ArgDefs argp = { args, "Harness for parallel hashing", Version, NULL };
 
 pthread_t* threadids;		/* array of thread ids */
 sem_t threadsDone;		/* used to signal when all threads are done */
-int notDone = 1;		/* set to 0 when we are all done */
+volatile int notDone = 1;		/* set to 0 when we are all done */
 __thread int threadId;		/* internal thread id */
 pthread_mutex_t showinfo_mutex = PTHREAD_MUTEX_INITIALIZER; /* used for showing thread info */
 Barrier endLoopBarrier;
@@ -232,7 +233,7 @@ endThreadTimer(int tid) {
 long int
 getVal(void)
 {
-  return random() % 1000;
+  return random(); // % 1000;
 }
 
 int
@@ -292,16 +293,16 @@ run(void* arg) {
 
     // record time and see if we are done
     if (tid == 0) {
-      if (verbose) printf("%2d %9llu\n", trialNumber, ns);
+      if (verbose || 1) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
       trialTimes[trialNumber] = ns;
       if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
-	double median = getMedian(trialTimes, trialNumber+1);
-	double mean = getMean(trialTimes, trialNumber+1);
-	double stddev = getSD(trialTimes, trialNumber+1);
+	double median = getMedian(trialTimes, trialNumber);
+	double mean = getMean(trialTimes, trialNumber);
+	double stddev = getSD(trialTimes, trialNumber);
 	if (stddev <= stopError) notDone = 0;
-	else if (trialNumber+1 > 10*trialsToRun) notDone = 0;
+	else if ((trialNumber+1) >= 10*trialsToRun) notDone = 0;
 	if (verbose) printf("Med:%lf, Avg:%lf, SD:%lf\n", median, mean, stddev);
-      } else if (trialNumber+1 > trialsToRun) {
+      } else if ((trialNumber+1) >= trialsToRun) {
 	notDone = 0;
       }
 
@@ -309,12 +310,32 @@ run(void* arg) {
       trialNumber++;
     }
     myBarrier(&endLoopBarrier);
-    
   } while (notDone);
 
   // when all done, let main thread know
   semPost(&threadsDone);
 }
+
+#ifdef COLLECT_STAT
+////////////////////////////////////////////////////////////////
+// for stats
+
+StatPrintInfo statsinfo[] = {
+  statline(checktable_outer),
+  statline(checktable_hashatmpts),
+  statline(lookup_copy),
+  statline(adddrop),
+  statline(addrop_fail),
+  statline(inserttable_outer),
+  statline(inserttable_hashatmpts),
+  statline(inserttable_inserts),
+  statline(createtable),
+  { NULL, 0 }
+};
+
+StatInfo* stats;
+
+#endif
 
 ////////////////////////////////////////////////////////////////
 // main entry point
@@ -341,9 +362,15 @@ main(int argc, char**argv)
   } else if (trialsToRun == 0) {
     trialsToRun = 1;
   }
+  printf("ttr:%d\n", trialsToRun);
   trialTimes = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(nanoseconds));
   trialUtils = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(double));
 
+#ifdef COLLECT_STAT
+  // allocate stats if compiled in
+  stats = calloc(nthreads, sizeof(StatInfo));
+#endif
+  
   //creating num_threads threads to add items in parallel
   //see run function for more details
   int numcores=sysconf(_SC_NPROCESSORS_ONLN);
@@ -423,5 +450,15 @@ main(int argc, char**argv)
 	 getMedianFloat(trialUtils, trialNumber), 
 	 getSDFloat(trialUtils, trialNumber));
 
-
+#ifdef COLLECT_STAT
+  for (int j=0; statsinfo[j].name != NULL; j++) {
+    printf("%30s:", statsinfo[j].name);
+    for (int x=0; x<nthreads; x++) {
+      printf("\t%6d", *(int *)( ((char*)(stats+x)+statsinfo[j].offset) ));
+    }
+    printf("\n");
+  }
+    
+#endif
+  
 }

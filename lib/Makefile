@@ -6,6 +6,9 @@ OBJS = $(patsubst %.c,%.o,$(SRCS))
 
 all:	$(OBJS)
 
+%.o:	%.c hash.h hashstat.h
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
 	/bin/rm -f *.o *~
 

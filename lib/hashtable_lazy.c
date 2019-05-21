@@ -11,9 +11,12 @@
 #include <assert.h>
 #include "hashtable.h"
 #include "hash.h"
+extern __thread int threadId;		/* internal thread id */
+#include "hashstat.h"
 
 #define VERSION "0.1"
 const char* tablename = "open/multiprobe/lazymove:V" VERSION;
+
 
 //a sub table (this should be hidden)
 typedef struct SubTable {
@@ -96,23 +99,26 @@ int checkTableQuery(HashTable* head, entry* ent){
 
   //iterate through sub tables
   for(int j=head->start;j<head->cur;j++){
+    IncrStat(checktable_outer);
     ht=head->TableArray[j];
 
     //iterate through hash functions
-    for(int i =head->start;i<head->hashAttempts;i++){
+    for(int i =0; i<head->hashAttempts; i++) {
+      IncrStat(checktable_hashatmpts);
 
       //get results of lookup
       int res=lookupQuery(ht, ent, head->seeds[i]);
       if(res==unk){ //unkown if in our not
 	continue;
       }
-      if(res==notIn){ //is in
-	return 0;
+      if(res==notIn){
+	return 0;		/* indicate not found */
       }
-      //not in (we got null so it would have been there)
+      // otherwise, it is found
       return 1;
     }
   }
+  // we never found it
   return 0;
 }
 
@@ -195,6 +201,8 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int 
   if(doCopy&&(!ht->copyBools[s])){
     unsigned long exCopy=0;
     unsigned long newCopy=1;
+    IncrStat(lookup_copy);
+
 
     //set the copyBool for the slot to true to indicate the item is being copied
     int res = __atomic_compare_exchange(&ht->copyBools[s],&exCopy, &newCopy, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
@@ -223,6 +231,8 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int 
 
 //function to add new subtable to hashtable if dont find open slot 
 static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, int tid, int start){
+  IncrStat(adddrop);
+
 
   //try and add new preallocated table (CAS so only one added)
   SubTable* expected=NULL;
@@ -238,6 +248,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
   }
   else{
     //if failed free subtable then try and update new max then insert item
+    IncrStat(addrop_fail);
     freeTable(toadd);
     int newSize=AddSlot+1;
     __atomic_compare_exchange(&head->cur,
@@ -259,6 +270,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
   //iterate through subtables
   for(int j=start;j<head->cur;j++){
+    IncrStat(inserttable_outer);
     ht=head->TableArray[j];
 
     //do copy if there is a new bigger subtable and currently in smallest subtable
@@ -266,6 +278,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
     //iterate through hash functions
     for(int i =0;i<head->hashAttempts;i++){
+      IncrStat(inserttable_hashatmpts);
 
       //lookup value in sub table
       int res=lookup(head, ht, ent, i, doCopy, tid);
@@ -275,6 +288,8 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       if(res==in){ //is in
 	return 0;
       }
+
+      IncrStat(inserttable_inserts);
 
       //if return was null (is available slot in sub table) try and add with CAS.
       //if succeed return 1, else if value it lost to is item itself return. If neither
@@ -331,6 +346,9 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
 //creates a subtable 
 static SubTable* 
 createTable(HashTable* head, int tsize){
+  IncrStat(createtable);
+
+
   SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
