@@ -233,7 +233,7 @@ endThreadTimer(int tid) {
 long int
 getVal(void)
 {
-  return random(); // % 1000;
+  return random();
 }
 
 int

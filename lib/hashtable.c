@@ -33,7 +33,7 @@ typedef struct HashTable{
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
-#define notIn 0 
+#define notIn -3 
 #define in -1
 #define unk -2
 
@@ -234,7 +234,7 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
 
 static SubTable* 
 createTable(int tsize){
-  SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
+  SubTable* ht=(SubTable*)malloc(sizeof(SubTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
   return ht;
