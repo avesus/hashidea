@@ -59,10 +59,10 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int 
 //in the hashtable, s means in the hashtable and was found (return s so can get the value
 //of the item). unk means unknown if in table.
 static int 
-lookupQuery(SubTable* ht, entry* ent, unsigned int seed){
+lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
 
   //get index
-  unsigned int s=murmur3_32((const uint8_t *)&ent->val, 4, seed)%ht->TableSize;
+  unsigned int s=murmur3_32((const uint8_t *)&val, sizeof(val), seed)%ht->TableSize;
   
   //if find null slot know item is not in hashtable as would have been added there otherwise
   if(ht->InnerTable[s]==NULL){
@@ -70,7 +70,7 @@ lookupQuery(SubTable* ht, entry* ent, unsigned int seed){
   }
 
   //values equal return index so can access later
-  else if(ent->val==ht->InnerTable[s]->val){
+  else if(val==ht->InnerTable[s]->val){
     return s;
   }
 
@@ -94,7 +94,7 @@ int sumArr(  int* arr, int size){
 }
 
 //api function user calls to query the table for a given entry. Returns 1 if found, 0 otherwise.
-int checkTableQuery(HashTable* head, entry* ent){
+int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
 
   //iterate through sub tables
@@ -107,7 +107,7 @@ int checkTableQuery(HashTable* head, entry* ent){
       IncrStat(checktable_hashatmpts);
 
       //get results of lookup
-      int res=lookupQuery(ht, ent, head->seeds[i]);
+      int res=lookupQuery(ht, val, head->seeds[i]);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -138,8 +138,9 @@ double freeAll(HashTable* head, int last, int verbose){
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
       if(ht->InnerTable[j]!=NULL){
+
 	if(!ht->copyBools[j]){
-	free(ht->InnerTable[j]);
+	  free(ht->InnerTable[j]);
 	count++;
 	if(verbose){
 	  items[i]++;
@@ -246,6 +247,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
     insertTable(head, start, ent, tid);
   }
   else{
+      printf("Failed: %d - %d\n", tid, toadd->TableSize);
     //if failed free subtable then try and update new max then insert item
     IncrStat(addrop_fail);
     freeTable(toadd);
@@ -285,6 +287,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	continue;
       }
       if(res==in){ //is in
+	free(ent);
 	return 0;
       }
 
@@ -350,8 +353,8 @@ createTable(HashTable* head, int tsize){
 
   SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
   ht->TableSize=tsize;
-  ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
-  ht->threadCopy=( int*)calloc(sizeof(int), head->numThreads);
-  ht->copyBools=(unsigned long*)calloc(sizeof(unsigned long),ht->TableSize);
+  ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
+  ht->threadCopy=( int*)calloc(head->numThreads,sizeof(int));
+  ht->copyBools=(unsigned long*)calloc(ht->TableSize,sizeof(unsigned long));
   return ht;
 }

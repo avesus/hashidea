@@ -252,12 +252,17 @@ isQuery(void)
 void
 insertTrial(HashTable* head, int n, int tid) {
   for (int i=0; i<n; i++) {
-    entry* ent=(entry*)malloc(sizeof(entry));
-    ent->val = getVal();
-    if (isQuery())
-      checkTableQuery(head, ent);
-    else
-      insertTable(head, getStart(head), ent, tid);
+    unsigned long val = getVal();
+
+    if (isQuery()){
+      
+      checkTableQuery(head, val);
+    }
+    else{
+      entry* ent=(entry*)malloc(sizeof(entry));
+    ent->val = val;
+    insertTable(head, getStart(head), ent, tid);
+    }
   }
 }
 

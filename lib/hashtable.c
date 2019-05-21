@@ -51,23 +51,23 @@ static int lookup(SubTable* ht, entry* ent, unsigned int seeds);
 
 
 static int 
-lookupQuery(SubTable* ht, entry* ent, unsigned int seed){
-  unsigned int s=murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), seed)%ht->TableSize;
+lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
+  unsigned int s=murmur3_32((const uint8_t *)&val, sizeof(val), seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
-  else if(ent->val==ht->InnerTable[s]->val){
+  else if(val==ht->InnerTable[s]->val){
     return s;
   }
   return unk;
 }
 
-int checkTableQuery(HashTable* head, entry* ent){
+int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
     for(int i =0;i<head->hashAttempts;i++){
-      int res=lookupQuery(ht, ent, head->seeds[i]);
+      int res=lookupQuery(ht, val, head->seeds[i]);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -97,10 +97,10 @@ double freeAll(HashTable* head, int last, int verbose){
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
       if(ht->InnerTable[j]!=NULL){
-
 	free(ht->InnerTable[j]);
 	count++;
 	if(verbose){
+	  
 	  items[i]++;
 	}
       }
@@ -236,6 +236,6 @@ static SubTable*
 createTable(int tsize){
   SubTable* ht=(SubTable*)malloc(sizeof(SubTable));
   ht->TableSize=tsize;
-  ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
+  ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
   return ht;
 }
