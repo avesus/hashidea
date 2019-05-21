@@ -210,13 +210,15 @@ showThreadInfo(void)
 
 TimingStruct trialTimer;
 
+
+
 void
 startThreadTimer(int tid) {
   if (tid == 0) {
-    myBarrier(&loopBarrier);
+    myBarrier(&loopBarrier, tid);
     startTimer(&trialTimer);
   } else {
-    myBarrier(&loopBarrier);
+    myBarrier(&loopBarrier, tid);
   }
 }
 
@@ -225,10 +227,11 @@ endThreadTimer(int tid) {
   nanoseconds duration = 0;
 
   if (tid == 0) {
-    myBarrier(&loopBarrier);
+    myBarrier(&loopBarrier, tid);
     duration = endTimer(&trialTimer);
+    showWaiting(&loopBarrier, "ETT");
   } else {
-    myBarrier(&loopBarrier);
+    myBarrier(&loopBarrier, tid);
   }
   return duration;
 }
@@ -357,10 +360,11 @@ run(void* arg) {
     startThreadTimer(tid);
 
     if (checkT) {
+      // run check
+      checkTable(globalHead, numInsertions, tid);
+    } else {
       // run trial
       insertTrial(globalHead, numInsertions, tid);
-    } else {
-      checkTable(globalHead, numInsertions, tid);
     }
     
     // end timer
@@ -388,7 +392,7 @@ run(void* arg) {
 	clearStats();
       }
     }
-    myBarrier(&endLoopBarrier);
+    myBarrier(&endLoopBarrier, tid);
   } while (notDone);
 
   // when all done, let main thread know
@@ -409,6 +413,8 @@ main(int argc, char**argv)
   int ok = parseArguments(ap, argc, argv);
   if (ok) die("Error parsing arguments");
 
+  printf("%d\n", checkT);
+  
   // decide on query breakdown
   if (queryPercentage > 0) {
     queryCutoff = (long int)((1.0-queryPercentage)*(double)RAND_MAX);
