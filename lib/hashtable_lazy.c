@@ -37,7 +37,7 @@ typedef struct HashTable{
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
-#define notIn 0 
+#define notIn -3 
 #define in -1
 #define unk -2
 
@@ -59,7 +59,7 @@ static int
 lookupQuery(SubTable* ht, entry* ent, unsigned int seed){
 
   //get index
-  unsigned int s=murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), seed)%ht->TableSize;
+  unsigned int s=murmur3_32((const uint8_t *)&ent->val, 4, seed)%ht->TableSize;
   
   //if find null slot know item is not in hashtable as would have been added there otherwise
   if(ht->InnerTable[s]==NULL){
@@ -99,7 +99,7 @@ int checkTableQuery(HashTable* head, entry* ent){
     ht=head->TableArray[j];
 
     //iterate through hash functions
-    for(int i =head->start;i<head->hashAttempts;i++){
+    for(int i =0;i<head->hashAttempts;i++){
 
       //get results of lookup
       int res=lookupQuery(ht, ent, head->seeds[i]);
@@ -178,7 +178,7 @@ freeTable(SubTable* ht){
 static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int doCopy, int tid){
 
   //get table index
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), head->seeds[seedIndex])%ht->TableSize;
+  unsigned int s= murmur3_32((const uint8_t *)&ent->val, 4, head->seeds[seedIndex])%ht->TableSize;
 
   //if found null slot return index so insert can try and put the entry in the index
   if(ht->InnerTable[s]==NULL){
@@ -223,7 +223,7 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int 
 
 //function to add new subtable to hashtable if dont find open slot 
 static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, int tid, int start){
-
+  
   //try and add new preallocated table (CAS so only one added)
   SubTable* expected=NULL;
   int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
@@ -331,7 +331,7 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
 //creates a subtable 
 static SubTable* 
 createTable(HashTable* head, int tsize){
-  SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
+  SubTable* ht=(SubTable*)malloc(sizeof(SubTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc(sizeof(entry*),(ht->TableSize));
   ht->threadCopy=( int*)calloc(sizeof(int), head->numThreads);
