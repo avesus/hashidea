@@ -4,7 +4,7 @@ LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm -latomic
 
 all:	harness testrand
 
-harness: harness.o arg.o  util.o timing.o ../lib/hashtable.o ../lib/hash.o dist.o
+harness: harness.o arg.o  util.o timing.o ../lib/hashtable_lazy.o ../lib/hash.o dist.o
 testrand: testrand.o dist.o util.o
 
 harness.o: harness.c arg.h timing.h util.h ../lib/hashtable.h 

@@ -253,12 +253,12 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
     head=(HashTable*)calloc(1,sizeof(HashTable));
     head->seeds=initSeeds(HashAttempts);
     head->hashAttempts=HashAttempts;
+    head->numThreads=numThreads;
   }
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(head, InitSize);
   head->cur=1;
   head->start=0;
-  head->numThreads=numThreads;
   return head;
 }
 
