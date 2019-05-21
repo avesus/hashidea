@@ -6,6 +6,7 @@
 #include <errno.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "timing.h"
 #include "util.h"
 
@@ -77,6 +78,34 @@ myBarrier(Barrier* b) {
 
 ////////////////////////////////////////////////////////////////
 // stat functions
+
+void
+trimData(int n, nanoseconds* trialTimes, nanoseconds* trimmedTimes) {
+  nanoseconds min = trialTimes[0];
+  nanoseconds max = trialTimes[0];
+  assert(n > 2);
+  // find min and max
+  for (int i=0; i<n; i++) {
+    if (trialTimes[i] < min) min = trialTimes[i];
+    if (trialTimes[i] > max) max = trialTimes[i];
+  }
+  // now copy all but one min and one max
+  int mincopy = 1;
+  int maxcopy = 1;
+  int x = 0;
+  for (int i=0; i<n; i++) {
+    if (mincopy && (trialTimes[i] == min)) {
+      mincopy = 0;
+      continue;
+    }
+    if (maxcopy && (trialTimes[i] == max)) {
+      maxcopy = 0;
+      continue;
+    }
+    trimmedTimes[x++] = trialTimes[i];
+  }
+}
+
 
 static int nanocomp(const void* a, const void *b) {
   return *(nanoseconds*)b - *(nanoseconds*)a;

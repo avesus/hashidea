@@ -29,6 +29,8 @@ void initBarrierN(Barrier* b, int n);
 
 // stats
 
+void trimData(int n, long long unsigned* trialTimes, long long unsigned* trimmedTimes);
+
 double getMedian(long long unsigned* trialTimes, int trialNumber);
 double getMean(long long unsigned* trialTimes, int trialNumber);
 double getSD(long long unsigned* trialTimes, int trialNumber);
