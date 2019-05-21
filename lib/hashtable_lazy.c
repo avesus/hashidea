@@ -141,7 +141,7 @@ double freeAll(HashTable* head, int last, int verbose){
 
 	if(!ht->copyBools[j]){
 	  free(ht->InnerTable[j]);
-	count++;
+	  count++;
 	if(verbose){
 	  items[i]++;
 	}
@@ -165,8 +165,8 @@ double freeAll(HashTable* head, int last, int verbose){
   }
   if(last){
     free(head->seeds);
-    free(head);
   }
+  free(head);
   return count/totalSize;  
 }
 
@@ -247,8 +247,8 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
     insertTable(head, start, ent, tid);
   }
   else{
-      printf("Failed: %d - %d\n", tid, toadd->TableSize);
     //if failed free subtable then try and update new max then insert item
+    printf("Failed: %d - %d\n", tid, toadd->TableSize);
     IncrStat(addrop_fail);
     freeTable(toadd);
     int newSize=AddSlot+1;
@@ -319,25 +319,15 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   addDrop(head, new_table, LocalCur, ent, tid, start+1);
 }
 
-//initial seeds for multiple hash functions
-static unsigned int*
-initSeeds(int HashAttempts){
-  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
-  for(int i =0;i<HashAttempts;i++){
-    seeds[i]=random();
-  }
-  return seeds;
-}
 
 //initial hashtable. First table head will be null, after that will just reinitialize first table
 //returns a pointer to the hashtable
-HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads){
-  if(!head){
-    head=(HashTable*)calloc(1,sizeof(HashTable));
-    head->seeds=initSeeds(HashAttempts);
-    head->hashAttempts=HashAttempts;
-    head->numThreads=numThreads;
-  }
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds){
+
+  head=(HashTable*)calloc(1,sizeof(HashTable));
+  head->seeds=seeds;
+  head->hashAttempts=HashAttempts;
+  head->numThreads=numThreads;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(head, InitSize);
   head->cur=1;

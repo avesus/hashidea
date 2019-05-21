@@ -243,13 +243,24 @@ isQuery(void)
   return 0;
 }
 
+
+//initial seeds for multiple hash functions
+static unsigned int*
+initSeeds(int HashAttempts){
+  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
+  for(int i =0;i<HashAttempts;i++){
+    seeds[i]=random();
+  }
+  return seeds;
+}
+
+
 void
 insertTrial(HashTable* head, int n, int tid) {
   for (int i=0; i<n; i++) {
     unsigned long val = getVal();
 
     if (isQuery()){
-      
       checkTableQuery(head, val);
     }
     else{
@@ -267,7 +278,7 @@ void*
 run(void* arg) {
   targs* args=(targs*)arg;
   int tid=args->tid;
-  unsigned int* seeds=NULL;
+  unsigned int* seeds=args->seeds;
   free(args);
   
   threadId = tid;
@@ -285,7 +296,7 @@ run(void* arg) {
 
     //start timer
     if(!tid){
-      globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads);
+      globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds);
 
     }
     startThreadTimer(tid);
@@ -386,6 +397,9 @@ main(int argc, char**argv)
   // setup various barriers
   initBarrier(&loopBarrier);
   initBarrier(&endLoopBarrier);
+
+  //init hash functions
+  unsigned int* seeds=initSeeds(HashAttempts);
   
   // start threads
   for(int i =0; i<nthreads; i++) {
@@ -402,6 +416,7 @@ main(int argc, char**argv)
     if (result) die("setaffinitity fails: %d", result);
     
     targs* temp_args=malloc(sizeof(targs));
+    temp_args->seeds=seeds;
     temp_args->tid=i;
     
     result = pthread_create(&threadids[i], &attr, run, (void*)temp_args);
