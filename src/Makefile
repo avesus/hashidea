@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE
-LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm -latomic
+LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
 Hashtable = hashtable_lazy.o
 Hashfunction = hash.o 
 
