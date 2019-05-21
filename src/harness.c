@@ -276,9 +276,7 @@ checkTable(HashTable* head, int n, int tid) {
   }
   // see if they are all there
   for (int i=0; i<n; i++) {
-    entry* ent=(entry*)malloc(sizeof(entry));
-    ent->val = i;
-    if (checkTableQuery(head, ent) != 1) {
+    if (checkTableQuery(head, i) != 1) {
       printf("%d: failed to find %d\n", tid, i);
     }
   }
@@ -509,4 +507,6 @@ main(int argc, char**argv)
 	 getSDFloat(trialUtils, trialNumber));
 
   printStats();
+  freeCommandLine();
+  freeArgumentParser(ap);
 }
