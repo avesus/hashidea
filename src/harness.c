@@ -242,7 +242,7 @@ insertTrial(HashTable* head, int n, int tid) {
   
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
-    ent->val = i;
+    ent->val = getVal();
     insertTable(head, getStart(head), ent, tid);
   }
 }
