@@ -6,7 +6,7 @@ LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
 Hashtable = hashtable_lazy.o
 Hashfunction = hash.o 
 
-all:	harness testrand
+all:	harness 
 
 harness: harness.o arg.o  util.o timing.o dist.o ../lib/$(Hashtable) ../lib/$(Hashfunction)
 
