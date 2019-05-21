@@ -117,10 +117,11 @@ double freeAll(HashTable* head, int last, int verbose){
     printf("Total: %d\n", (int)count);
     free(items);
   }
+
   if(last){
     free(head->seeds);
-    free(head);
   }
+  free(head);
   return count/totalSize;  
 }
 
@@ -207,25 +208,14 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 }
 
 
-static unsigned int*
-initSeeds(int HashAttempts){
-  unsigned int * seeds=(unsigned int*)malloc(sizeof(unsigned int)*HashAttempts);
-  for(int i =0;i<HashAttempts;i++){
-    seeds[i]=random();
-  }
-  return seeds;
-}
-
 int getStart(HashTable* head){
   return 0;
 }
 
-HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads){
-  if(!head){
-    head=(HashTable*)calloc(1,sizeof(HashTable));
-    head->seeds=initSeeds(HashAttempts);
-    head->hashAttempts=HashAttempts;
-  }
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds){
+  head=(HashTable*)calloc(1,sizeof(HashTable));
+  head->seeds=seeds;
+  head->hashAttempts=HashAttempts;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
   head->cur=1;
