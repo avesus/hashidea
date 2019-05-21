@@ -11,7 +11,7 @@ typedef struct entry{
 double freeAll(HashTable* head, int last, int verbose);
 
 // see if entry is in the table
-int checkTableQuery(HashTable* head, entry* ent);
+int checkTableQuery(HashTable* head, unsigned long val);
 
 // initialize a new main hashtable
 HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads);
