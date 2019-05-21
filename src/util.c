@@ -67,13 +67,25 @@ semPost(sem_t* sem) {
 
 void
 initBarrierN(Barrier* b, int n) {
-  int s = pthread_barrier_init(b, NULL, n);
+  int s = pthread_barrier_init(&b->barrier, NULL, n);
   if (s) errdie("Can't initialize barrier");
+  b->n = n;
+  b->endWait = mycalloc(n, sizeof(long long unsigned));
 }
 
 void
-myBarrier(Barrier* b) {
-  pthread_barrier_wait(b);
+myBarrier(Barrier* b, int tid) {
+  TimingStruct timer;
+  startTimer(&timer);
+  pthread_barrier_wait(&b->barrier);
+  b->endWait[tid] = endTimer(&timer);
+}
+
+void
+showWaiting(Barrier* b, const char* msg) {
+  printf("%s:", msg);
+  for (int i=0; i<b->n; i++) printf("\t%6llu", b->endWait[i]);
+  printf("\n");
 }
 
 ////////////////////////////////////////////////////////////////
