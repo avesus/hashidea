@@ -465,5 +465,9 @@ parseArguments(ArgParser* ap, int argc, char**argv)
   return 0;
 }
 
-
+void
+freeCommandLine(void)
+{
+  free(commandLine);
+}
 

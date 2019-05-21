@@ -84,5 +84,6 @@ ArgParser* createArgumentParser(ArgDefs* def);
 void freeArgumentParser(ArgParser* ap);
 void addArgumentParser(ArgParser* ap, ArgDefs* def, int order);
 int parseArguments(ArgParser* ap, int argc, char**argv);
+void freeCommandLine(void);
 
 #endif
