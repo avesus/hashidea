@@ -42,8 +42,8 @@ int numInsertions = 100;
 int InitSize = 1;
 int HashAttempts = 1;
 HashTable* globalHead=NULL;
-
-
+double queryPercentage = 0.0;
+int queryCutoff = 0;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
@@ -100,6 +100,7 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
   { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
   { KindOption,   Function,	"--ab",		0, &initAlphaBeta, 	"default alpha beta for keys" },
+  { KindOption,   Double,	"--qp",		0, &queryPercentage, 	"Percent of actions that are queries" },
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
   { KindHelp,     Help, 	"-h" },
@@ -231,19 +232,25 @@ endThreadTimer(int tid) {
 long int
 getVal(void)
 {
-  return random();
+  return random() % 1000;
+}
+
+int
+isQuery(void)
+{
+  if ((queryPercentage > 0) && (random() > queryCutoff)) return 1;
+  return 0;
 }
 
 void
 insertTrial(HashTable* head, int n, int tid) {
-
-
-
-  
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
     ent->val = getVal();
-    insertTable(head, getStart(head), ent, tid);
+    if (isQuery())
+      checkTableQuery(head, ent);
+    else
+      insertTable(head, getStart(head), ent, tid);
   }
 }
 
@@ -322,6 +329,11 @@ main(int argc, char**argv)
   addArgumentParser(ap, getProbDistArgParsing(), 0);
   int ok = parseArguments(ap, argc, argv);
   if (ok) die("Error parsing arguments");
+
+  // decide on query breakdown
+  if (queryPercentage > 0) {
+    queryCutoff = (long int)((1.0-queryPercentage)*(double)RAND_MAX);
+  }
 
   // setup to track different trials
   if (stopError > 0.0) {
