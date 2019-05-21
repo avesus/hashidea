@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
+#include <assert.h>
 
 #include "hashtable.h"
 #include "hash.h"
@@ -105,7 +106,7 @@ double freeAll(HashTable* head, int last, int verbose){
   int * items=NULL;
   if(verbose){
     items=(int*)calloc(sizeof(int), head->cur);
-    printf("Tables:\n");
+    printf("Tables: %d-%d\n", head->start, head->cur);
   }
   for(int i = 0;i<head->cur; i++){
     ht=head->TableArray[i];
@@ -122,7 +123,7 @@ double freeAll(HashTable* head, int last, int verbose){
       }
     }
     if(verbose){
-      printf("%d/%d\n", items[i], ht->TableSize);
+      printf("%d/%d - %d\n", items[i], ht->TableSize, sumArr(ht->threadCopy, head->numThreads));
     }
     free(ht->InnerTable);
     free(ht->threadCopy);
@@ -134,6 +135,7 @@ double freeAll(HashTable* head, int last, int verbose){
   if(verbose){
     free(items);
     printf("Total: %d\n", (int)count);
+    assert(count<1001);
   }
   if(last){
     free(head->seeds);
@@ -152,11 +154,10 @@ freeTable(SubTable* ht){
 static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int doCopy, int tid){
 
   unsigned int s= murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), head->seeds[seedIndex])%ht->TableSize;
-  entry* temp=ht->InnerTable[s];
-  if(temp==NULL){
+  if(ht->InnerTable[s]==NULL){
     return s;
   }
-  else if(temp->val==ent->val){
+  else if(ht->InnerTable[s]->val==ent->val){
     return in;
   }
   if(doCopy&&(!ht->copyBools[s])){
@@ -164,7 +165,7 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int 
     unsigned long newCopy=1;
     int res = __atomic_compare_exchange(&ht->copyBools[s],&exCopy, &newCopy, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
     if(res){
-      insertTable(head, head->start+1, temp, tid);
+      insertTable(head, head->start+1, ht->InnerTable[s], tid);
       ht->threadCopy[tid]++;
       if(ht->TableSize==sumArr(ht->threadCopy, head->numThreads)){
 	head->start++;
@@ -218,7 +219,9 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       if(res==in){ //is in
 	return 0;
       }
-
+      /*      if(j<head->start){
+	continue;
+	}*/
       entry* expected=NULL;
       int cmp= __atomic_compare_exchange(&ht->InnerTable[res],
 					 &expected,

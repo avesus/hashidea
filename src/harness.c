@@ -8,6 +8,7 @@
 #include <string.h>
 #include <time.h>
 #include <semaphore.h>
+#include <assert.h>
 #include "arg.h"
 #include "timing.h"
 #include "util.h"
@@ -242,7 +243,7 @@ insertTrial(HashTable* head, int n, int tid) {
   
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
-    ent->val = getVal();
+    ent->val = getVal()%1000;
     insertTable(head, getStart(head), ent, tid);
   }
 }
