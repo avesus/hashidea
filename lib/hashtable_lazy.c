@@ -99,7 +99,7 @@ int checkTableQuery(HashTable* head, entry* ent){
     ht=head->TableArray[j];
 
     //iterate through hash functions
-    for(int i =0;i<head->hashAttempts;i++){
+    for(int i =head->start;i<head->hashAttempts;i++){
 
       //get results of lookup
       int res=lookupQuery(ht, ent, head->seeds[i]);
