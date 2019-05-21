@@ -45,6 +45,8 @@ int HashAttempts = 1;
 HashTable* globalHead=NULL;
 double queryPercentage = 0.0;
 int queryCutoff = 0;
+int checkT = 0;
+int statspertrial = 0;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
@@ -103,6 +105,10 @@ static ArgOption args[] = {
   { KindOption,   Function,	"--ab",		0, &initAlphaBeta, 	"default alpha beta for keys" },
   { KindOption,   Double,	"--qp",		0, &queryPercentage, 	"Percent of actions that are queries" },
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
+  { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },    
+#ifdef COLLECT_STAT
+  { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
+#endif
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
   { KindHelp,     Help, 	"-h" },
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
@@ -255,6 +261,70 @@ insertTrial(HashTable* head, int n, int tid) {
   }
 }
 
+void
+checkTable(HashTable* head, int n, int tid) {
+  // insert n keys from all threads
+  for (int i=0; i<n; i++) {
+    entry* ent=(entry*)malloc(sizeof(entry));
+    ent->val = i;
+    insertTable(head, getStart(head), ent, tid);
+  }
+  // see if they are all there
+  for (int i=0; i<n; i++) {
+    entry* ent=(entry*)malloc(sizeof(entry));
+    ent->val = i;
+    if (checkTableQuery(head, ent) != 1) {
+      printf("%d: failed to find %d\n", tid, i);
+    }
+  }
+}
+
+
+
+#ifdef COLLECT_STAT
+////////////////////////////////////////////////////////////////
+// for stats
+
+StatPrintInfo statsinfo[] = {
+  statline(checktable_outer),
+  statline(checktable_hashatmpts),
+  statline(lookup_copy),
+  statline(adddrop),
+  statline(addrop_fail),
+  statline(inserttable_outer),
+  statline(inserttable_hashatmpts),
+  statline(inserttable_inserts),
+  statline(createtable),
+  { NULL, 0 }
+};
+
+StatInfo* stats;
+
+void
+printStats(void) {
+  for (int j=0; statsinfo[j].name != NULL; j++) {
+    printf("%30s:", statsinfo[j].name);
+    for (int x=0; x<nthreads; x++) {
+      printf("\t%6d", *(int *)( ((char*)(stats+x)+statsinfo[j].offset) ));
+    }
+    printf("\n");
+  }
+}
+
+void
+clearStats(void) {
+  if (stats) {
+    memset(stats, 0, sizeof(StatInfo)*nthreads);
+  } else {
+    stats = calloc(nthreads, sizeof(StatInfo));
+  }
+}
+#else
+# define printStats()
+# define clearStats()
+#endif
+
+
 ////////////////////////////////////////////////////////////////
 // main thread function: run
 
@@ -271,8 +341,6 @@ run(void* arg) {
   // if showing thread info, do so now
   if (showthreadattr) showThreadInfo();
 
-  int nipt = numInsertions/nthreads;
-  
   notDone = 1;
   
 
@@ -285,8 +353,12 @@ run(void* arg) {
     }
     startThreadTimer(tid);
 
-    // run trial
-    insertTrial(globalHead, numInsertions, tid);
+    if (checkT) {
+      // run trial
+      insertTrial(globalHead, numInsertions, tid);
+    } else {
+      checkTable(globalHead, numInsertions, tid);
+    }
     
     // end timer
     nanoseconds ns = endThreadTimer(tid);
@@ -308,6 +380,10 @@ run(void* arg) {
 
       trialUtils[trialNumber]= freeAll(globalHead, !notDone, verbose);
       trialNumber++;
+      if (statspertrial) {
+	printStats();
+	clearStats();
+      }
     }
     myBarrier(&endLoopBarrier);
   } while (notDone);
@@ -315,27 +391,6 @@ run(void* arg) {
   // when all done, let main thread know
   semPost(&threadsDone);
 }
-
-#ifdef COLLECT_STAT
-////////////////////////////////////////////////////////////////
-// for stats
-
-StatPrintInfo statsinfo[] = {
-  statline(checktable_outer),
-  statline(checktable_hashatmpts),
-  statline(lookup_copy),
-  statline(adddrop),
-  statline(addrop_fail),
-  statline(inserttable_outer),
-  statline(inserttable_hashatmpts),
-  statline(inserttable_inserts),
-  statline(createtable),
-  { NULL, 0 }
-};
-
-StatInfo* stats;
-
-#endif
 
 ////////////////////////////////////////////////////////////////
 // main entry point
@@ -366,10 +421,8 @@ main(int argc, char**argv)
   trialTimes = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(nanoseconds));
   trialUtils = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(double));
 
-#ifdef COLLECT_STAT
   // allocate stats if compiled in
-  stats = calloc(nthreads, sizeof(StatInfo));
-#endif
+  clearStats();
   
   //creating num_threads threads to add items in parallel
   //see run function for more details
@@ -450,15 +503,5 @@ main(int argc, char**argv)
 	 getMedianFloat(trialUtils, trialNumber), 
 	 getSDFloat(trialUtils, trialNumber));
 
-#ifdef COLLECT_STAT
-  for (int j=0; statsinfo[j].name != NULL; j++) {
-    printf("%30s:", statsinfo[j].name);
-    for (int x=0; x<nthreads; x++) {
-      printf("\t%6d", *(int *)( ((char*)(stats+x)+statsinfo[j].offset) ));
-    }
-    printf("\n");
-  }
-    
-#endif
-  
+  printStats();
 }
