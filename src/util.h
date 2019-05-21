@@ -22,9 +22,16 @@ void* myCalloc(size_t nmemb, size_t size, const char* fname, const int ln);
 void semWait(sem_t *sem);
 void semPost(sem_t* sem);
 
-typedef pthread_barrier_t Barrier;
-void myBarrier(Barrier* b);
+typedef struct barrier_struct {
+  pthread_barrier_t barrier;
+  long long unsigned* endWait;
+  int n;
+} Barrier;
+
+void myBarrier(Barrier* b, int t);
 void initBarrierN(Barrier* b, int n);
+void showWaiting(Barrier* b, const char* msg);
+
 #define initBarrier(b) initBarrierN(b, nthreads);
 
 // stats
