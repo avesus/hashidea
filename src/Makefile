@@ -3,7 +3,7 @@ CC = gcc
 #-pg
 CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE
 LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
-Hashtable = hashtable_lazy.o
+Hashtable = hashtable_ll_rr.o
 Hashfunction = hash.o 
 
 all:	harness 

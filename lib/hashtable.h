@@ -7,6 +7,7 @@ typedef struct entry{
   unsigned long val;
 }entry;
 
+
 // free hash table when done
 double freeAll(HashTable* head, int last, int verbose);
 
