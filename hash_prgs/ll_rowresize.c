@@ -9,6 +9,8 @@
 #include <pthread.h>
 #include <stdint.h>
 
+
+#define expec 500
 //make: gcc ms.c -o ms -lpthread -latomic
 int num_threads=0;
 int runs=0;
@@ -44,7 +46,7 @@ typedef struct table{
 typedef struct g_head{
   table** t;
   int cur;
-
+  
 }g_head;
 
 
@@ -199,7 +201,7 @@ void enq(node* new_node){
       return;
     }
     tail=getPtr(tail.ptr)->next;
-  }
+    }
     next=getPtr(tail.ptr)->next;
  if(getPtr(tail.ptr)->val==getPtr(new_node)->val){
    return;
@@ -211,7 +213,23 @@ void enq(node* new_node){
        
        int pval=getAmt(tail.ptr)+1;
        // printf("pval=%d\n",pval);
+
+
        if(pval>=max_ele){
+	 //	 if(getPtr(tail.ptr)==getPtr(t->q[bucket]->tail.ptr)){
+	 //	   break;
+	 //	 }
+	 tail=t->q[bucket]->head;
+	 while(getPtr(tail.ptr)!=getPtr(t->q[bucket]->tail.ptr)){
+	   if(getPtr(tail.ptr)->val==getPtr(new_node)->val){
+	     return;
+	   }
+	   tail=getPtr(tail.ptr)->next;
+	 }
+	 next=getPtr(tail.ptr)->next;
+	 if(getPtr(tail.ptr)->val==getPtr(new_node)->val){
+	   return;
+	 }
 	 break;
        }
        volatile pointer p=makeFrom(new_node, pval);
@@ -235,8 +253,8 @@ void enq(node* new_node){
 	  if(__atomic_compare_exchange((pointer*)&t->q[bucket]->tail ,(pointer*)&tail, (pointer*)&p2, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
 	  }
 	}
-      }
-    }
+     }
+   }
   }
   if(should_hit){
     int pval=getAmt(t->q[bucket]->tail.ptr)+1;
@@ -257,10 +275,10 @@ void printTable(int todo){
   int amt=0;
   table* t;
   int extra=0;
-  int r_amt=0;
+  int r_amt=0, t_amt=0;
   for(int j =0;j<global->cur;j++){
     t=global->t[j];
-            printf("Table %d Size %d\n", j, t->size);
+            printf("Table %d Size ", j);
     extra+=t->size;
  for(int i =0;i<t->size;i++){
    volatile node* temp=getPtr(t->q[i]->head.ptr);
@@ -273,26 +291,38 @@ void printTable(int todo){
 
     amt++;
     r_amt++;
-
-      if(todo)
+    t_amt++;
+    if(todo){
 	printf("%p - (%d) %lu, ", getPtr(temp),pval,temp->val);
+    }
       if(pval!=r_amt||pval>=max_ele){
-		printf("fuck up\n");
+	printf("fuck up\n");
       }
       
       pval=getAmt(temp->next.ptr);
       temp=getPtr(temp->next.ptr);
 
   }
-  r_amt=0;
+  r_amt=0;  
   if(todo)
     printf("\n");
  }
+
+ printf("%d/%d\n", t_amt, t->size);
+ t_amt=0;
+  
    if(todo)
      printf("\n\n\n");
   }
-  printf("amt=%d\n", amt);
+  if(amt!=expec&&!todo){
+    printf("FUCKED UP\n");
+    printTable(1);
 
+  }
+  printf("amt=%d\n", amt);
+  if(todo){
+    exit(0);
+  }
 
 }
 void* run(void* argp){
@@ -304,12 +334,12 @@ void* run(void* argp){
 
   }
   for(int i =0;i<(runs);i++){
-        unsigned long val=rand();
-        val=val*rand();
+        unsigned long val=rand()%expec;
+	//        val=val*rand();
 	node* new_node = (node*)malloc(sizeof(node));
 	
 	new_node->next.ptr=NULL;
-	new_node->val=i;
+	new_node->val=val;
 	enq(new_node);
   }
 }

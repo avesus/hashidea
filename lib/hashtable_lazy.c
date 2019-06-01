@@ -185,7 +185,7 @@ freeTable(SubTable* ht){
 static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int doCopy, int tid){
 
   //get table index
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, 4, head->seeds[seedIndex])%ht->TableSize;
+  unsigned int s= murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), head->seeds[seedIndex])%ht->TableSize;
 
   //if found null slot return index so insert can try and put the entry in the index
   if(ht->InnerTable[s]==NULL){
@@ -248,7 +248,6 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
   }
   else{
     //if failed free subtable then try and update new max then insert item
-    //printf("Failed: %d - %d\n", tid, toadd->TableSize);
     IncrStat(addrop_fail);
     freeTable(toadd);
     int newSize=AddSlot+1;
