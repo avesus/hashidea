@@ -16,13 +16,15 @@ int initSize=0;
 int max_ele=1;
 pthread_mutex_t cm; //various locks
 int barrier=0;
+int * getAll;
 unsigned int seeds=0;
 struct g_head* global=NULL;
+#define expec 500
 #define max_threads 32
 #define max_tables 64
 typedef struct pointer{
   volatile struct node* ptr;
-  //if want deletion gotta add count var here (need to update atomic to 16 byte version then) 
+
 }pointer;
 
 typedef struct node{
@@ -77,7 +79,7 @@ table* createTable(int n_size){
 
 
 
-int addDrop(node* ele ,table* toadd, int tt_size){
+int addDrop(node* ele ,table* toadd, int tt_size, int readd){
   table* expected=NULL;
   int res = __atomic_compare_exchange(&global->t[tt_size] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
@@ -86,7 +88,10 @@ int addDrop(node* ele ,table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
+
+    if(readd){
     enq(ele,0,-1);
+    }
   }
   else{
     freeTable(toadd);
@@ -95,7 +100,10 @@ int addDrop(node* ele ,table* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+
+    if(readd){
     enq(ele,0,-1);
+    }
   }
   return 0;
 }
@@ -152,6 +160,7 @@ void enq(node* new_node, int start, int b){
   //  printf("adding %lu\n", new_node->val);
   int startCur=global->cur;
   table* t;
+  int pre_resize=0;
   for(int i =start;i<global->cur;i++){
     t=global->t[i];
     unsigned int bucket;
@@ -202,7 +211,8 @@ void enq(node* new_node, int start, int b){
 	volatile pointer p=makeFrom(new_node);
 	if(__atomic_compare_exchange((pointer*)&tail.ptr->next ,(pointer*)&next,(pointer*) &p, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
 	  should_hit=1;
-	  t->items++;	  
+	  pre_resize=t->items++;
+	  
 	  break;
 	}
 	else{
@@ -222,13 +232,19 @@ void enq(node* new_node, int start, int b){
   volatile pointer p3=makeFrom(new_node);
   if(__atomic_compare_exchange((pointer*)&t->q[bucket]->tail ,(pointer*)&tail, (pointer*)&p3, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
   }
+
+  if(pre_resize==((max_ele*t->size)<<2)/5&&new_node->val){
+            table* new_table=createTable(global->t[startCur-1]->size<<1);
+	    addDrop(new_node, new_table, startCur, 0);
+  }
   return;
   }
   startCur=global->cur;
   }
   table* new_table=createTable(global->t[startCur-1]->size<<1);
-  addDrop(new_node, new_table, startCur);
+  addDrop(new_node, new_table, startCur,1);
 }
+
 void printTable(int todo){
 
   int amt=0;
@@ -258,6 +274,15 @@ void printTable(int todo){
    if(todo)
      printf("\n\n\n");
   }
+  if(amt!=expec){
+      int sum=0;
+      for(int i =0;i<expec;i++){
+	sum+=getAll[i];
+      }
+      printf("Fucked up maybe %d\n", sum);
+  }
+
+
   printf("amt=%d\n", amt);
 
 
@@ -274,11 +299,11 @@ void* run(void* argp){
 
   for(int i =1;i<=(runs);i++){
         unsigned long val=rand();
-        val=val*rand();
 	node* new_node = (node*)malloc(sizeof(node));
 	
 	new_node->next.ptr=NULL;
-	new_node->val=i;
+	new_node->val=val%expec+1;
+      	getAll[new_node->val-1]=1;
 	enq(new_node, 0,-1);
   }
 }
@@ -297,7 +322,7 @@ int main(int argc, char**argv){
   global->t[0]=createTable(initSize);
   //  que** q=(que**)malloc(sizeof(que*)*initSize);
   //  start(q, initSize);
-
+  getAll=(int*)malloc(expec*sizeof(int));
   int cores=sysconf(_SC_NPROCESSORS_ONLN);
   pthread_t threads[max_threads];
   pthread_attr_t attr;
@@ -318,6 +343,6 @@ int main(int argc, char**argv){
   }
 
 
-    printTable(0)  ;
+      printTable(0)  ;
 
 }
