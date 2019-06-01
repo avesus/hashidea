@@ -248,7 +248,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
   }
   else{
     //if failed free subtable then try and update new max then insert item
-    printf("Failed: %d - %d\n", tid, toadd->TableSize);
+    //printf("Failed: %d - %d\n", tid, toadd->TableSize);
     IncrStat(addrop_fail);
     freeTable(toadd);
     int newSize=AddSlot+1;
