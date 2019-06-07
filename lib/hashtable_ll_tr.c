@@ -15,7 +15,7 @@
 #define VERSION "0.1"
 const char* tablename = "open/multiprobe/remain:V" VERSION;
 
-
+#define resizeShift 8
 #define max_tables 64
 
 //no race condition but slow. Resizes when total elements in table passes some threshold
@@ -67,6 +67,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b);
 //frees a sub table
 void freeTable(SubTable* toadd){
   for(int i =0;i<toadd->TableSize;i++){
+    free((void*)toadd->InnerTable[i]->head.ptr);
     free(toadd->InnerTable[i]);
   }
   free(toadd->InnerTable);
@@ -76,6 +77,8 @@ void freeTable(SubTable* toadd){
 
 //creates a sub table
 SubTable* createTable(int n_size){
+        printf("\n\n!!!!!! %d %d !!!!!!!!!\n\n", n_size, n_size);
+
   SubTable* t=(SubTable*)malloc(sizeof(SubTable));
   t->TableSize=n_size;
   t->TotalElements=0;
@@ -120,6 +123,8 @@ int addDrop(HashTable* head, node* ele ,SubTable* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
+        printf("\n\n######## %d %d ###########\n\n", head->TableArray[tt_size]->TableSize, head->TableArray[tt_size]->TableSize);
+
     insertTable_inner(head,ele,0,-1);
   }
   else{
@@ -246,11 +251,11 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
       if(__atomic_compare_exchange((pointer*)&t->InnerTable[bucket]->tail ,(pointer*)&tail, (pointer*)&p3, 0, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
       }
 
-      //basically if table is almost to max fullness (80%) exactly allocate next one. This reduces
+      //basically if table is exactly some percent allocate next one. This reduces
       //the amount of failed add drop as basically all threads will enter it as totalelements>totalsize
       //is pretty much universal. This is a slight improvement when lots of new tables are being added
       startCur=head->cur;
-      if(pre_resize==((head->maxElements*t->TableSize)<<2)/5&&new_node->val){
+      if(pre_resize==((head->maxElements*t->TableSize)>>resizeShift)&&new_node->val){
 	SubTable* new_table=createTable(head->TableArray[startCur-1]->TableSize<<1);
 	addDrop(head, new_node, new_table, startCur);
       }
@@ -301,9 +306,10 @@ double freeAll(HashTable* head, int last, int verbose){
       temp=temp->next.ptr;
 
       while(temp!=NULL){
-
+	if(temp->val){
 	amt++;
 	t_amt++;
+	}
 	temp=temp->next.ptr;
 
       }
