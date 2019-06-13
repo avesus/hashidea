@@ -15,7 +15,7 @@
 #define VERSION "0.1"
 const char* tablename = "open/multiprobe/remain:V" VERSION;
 
-#define resizeShift 8
+#define resizeShift 1
 #define max_tables 64
 
 //no race condition but slow. Resizes when total elements in table passes some threshold
@@ -66,10 +66,10 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b);
 
 //frees a sub table
 void freeTable(SubTable* toadd){
-  for(int i =0;i<toadd->TableSize;i++){
+  /*for(int i =0;i<toadd->TableSize;i++){
     free((void*)toadd->InnerTable[i]->head.ptr);
     free(toadd->InnerTable[i]);
-  }
+    }*/
   free(toadd->InnerTable);
   free(toadd);
 
@@ -77,22 +77,26 @@ void freeTable(SubTable* toadd){
 
 //creates a sub table
 SubTable* createTable(int n_size){
-        printf("\n\n!!!!!! %d %d !!!!!!!!!\n\n", n_size, n_size);
-
+  printf("--- %d ----\n",n_size);
   SubTable* t=(SubTable*)malloc(sizeof(SubTable));
   t->TableSize=n_size;
   t->TotalElements=0;
-  t->InnerTable=(que**)malloc(sizeof(que*)*(t->TableSize));
-  //  ht->next=NULL;
+  unsigned long chunkSize=(sizeof(node)+sizeof(que)+sizeof(que*))*(t->TableSize);
+  unsigned char* memChunk=(unsigned char*)malloc(chunkSize);
+
+  t->InnerTable=(que**)memChunk;
+  unsigned long nodeOffset=n_size*sizeof(que*);
+  unsigned long queOffset=nodeOffset+n_size*sizeof(node);
+  
+  //get rid of -1 and chunk up the memory
   for(int i =0;i<n_size;i++){
-    node* new_node = (node*)malloc(sizeof(node));
+    node* new_node = (node*)(memChunk+nodeOffset+(i<<4));//(node*)malloc(sizeof(node));
     new_node->val=-1;
-    t->InnerTable[i]=(que*)malloc(sizeof(que));
+    t->InnerTable[i]=(que*)(memChunk+queOffset+(i<<4));//malloc(sizeof(que));
     new_node->next.ptr=NULL;
     t->InnerTable[i]->head.ptr=new_node;
     t->InnerTable[i]->tail.ptr=new_node;
   }
-
   return t;
 }
 
@@ -123,8 +127,6 @@ int addDrop(HashTable* head, node* ele ,SubTable* toadd, int tt_size){
 			      &tt_size,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-        printf("\n\n######## %d %d ###########\n\n", head->TableArray[tt_size]->TableSize, head->TableArray[tt_size]->TableSize);
-
     insertTable_inner(head,ele,0,-1);
   }
   else{
@@ -191,14 +193,18 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
       while(tail.ptr!=t->InnerTable[bucket]->tail.ptr){
 
 	if(tail.ptr->val==new_node->val){
-	  return 0;
+	  if(new_node->val!=-1||tail.ptr==t->InnerTable[bucket]->head.ptr){
+	    return 0;
+	  }
 	}
 	tail=tail.ptr->next;
       }
 
       next=tail.ptr->next;
       if(tail.ptr->val==new_node->val){
-	return 0;
+	if(new_node->val!=-1||tail.ptr==t->InnerTable[bucket]->head.ptr){
+	  return 0;
+	}
       }
 
       //if has a 0 value means cant add anymore to this row
@@ -234,7 +240,9 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
 	  }
 	  else{
 	    if(next.ptr->val==new_node->val){
-	      return 0;
+	      if(new_node->val!=-1||tail.ptr==t->InnerTable[bucket]->head.ptr){
+		return 0;
+	      }
 	    }
 
 
