@@ -20,14 +20,14 @@ const char* tablename = "open/multiprobe/remain:V" VERSION;
 //a sub table (this should be hidden)
 typedef struct SubTable {
   entry** InnerTable; //rows (table itself)
-  int TableSize; //size
+  unsigned int TableSize; //size
 } SubTable;
 
 // head of cache: this is the main hahstable
 typedef struct HashTable{
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
-  int hashAttempts;
+  unsigned int hashAttempts;
   int cur; //current max index (max exclusive)
 } HashTable;
 
@@ -38,7 +38,9 @@ typedef struct HashTable{
 #define notIn -3 
 #define in -1
 #define unk -2
+#define kSize 8
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
+#define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 // create a sub table
 static SubTable* createTable(int hsize);
 // free a subtable 
@@ -53,8 +55,7 @@ static int lookup(SubTable* ht, entry* ent, unsigned int seeds);
 
 
 static int 
-lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
-  unsigned int s=murmur3_32((const uint8_t *)&val, sizeof(val), seed)%ht->TableSize;
+lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
@@ -68,10 +69,12 @@ int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
-    //        for(int i =0;i<head->hashAttempts;i++){
-    //    for(int i =0;i<(j<<1)+1;i++){
-	  for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
-      int res=lookupQuery(ht, val, head->seeds[i]);
+
+    unsigned int s= murmur3_32((const uint8_t *)&val, kSize, head->seeds[0])%ht->TableSize;
+    unsigned int maxInd=min(s+1, ht->TableSize);
+    unsigned int minInd=s-(s!=0);
+    for(int i =minInd; i<=maxInd; i++) {
+      int res=lookupQuery(ht, val, i);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -138,9 +141,9 @@ freeTable(SubTable* ht){
 
 
 //check if entry for a given hashing vector is in a table
-static int lookup(SubTable* ht, entry* ent, unsigned int seed){
+static int lookup(SubTable* ht, entry* ent, unsigned int s){
 
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), seed)%ht->TableSize;
+
   if(ht->InnerTable[s]==NULL){
     return s;
   }
@@ -186,8 +189,13 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
     ht=head->TableArray[j];
     //    for(int i =0;i<head->hashAttempts;i++){
       // for(int i =0;i<(j<<1)+1;i++){
-    for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
-      int res=lookup(ht, ent, head->seeds[i]);
+    //    for(int h=0;h<head->hashAttempts;h++){
+    unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[0])%ht->TableSize;
+    unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
+    unsigned int minTemp=s-((head->hashAttempts>>1)+j);
+    unsigned int minInd=minTemp*(minTemp<=s);
+    for(int i =minInd; i<maxInd; i++) {
+      int res=lookup(ht, ent, i);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -209,8 +217,9 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	}
       }
     }
+    
     LocalCur=head->cur;
-  }
+			    }
   SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
   addDrop(head, new_table, LocalCur, ent);
 }

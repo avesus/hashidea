@@ -175,7 +175,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   node* new_node = (node*)malloc(sizeof(node));
   new_node->next.ptr=NULL;
   new_node->val=ent->val;
-  free(ent);
+  //  free(ent);
   return insertTable_inner(head, new_node);
 }
 
@@ -338,8 +338,9 @@ double freeAll(HashTable* head, int last, int verbose){
     }
     t_amt=0;
   }
-
+  if(verbose){
   printf("amt=%d\n", amt);
+  }
   return ((double)amt)/total;
 }
 
