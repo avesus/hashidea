@@ -113,7 +113,7 @@ int sumArr(  int* arr, int size){
 //api function user calls to query the table for a given entry. Returns 1 if found, 0 otherwise.
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
-
+  unsigned int bucket=murmur3_32((const uint8_t *)&val, kSize, head->seeds[0]);
   //iterate through sub tables
 
   for(int j=head->start;j<head->cur;j++){
@@ -122,7 +122,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
 
     //iterate through hash functions
     //        for(int i =0;i<(j<<1)+1;i++){
-    unsigned int s= murmur3_32((const uint8_t *)&val, kSize, head->seeds[0])%ht->TableSize;
+    unsigned int s= bucket%ht->TableSize;
     unsigned int maxInd=min(s+(head->hashAttempts>>1)+1, ht->TableSize);
     unsigned int minTemp=s-(head->hashAttempts>>1);
     unsigned int minInd=minTemp*(minTemp<=s);
@@ -295,18 +295,18 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
   SubTable* ht=NULL;
   int LocalCur=head->cur;
-
+  unsigned int bucket=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[0]);
   //iterate through subtables
   for(int j=start;j<head->cur;j++){
     IncrStat(inserttable_outer);
     ht=head->TableArray[j];
 
     //do copy if there is a new bigger subtable and currently in smallest subtable
-    int doCopy=(j==head->start)&&(head->cur-head->start>5);
+    int doCopy=(j==head->start)&&(head->cur-head->start>1);
 
     //iterate through hash functions
     //        for(int i =0;i<(j<<1)+1;i++){
-    unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[0])%ht->TableSize;
+    unsigned int s= bucket%ht->TableSize;
     unsigned int maxInd=min(s+(head->hashAttempts>>1)+1, ht->TableSize);
     unsigned int minTemp=s-((head->hashAttempts>>1));
     unsigned int minInd=minTemp*(minTemp<=s);

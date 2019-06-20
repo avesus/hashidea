@@ -71,16 +71,15 @@ static void freeTable(SubTable* table);
 static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, int tid, int start);
 
 //lookup function in insertTrial to check a given inner table
-static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int doCopy, int tid);
+static int lookup(HashTable* head, SubTable* ht, entry* ent,unsigned int s, int doCopy, int tid);
 
 //returns whether an entry is found in a given subtable/overall hashtable. notIn means not
 //in the hashtable, s means in the hashtable and was found (return s so can get the value
 //of the item). unk means unknown if in table.
 static int 
-lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
+lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
 
   //get index
-  unsigned int s=murmur3_32((const uint8_t *)&val, kSize, seed)%ht->TableSize;
   
   //if find null slot know item is not in hashtable as would have been added there otherwise
   if(getPtr(ht->InnerTable[s])==NULL){
@@ -116,6 +115,10 @@ int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
 
   //iterate through sub tables
+  unsigned int buckets[10];
+  for(int i =0;i<head->hashAttempts;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+  }
 
   for(int j=head->start;j<head->cur;j++){
     IncrStat(checktable_outer);
@@ -128,7 +131,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
       IncrStat(checktable_hashatmpts);
 
       //get results of lookup
-      int res=lookupQuery(ht, val, head->seeds[i]);
+      int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -207,10 +210,9 @@ freeTable(SubTable* ht){
 
 //check if entry for a given hashing vector is in a table. Returns in if entry is already
 //in the table, s if the value is not in the table, and unk to try the next hash function
-static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int doCopy, int tid){
+static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int doCopy, int tid){
 
-  //get table index
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[seedIndex])%ht->TableSize;
+
   //if found null slot return index so insert can try and put the entry in the index
   if(getPtr(ht->InnerTable[s])==NULL){
     return s;
@@ -292,6 +294,11 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* ht=NULL;
   int LocalCur=head->cur;
 
+  unsigned int buckets[10];
+  for(int i =0;i<head->hashAttempts;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+  }
+
   //iterate through subtables
   for(int j=start;j<head->cur;j++){
     IncrStat(inserttable_outer);
@@ -306,7 +313,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       IncrStat(inserttable_hashatmpts);
 
       //lookup value in sub table
-      int res=lookup(head, ht, ent, i, doCopy, tid);
+      int res=lookup(head, ht, ent, buckets[i]%ht->TableSize, doCopy, tid);
       if(res==unk){ //unkown if in our not
 	continue;
       }

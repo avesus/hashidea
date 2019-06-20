@@ -57,7 +57,7 @@ typedef struct HashTable{
   SubTable** TableArray;
   int cur;
   unsigned int seed;
-  int maxElements;
+  unsigned long maxElements;
 } HashTable;
 
 //actual insert function used (use api insertTable as wrapper as arguments needed differ).
@@ -104,9 +104,10 @@ SubTable* createTable(int n_size){
 //checks table for a value, 1 means is in, 0 for not in
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* t;
+  unsigned int hashVal= murmur3_32((const uint8_t *)&val, kSize, head->seed);
   for(int i =0;i<head->cur;i++){
     t=head->TableArray[i];
-    unsigned int bucket= murmur3_32((const uint8_t *)&val, kSize, head->seed)%t->TableSize;
+    unsigned int bucket=hashVal%t->TableSize;
     volatile pointer tail = tail=t->InnerTable[bucket]->head;
     while(tail.ptr!=NULL){
       if(tail.ptr->val==val){
@@ -165,7 +166,10 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
   int startCur=head->cur;
   SubTable* t;
   int pre_resize=0;
-  
+  unsigned int hashVal;
+  if(b==-1){
+    hashVal=murmur3_32((const uint8_t *)&new_node->val, kSize, head->seed);
+  }
   //iterate through all sub tables
   for(int i =start;i<head->cur;i++){
     t=head->TableArray[i];
@@ -179,7 +183,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
     else{
 
       //otherwise get bucket
-            bucket= murmur3_32((const uint8_t *)&new_node->val, kSize, head->seed)%t->TableSize;
+            bucket= hashVal%t->TableSize;
     }
     volatile pointer tail;
     volatile pointer next;

@@ -67,10 +67,11 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
 
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
+  unsigned int bucket=murmur3_32((const uint8_t *)&val, kSize, head->seeds[0]);
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
 
-    unsigned int s= murmur3_32((const uint8_t *)&val, kSize, head->seeds[0])%ht->TableSize;
+    unsigned int s= bucket%ht->TableSize;
     unsigned int maxInd=min(s+1, ht->TableSize);
     unsigned int minInd=s-(s!=0);
     for(int i =minInd; i<=maxInd; i++) {
@@ -185,12 +186,13 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
   SubTable* ht=NULL;
   int LocalCur=head->cur;
+  unsigned int bucket=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[0]);
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
     //    for(int i =0;i<head->hashAttempts;i++){
       // for(int i =0;i<(j<<1)+1;i++){
     //    for(int h=0;h<head->hashAttempts;h++){
-    unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[0])%ht->TableSize;
+    unsigned int s= bucket%ht->TableSize;
     unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
     unsigned int minTemp=s-((head->hashAttempts>>1)+j);
     unsigned int minInd=minTemp*(minTemp<=s);

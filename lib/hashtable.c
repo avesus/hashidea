@@ -49,13 +49,13 @@ static void freeTable(SubTable* table);
 static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
-static int lookup(SubTable* ht, entry* ent, unsigned int seeds);
+static int lookup(SubTable* ht, entry* ent, unsigned int s);
 
 
 
 static int 
-lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
-  unsigned int s=murmur3_32((const uint8_t *)&val, kSize, seed)%ht->TableSize;
+lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
+
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
@@ -67,12 +67,14 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
 
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
+  unsigned int buckets[10];
+  for(int i =0;i<head->hashAttempts;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+  }
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
-    //        for(int i =0;i<head->hashAttempts;i++){
-    //    for(int i =0;i<(j<<1)+1;i++){
-	  for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
-      int res=lookupQuery(ht, val, head->seeds[i]);
+    for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
+      int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -139,9 +141,8 @@ freeTable(SubTable* ht){
 
 
 //check if entry for a given hashing vector is in a table
-static int lookup(SubTable* ht, entry* ent, unsigned int seed){
+static int lookup(SubTable* ht, entry* ent, unsigned int s){
 
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return s;
   }
@@ -183,12 +184,17 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
   SubTable* ht=NULL;
   int LocalCur=head->cur;
+  unsigned int buckets[10];
+  for(int i =0;i<head->hashAttempts;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+  }
+
+  
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
-    //    for(int i =0;i<head->hashAttempts;i++){
-      // for(int i =0;i<(j<<1)+1;i++){
+
     for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
-      int res=lookup(ht, ent, head->seeds[i]);
+      int res=lookup(ht, ent,buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
       }
