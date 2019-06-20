@@ -13,7 +13,7 @@
 #include "hash.h"
 
 #define VERSION "0.1"
-const char* tablename = "open/multiprobe/remain:V" VERSION;
+const char* tablename = "linked/total-resize/single-probe/remain:V" VERSION;
 
 #define resizeShift 1
 #define max_tables 64
