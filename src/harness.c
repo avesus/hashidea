@@ -265,12 +265,12 @@ initSeeds(int HashAttempts){
 
 
 void
-insertTrial(HashTable* head, int n, int tid, void* entChunk) {
+insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVals) {
   for (int i=0; i<n; i++) {
-    unsigned long val = getVal();
+    unsigned long val = rVals[i];
     val+=!val;
 
-    if (isQuery()){
+    if ((queryPercentage > 0) && (rVals[numInsertions+i] > queryCutoff)){
       checkTableQuery(head, val);
     }
     else{
@@ -365,6 +365,14 @@ run(void* arg) {
   
 
   do {
+    unsigned long* rVals=(unsigned long*)malloc(2*sizeof(unsigned long)*numInsertions);
+    for(int i =0;i<numInsertions;i++){
+      rVals[i]=random();
+    }
+    for(int i =numInsertions;i<2*numInsertions;i++){
+      rVals[i]=random();
+    }
+    
     void* entChunk=malloc(numInsertions*sizeof(entry)*2);
     //start timer
     if(!tid){
@@ -378,7 +386,7 @@ run(void* arg) {
       checkTable(globalHead, numInsertions, tid);
     } else {
       // run trial
-      insertTrial(globalHead, numInsertions, tid, entChunk);
+      insertTrial(globalHead, numInsertions, tid, entChunk, rVals);
     }
     
     // end timer
@@ -410,6 +418,7 @@ run(void* arg) {
 
     myBarrier(&endLoopBarrier, tid);
         free(entChunk);
+	free(rVals);
   } while (notDone);
 
   // when all done, let main thread know
