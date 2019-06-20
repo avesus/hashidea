@@ -268,7 +268,6 @@ void
 insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVals) {
   for (int i=0; i<n; i++) {
     unsigned long val = rVals[i];
-    val+=!val;
 
     if ((queryPercentage > 0) && (rVals[numInsertions+i] > queryCutoff)){
       checkTableQuery(head, val);
@@ -368,6 +367,7 @@ run(void* arg) {
     unsigned long* rVals=(unsigned long*)malloc(2*sizeof(unsigned long)*numInsertions);
     for(int i =0;i<numInsertions;i++){
       rVals[i]=random();
+      rVals[i]+=!rVals[i];
     }
     for(int i =numInsertions;i<2*numInsertions;i++){
       rVals[i]=random();
