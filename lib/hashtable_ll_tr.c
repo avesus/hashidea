@@ -149,9 +149,10 @@ volatile pointer makeFrom(volatile node* new_node){
 
 //insert function from API (wrapped for insertTable_inner)
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
-  node* new_node = (node*)malloc(sizeof(node));
+  unsigned long temp= ent->val;
+  node* new_node = (node*)ent;
   new_node->next.ptr=NULL;
-  new_node->val=ent->val;
+  new_node->val=temp;
   //  free(ent);
   return insertTable_inner(head,  new_node, start, -1);
 }
@@ -311,14 +312,12 @@ double freeAll(HashTable* head, int last, int verbose){
 
 
       temp=temp->next.ptr;
-
       while(temp!=NULL){
 	if(temp->val){
 	amt++;
 	t_amt++;
 	}
 	temp=temp->next.ptr;
-
       }
     }
     if(verbose){

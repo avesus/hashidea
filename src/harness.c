@@ -43,7 +43,6 @@ int numInsertions = 100;
 int InitSize = 1;
 int HashAttempts = 1;
 HashTable* globalHead=NULL;
-void* globalEntChunk=NULL;
 double queryPercentage = 0.0;
 int queryCutoff = 0;
 int checkT = 0;
@@ -275,7 +274,7 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk) {
       checkTableQuery(head, val);
     }
     else{
-      entry* ent = (entry*)(entChunk+(i<<3));  
+      entry* ent = (entry*)(entChunk+(i<<4));  
     ent->val = val;
 
     insertTable(head, getStart(head), ent, tid);
@@ -366,11 +365,11 @@ run(void* arg) {
   
 
   do {
-
+    void* entChunk=malloc(numInsertions*sizeof(entry)*2);
     //start timer
     if(!tid){
       globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds);
-      globalEntChunk=malloc(nthreads*numInsertions*sizeof(entry));
+
     }
     startThreadTimer(tid);
 
@@ -379,7 +378,7 @@ run(void* arg) {
       checkTable(globalHead, numInsertions, tid);
     } else {
       // run trial
-      insertTrial(globalHead, numInsertions, tid, numInsertions*tid*sizeof(entry)+globalEntChunk);
+      insertTrial(globalHead, numInsertions, tid, entChunk);
     }
     
     // end timer
@@ -387,7 +386,7 @@ run(void* arg) {
 
     // record time and see if we are done
     if (tid == 0) {
-      free(globalEntChunk);
+
       if (verbose || 1) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
       trialTimes[trialNumber] = ns;
       if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
@@ -408,7 +407,9 @@ run(void* arg) {
 	clearStats();
       }
     }
+
     myBarrier(&endLoopBarrier, tid);
+        free(entChunk);
   } while (notDone);
 
   // when all done, let main thread know
