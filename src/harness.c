@@ -266,9 +266,9 @@ initSeeds(int HashAttempts){
 
 void
 insertTrial(HashTable* head, int n, int tid, void* entChunk) {
-
   for (int i=0; i<n; i++) {
     unsigned long val = getVal();
+    val+=!val;
 
     if (isQuery()){
       checkTableQuery(head, val);

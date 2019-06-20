@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <stdint.h>
-
+#include <assert.h>
 
 #include "hashtable.h"
 #include "hash.h"
@@ -17,7 +17,7 @@ const char* tablename = "linked/total-resize/single-probe/remain:V" VERSION;
 
 #define resizeShift 1
 #define max_tables 64
-
+#define kSize 4
 //no race condition but slow. Resizes when total elements in table passes some threshold
 
 
@@ -91,8 +91,9 @@ SubTable* createTable(int n_size){
   for(int i =0;i<n_size;i++){
     node* new_node = (node*)(memChunk+nodeOffset+(i<<4));//(node*)malloc(sizeof(node));
     new_node->val=-1;
-    t->InnerTable[i]=(que*)(memChunk+queOffset+(i<<4));//malloc(sizeof(que));
     new_node->next.ptr=NULL;
+    t->InnerTable[i]=(que*)(memChunk+queOffset+(i<<4));//malloc(sizeof(que));
+
     t->InnerTable[i]->head.ptr=new_node;
     t->InnerTable[i]->tail.ptr=new_node;
   }
@@ -104,7 +105,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* t;
   for(int i =0;i<head->cur;i++){
     t=head->TableArray[i];
-    unsigned int bucket= murmur3_32((const uint8_t *)&val, 4, head->seed)%t->TableSize;
+    unsigned int bucket= murmur3_32((const uint8_t *)&val, kSize, head->seed)%t->TableSize;
     volatile pointer tail = tail=t->InnerTable[bucket]->head;
     while(tail.ptr!=NULL){
       if(tail.ptr->val==val){
@@ -167,7 +168,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
   //iterate through all sub tables
   for(int i =start;i<head->cur;i++){
     t=head->TableArray[i];
-    unsigned int bucket;
+    unsigned int bucket=0;
 
     //if b is not -1 basically will use it for table (when adding a 0 at end of row
     //after resizing (otherwise race condition)
@@ -177,12 +178,13 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
     else{
 
       //otherwise get bucket
-      bucket= murmur3_32((const uint8_t *)&new_node->val, 4, head->seed)%t->TableSize;
+            bucket= murmur3_32((const uint8_t *)&new_node->val, kSize, head->seed)%t->TableSize;
     }
     volatile pointer tail;
     volatile pointer next;
 
     //will be local version of tail, starts at head
+
     tail=t->InnerTable[bucket]->head;
     int should_hit=0;
     while(1){
@@ -193,7 +195,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
       while(tail.ptr!=t->InnerTable[bucket]->tail.ptr){
 
 	if(tail.ptr->val==new_node->val){
-	  if(new_node->val!=-1||tail.ptr==t->InnerTable[bucket]->head.ptr){
+	  if(new_node->val!=-1||tail.ptr!=t->InnerTable[bucket]->head.ptr){
 	    return 0;
 	  }
 	}
@@ -202,7 +204,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
 
       next=tail.ptr->next;
       if(tail.ptr->val==new_node->val){
-	if(new_node->val!=-1||tail.ptr==t->InnerTable[bucket]->head.ptr){
+	if(new_node->val!=-1||tail.ptr!=t->InnerTable[bucket]->head.ptr){
 	  return 0;
 	}
       }
@@ -240,7 +242,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
 	  }
 	  else{
 	    if(next.ptr->val==new_node->val){
-	      if(new_node->val!=-1||tail.ptr==t->InnerTable[bucket]->head.ptr){
+	      if(new_node->val!=-1||tail.ptr!=t->InnerTable[bucket]->head.ptr){
 		return 0;
 	      }
 	    }
@@ -276,6 +278,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
   }
 
   //if no available slot create next table
+  
   SubTable* new_table=createTable(head->TableArray[startCur-1]->TableSize<<1);
   addDrop(head, new_node, new_table, startCur);
 }
@@ -284,7 +287,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
 //init hashtable, hashattempts will be ratio of total elements to table size (needs to be float)
 HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds){
   head=(HashTable*)malloc(sizeof(HashTable));
-  head->TableArray=(SubTable**)malloc(max_tables*sizeof(SubTable*));
+  head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->cur=1;
   head->seed=*seeds;
   head->maxElements=HashAttempts;
@@ -295,6 +298,9 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
 
 //free all and returns total elements/bucket slots
 double freeAll(HashTable* head, int last, int verbose){
+  if(verbose){
+    printf("free all\n");
+  }
   int amt=0;
   SubTable* t;
   int extra=0;

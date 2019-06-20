@@ -38,7 +38,7 @@ typedef struct HashTable{
 #define notIn -3 
 #define in -1
 #define unk -2
-#define kSize 8
+#define kSize 4
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 // create a sub table

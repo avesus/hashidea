@@ -39,6 +39,7 @@ typedef struct HashTable{
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
+#define kSize 4
 #define notIn -3 
 #define in -1
 #define unk -2
@@ -79,7 +80,7 @@ static int
 lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
 
   //get index
-  unsigned int s=murmur3_32((const uint8_t *)&val, sizeof(val), seed)%ht->TableSize;
+  unsigned int s=murmur3_32((const uint8_t *)&val, kSize, seed)%ht->TableSize;
   
   //if find null slot know item is not in hashtable as would have been added there otherwise
   if(getPtr(ht->InnerTable[s])==NULL){
@@ -209,7 +210,7 @@ freeTable(SubTable* ht){
 static int lookup(HashTable* head, SubTable* ht, entry* ent, int seedIndex, int doCopy, int tid){
 
   //get table index
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), head->seeds[seedIndex])%ht->TableSize;
+  unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[seedIndex])%ht->TableSize;
   //if found null slot return index so insert can try and put the entry in the index
   if(getPtr(ht->InnerTable[s])==NULL){
     return s;

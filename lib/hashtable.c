@@ -35,6 +35,7 @@ typedef struct HashTable{
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
+#define kSize 4
 #define notIn -3 
 #define in -1
 #define unk -2
@@ -54,7 +55,7 @@ static int lookup(SubTable* ht, entry* ent, unsigned int seeds);
 
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int seed){
-  unsigned int s=murmur3_32((const uint8_t *)&val, sizeof(val), seed)%ht->TableSize;
+  unsigned int s=murmur3_32((const uint8_t *)&val, kSize, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
@@ -140,7 +141,7 @@ freeTable(SubTable* ht){
 //check if entry for a given hashing vector is in a table
 static int lookup(SubTable* ht, entry* ent, unsigned int seed){
 
-  unsigned int s= murmur3_32((const uint8_t *)&ent->val, sizeof(ent->val), seed)%ht->TableSize;
+  unsigned int s= murmur3_32((const uint8_t *)&ent->val, kSize, seed)%ht->TableSize;
   if(ht->InnerTable[s]==NULL){
     return s;
   }
