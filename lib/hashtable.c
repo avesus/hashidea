@@ -14,7 +14,7 @@
 
 #define VERSION "0.1"
 const char* tablename = "open/multiprobe/remain:V" VERSION;
-
+const char* shortname = "OMR:V" VERSION;
 
 
 //a sub table (this should be hidden)

@@ -16,7 +16,7 @@ extern __thread int threadId;		/* internal thread id */
 
 #define VERSION "0.1"
 const char* tablename = "open/multiprobe/lazymove:V" VERSION;
-
+const char* shortname = "OML:V" VERSION;
 
 //a sub table (this should be hidden)
 typedef struct SubTable {
