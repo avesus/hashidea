@@ -14,6 +14,7 @@
 
 #define VERSION "0.1"
 const char* tablename = "linked/total-resize/single-probe/remain:V" VERSION;
+const char* shortname = "LSR:V" VERSION;
 
 #define resizeShift 1
 #define max_tables 64

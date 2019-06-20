@@ -27,6 +27,16 @@ getProgramPrefix(void) {
   return prefix;
 }
 
+static char*
+getProgramShortPrefix(void) {
+  static char* prefix = NULL;
+  if (prefix == NULL) {
+    prefix = mycalloc(strlen(shortname)+16, 1);
+    sprintf(prefix, "%s/h:%s", shortname, Version);
+  }
+  return prefix;
+}
+
 ////////////////////////////////////////////////////////////////
 // arguments, description, version, etc.
 
@@ -387,7 +397,7 @@ run(void* arg) {
     // record time and see if we are done
     if (tid == 0) {
 
-      if (verbose || 1) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
+      if (verbose) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
       trialTimes[trialNumber] = ns;
       if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
 	double median = getMedian(trialTimes, trialNumber);
@@ -430,8 +440,6 @@ main(int argc, char**argv)
   int ok = parseArguments(ap, argc, argv);
   if (ok) die("Error parsing arguments");
 
-  printf("%d\n", checkT);
-  
   // decide on query breakdown
   if (queryPercentage > 0) {
     queryCutoff = (long int)((1.0-queryPercentage)*(double)RAND_MAX);
@@ -443,13 +451,14 @@ main(int argc, char**argv)
   } else if (trialsToRun == 0) {
     trialsToRun = 1;
   }
-  printf("ttr:%d\n", trialsToRun);
   trialTimes = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(nanoseconds));
   trialUtils = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(double));
 
   // allocate stats if compiled in
   clearStats();
   
+  printf("%s\t%s\t%d\t%f\n", getProgramPrefix(), getProgramShortPrefix(), nthreads, queryPercentage);
+
   //creating num_threads threads to add items in parallel
   //see run function for more details
   int numcores=sysconf(_SC_NPROCESSORS_ONLN);
@@ -505,7 +514,7 @@ main(int argc, char**argv)
 	 getSD(trialTimes, trialNumber));
 #endif
   printf("%s:Milliseconds:\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf",
-	 getProgramPrefix(),
+	 getProgramShortPrefix(),
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
 	 getMean(trialTimes, trialNumber)/1000000.0, 
 	 getMedian(trialTimes, trialNumber)/1000000.0, 
@@ -527,7 +536,7 @@ main(int argc, char**argv)
   min = getMinFloat(trialUtils, trialNumber);
   max = getMaxFloat(trialUtils, trialNumber);
   printf("%s:Memusage:\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
-	 getProgramPrefix(),
+	 getProgramShortPrefix(),
 	 min, max, max-min, 
 	 getMeanFloat(trialUtils, trialNumber), 
 	 getMedianFloat(trialUtils, trialNumber), 

@@ -13,8 +13,8 @@
 #include "hash.h"
 
 #define VERSION "0.1"
-const char* tablename = "open/multiprobe/remain:V" VERSION;
-
+const char* tablename = "open/local1probe/remain:V" VERSION;
+const char* shortname = "O1R:V" VERSION;
 
 
 //a sub table (this should be hidden)

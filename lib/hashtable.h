@@ -27,5 +27,6 @@ int getStart(HashTable* head);
 // used only for testing and timing
 
 extern const char* tablename;
+extern const char* shortname;
 
 #endif
