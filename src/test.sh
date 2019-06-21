@@ -2,8 +2,6 @@
 
 trials=30
 inserts=1600000
-trials=5
-inserts=160
 
 make clean
 for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hashtable_local; do
@@ -12,7 +10,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
     if [ $? != 0 ]; then
 	echo "Error:Failed to make harness for $table"
     else
-	for t in 1 2 4 8; do
+	for t in 1 2 4 8 16; do
 	    #echo "Running for threads $t"
 	    for qp in 0 0.5 0.9 0.99; do
 		#echo "Running for qp $qp"
