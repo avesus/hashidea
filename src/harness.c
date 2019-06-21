@@ -73,6 +73,25 @@ double alpha = 0.5;
 double beta = 0.5;
 
 const char*
+showVersion(int argc, char** argv)
+{
+  static char buffer[64];
+  if (argc == ArgGetDefault) {
+    return "";
+  } else if (argc == ArgGetDesc) {
+    return "";
+  }
+  const char* ws =
+#if COLLECT_STAT==1
+    ",\t(with Statistics)";
+#else
+  "";
+#endif    
+    printf("%s: %s aka %s%s\n", progname, getProgramPrefix(), getProgramShortPrefix(), ws);
+  exit(0);
+}
+
+const char*
 initAlphaBeta(int argc, char** argv)
 {
   static char buffer[64];
@@ -108,6 +127,7 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
   { KindOption,   Integer, 	"-l", 		0, &level, 		"Level" },
   { KindOption,   Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
+  { KindOption,   Function, 	"--version",	0, &showVersion,	"show current version" },
   { KindOption,   Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
   { KindOption,   Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
   { KindOption,   Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
@@ -116,7 +136,7 @@ static ArgOption args[] = {
   { KindOption,   Double,	"--qp",		0, &queryPercentage, 	"Percent of actions that are queries" },
   { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },    
-#ifdef COLLECT_STAT
+#if COLLECT_STAT==1
   { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
 #endif
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
@@ -326,7 +346,7 @@ checkTable(HashTable* head, int n, int tid) {
 
 
 
-#ifdef COLLECT_STAT
+#if COLLECT_STAT==1
 ////////////////////////////////////////////////////////////////
 // for stats
 

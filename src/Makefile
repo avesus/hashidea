@@ -1,7 +1,7 @@
 CC = gcc
 #LDFLAGS = -pg
 #-pg
-CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE
+CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
 LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
 Hashtable = hashtable.o
 Hashfunction = hash.o 
@@ -18,7 +18,7 @@ util.o: util.h util.c
 timing.o: timing.c timing.h util.h
 dist.o: dist.c dist.h
 ../lib/%.o:	../lib/%.c ../lib/hash.h ../lib/hashtable.h
-	make -C ../lib
+	make -C ../lib WITHSTATS=$(WITHSTATS)
 
 clean:
 	/bin/rm -f *.o harness *~

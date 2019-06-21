@@ -4,7 +4,7 @@ trials=30
 inserts=1600000
 for table in hashtable_lazy_local hashtable_lazy hashtable_ll_rr hashtable_ll_tr hashtable_local; do
     /bin/rm harness
-    make Hashtable=${table}.o
+    make Hashtable=${table}.o WITHSTATS=0
     for t in 1 2 4 8; do
 	#echo "Running for threads $t"
 	for qp in 0 0.5 0.9 0.99; do
