@@ -1,14 +1,7 @@
 non-blocking hashing idea:
 
 bib/
-- Relevant papers on the sub
-
-
-data/
-- N/A
-
-debugging/
-- N/A
+- Relevant papers on the subject
 
 lib/
 - Has the hashtables source code
