@@ -82,6 +82,20 @@ myBarrier(Barrier* b, int tid) {
 }
 
 void
+getBTsummary(Barrier* b, BarrierSummary* sp) {
+  if (b->n < 2) {
+    sp->medgap = sp->maxgap = 0;
+    return;
+  }
+  double median = getMedian(b->endWait, b->n);
+  double min = getMin(b->endWait, b->n);
+  double max = getMax(b->endWait, b->n);
+  sp->maxgap = (max-min)/max;
+  sp->medgap = (max-median)/max;
+  return;
+}
+
+void
 showWaiting(Barrier* b, const char* msg) {
   printf("%s:", msg);
   for (int i=0; i<b->n; i++) printf("\t%6llu", b->endWait[i]);
