@@ -2,6 +2,8 @@
 
 trials=30
 inserts=1600000
+trials=5
+inserts=1600
 make clean
 for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hashtable_local; do
     /bin/rm -f harness
@@ -17,7 +19,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 		    in=$(( inserts / t ))
 		    #echo "running with initial table size $it and $in inserts"
 		    echo ./harness --trials $trials --inserts $in --qp $qp -t $t -i $it
-		    ./harness --trials $trials --inserts $in --qp $qp -t $t -i $it
+		    ./harness --trials $trials --inserts $in --qp $qp -t $t -i $it --args
 		done
 	    done
 	done
