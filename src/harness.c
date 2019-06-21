@@ -509,6 +509,7 @@ main(int argc, char**argv)
   clearStats();
   
   if (showArgs) {
+    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,HEADING\n");
     // if we are asked to show all args, print them out here one one line
     sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d", 
 	    getProgramPrefix(), getProgramShortPrefix(),
@@ -580,7 +581,7 @@ main(int argc, char**argv)
     trimData(trialNumber, trialTimes, trimmedTimes);
     min = getMin(trimmedTimes, n);
     max = getMax(trimmedTimes, n);
-    printf(",\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf", 
+    printf(",\tTMin:%lf, TMax:%lf, TRange:%lf, TAvg:%lf, TMedian:%lf, TSD:%lf", 
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
 	 getMean(trimmedTimes, n)/1000000.0, 
 	 getMedian(trimmedTimes, n)/1000000.0, 
@@ -604,6 +605,9 @@ main(int argc, char**argv)
 	 tomingap,
 	 tomedgap);
 
+  if (showArgs) {
+    printf("%s,END\n", desc);
+  }
 
   printStats();
   freeCommandLine();
