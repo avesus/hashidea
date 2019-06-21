@@ -40,6 +40,7 @@ getProgramShortPrefix(void) {
 ////////////////////////////////////////////////////////////////
 // arguments, description, version, etc.
 
+int showArgs = 0;
 int verbose = 0;
 int level = 0;
 int quiet = 0;
@@ -128,6 +129,7 @@ static ArgOption args[] = {
   { KindOption,   Integer, 	"-l", 		0, &level, 		"Level" },
   { KindOption,   Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
   { KindOption,   Function, 	"--version",	0, &showVersion,	"show current version" },
+  { KindOption,   Set,	 	"--args",	0, &showArgs,		"show all args on stdout" },
   { KindOption,   Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
   { KindOption,   Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
   { KindOption,   Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
@@ -471,6 +473,8 @@ run(void* arg) {
   semPost(&threadsDone);
 }
 
+static char desc[256];
+
 ////////////////////////////////////////////////////////////////
 // main entry point
 
@@ -504,7 +508,18 @@ main(int argc, char**argv)
   // allocate stats if compiled in
   clearStats();
   
-  printf("%s\t%s\t%d\t%f\n", getProgramPrefix(), getProgramShortPrefix(), nthreads, queryPercentage);
+  if (showArgs) {
+    // if we are asked to show all args, print them out here one one line
+    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d", 
+	    getProgramPrefix(), getProgramShortPrefix(),
+	   numInsertions, trialsToRun, stopError, alpha, beta, 
+	    queryPercentage, randomSeed, nthreads,HashAttempts,InitSize);
+    printf("%s,START\n", desc);
+  } else {
+    // just show vital ones
+    printf("%s\t%s\tthreads:%d\tquery-percent:%f\n", getProgramPrefix(), getProgramShortPrefix(), nthreads, queryPercentage);
+    strcpy(desc, getProgramShortPrefix());
+  }
 
   //creating num_threads threads to add items in parallel
   //see run function for more details
@@ -553,15 +568,8 @@ main(int argc, char**argv)
   // exit and print out any results
   double min = getMin(trialTimes, trialNumber);
   double max = getMax(trialTimes, trialNumber);
-#if 0 
-  printf("Nanoseconds::\n Min:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
-	 min, max, max-min, 
-	 getMean(trialTimes, trialNumber), 
-	 getMedian(trialTimes, trialNumber), 
-	 getSD(trialTimes, trialNumber));
-#endif
-  printf("%s:Milliseconds:\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf",
-	 getProgramShortPrefix(),
+  printf("%s,\tMilliseconds,\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf",
+	 desc,
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
 	 getMean(trialTimes, trialNumber)/1000000.0, 
 	 getMedian(trialTimes, trialNumber)/1000000.0, 
@@ -572,7 +580,7 @@ main(int argc, char**argv)
     trimData(trialNumber, trialTimes, trimmedTimes);
     min = getMin(trimmedTimes, n);
     max = getMax(trimmedTimes, n);
-    printf("\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf", 
+    printf(",\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf", 
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
 	 getMean(trimmedTimes, n)/1000000.0, 
 	 getMedian(trimmedTimes, n)/1000000.0, 
@@ -582,8 +590,8 @@ main(int argc, char**argv)
 
   min = getMinFloat(trialUtils, trialNumber);
   max = getMaxFloat(trialUtils, trialNumber);
-  printf("%s:Memusage:\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
-	 getProgramShortPrefix(),
+  printf("%s,\tMemusage,\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
+	 desc,
 	 min, max, max-min, 
 	 getMeanFloat(trialUtils, trialNumber), 
 	 getMedianFloat(trialUtils, trialNumber), 
@@ -591,8 +599,8 @@ main(int argc, char**argv)
   double tomingap;
   double tomedgap;
   calcBSmedian(trialBTS, trialNumber, &tomingap, &tomedgap);
-  printf("%s:Barrier Gap:\tMax->Min:%lf, Max->Median:%lf\n",
-	 getProgramShortPrefix(),
+  printf("%s,\tBarrier Gap,\tMax->Min:%lf, Max->Median:%lf\n",
+	 desc,
 	 tomingap,
 	 tomedgap);
 

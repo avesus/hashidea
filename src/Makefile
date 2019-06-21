@@ -1,3 +1,8 @@
+# define withstats to be 0 if not defined on command line
+ifndef WITHSTATS
+WITHSTATS=0
+endif
+
 CC = gcc
 #LDFLAGS = -pg
 #-pg
