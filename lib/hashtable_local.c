@@ -234,6 +234,10 @@ int getStart(HashTable* head){
 HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds){
   head=(HashTable*)calloc(1,sizeof(HashTable));
   head->seeds=seeds;
+  if(HashAttempts>10){
+    printf("Changing value for hashattempts from %d to 10\n", HashAttempts);
+    HashAttempts=10;
+  }
   head->hashAttempts=HashAttempts;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
