@@ -219,8 +219,21 @@ showThreadInfo(void)
 }
 
 TimingStruct trialTimer;
+BarrierSummary* trialBTS;
+BarrierSummary* barrierTimesPointer;
 
-
+void
+calcBSmedian(BarrierSummary* bts, int n, double* tomin, double* tomed)
+{
+  double min = 0;
+  double med = 0;
+  for (int i=0; i<n; i++) {
+    min += bts->maxgap;
+    med += bts->medgap;
+  }
+  *tomin = min/(double)n;
+  *tomed = med/(double)n;
+}
 
 void
 startThreadTimer(int tid) {
@@ -239,7 +252,10 @@ endThreadTimer(int tid) {
   if (tid == 0) {
     myBarrier(&loopBarrier, tid);
     duration = endTimer(&trialTimer);
-    showWaiting(&loopBarrier, "ETT");
+    if (verbose) showWaiting(&loopBarrier, "ETT");
+    getBTsummary(&loopBarrier, barrierTimesPointer);
+    if (verbose) printf("BT Summary: max:%g\tmedian:%g\n", barrierTimesPointer->maxgap, barrierTimesPointer->medgap);
+    barrierTimesPointer++;
   } else {
     myBarrier(&loopBarrier, tid);
   }
@@ -462,6 +478,8 @@ main(int argc, char**argv)
   }
   trialTimes = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(nanoseconds));
   trialUtils = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(double));
+  trialBTS =  calloc(trialsToRun*((stopError > 0)?10:1), sizeof(BarrierSummary));
+  barrierTimesPointer = trialBTS;
 
   // allocate stats if compiled in
   clearStats();
@@ -550,6 +568,14 @@ main(int argc, char**argv)
 	 getMeanFloat(trialUtils, trialNumber), 
 	 getMedianFloat(trialUtils, trialNumber), 
 	 getSDFloat(trialUtils, trialNumber));
+  double tomingap;
+  double tomedgap;
+  calcBSmedian(trialBTS, trialNumber, &tomingap, &tomedgap);
+  printf("%s:Barrier Gap:\tMax->Min:%lf, Max->Median:%lf\n",
+	 getProgramShortPrefix(),
+	 tomingap,
+	 tomedgap);
+
 
   printStats();
   freeCommandLine();

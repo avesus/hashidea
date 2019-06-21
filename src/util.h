@@ -28,9 +28,16 @@ typedef struct barrier_struct {
   int n;
 } Barrier;
 
+typedef struct {
+  double maxgap;
+  double medgap;
+} BarrierSummary;
+
+
 void myBarrier(Barrier* b, int t);
 void initBarrierN(Barrier* b, int n);
 void showWaiting(Barrier* b, const char* msg);
+void getBTsummary(Barrier* b, BarrierSummary* sp);
 
 #define initBarrier(b) initBarrierN(b, nthreads);
 
