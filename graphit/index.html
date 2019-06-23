@@ -1,0 +1,162 @@
+<html>
+<head>
+    <style>
+    .card { background-color: yellow; border: 1px solid black; min-width: 50px; position: fixed; right: 0px; bottom: 0px;}
+    .mcard { background-color: yellow; border: 1px solid black; min-width: 50px; position: fixed; }
+    .cardtitle { background-color: red; min-height: 12px; width: 100%; text-align: center; }
+    .cardcontent { width:100%; min-height: 23px; }
+</style>
+<style>
+.centerme {
+  text-align: center;
+}  
+
+.controls {
+padding: 1em;
+display: flex;
+}
+
+.grouper {
+border-radius: 10px;
+border: 1px solid black;
+padding: 5px;
+margin: 5px;
+ flex: 1;
+}
+
+.gtitle {
+position:relative;
+background-color: white;
+top:-15px;
+left:0px;
+height: 25px;
+padding: 2px;
+width: 50%;
+margin-bottom: -5px;
+}
+  
+.valgroup {
+margin-left: 20px;
+}
+
+.hundredpercent {
+  width=100%;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+.tooltipdiv {
+  position: relative;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  top: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 5px solid #555;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltipdiv .tooltiptop {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltipdiv .tooltiptop::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid #555;
+}
+
+.tooltipdiv:hover .tooltiptop {
+  visibility: visible;
+  opacity: 1;
+}
+
+</style>
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+  <script type="text/javascript" src="data.js"></script>
+  <script type="text/javascript" src="selectors.js"></script>
+  <script type="text/javascript" src="main.js"></script>      
+</head>
+<body>
+  <div class="controls">
+    <div id="xaxis" class="grouper">
+      <div class="gtitle">Select X Access</div>
+      <select id="xtype">
+	<option value="discrete-alpha">Discrete Alpha Catagories</option>
+	<option value="discrete-float" selected>Discrete Float Catagories</option>      
+	<option value="continuous">Continous</option>      
+      </select>
+      <select id="xvar">
+      </select>
+    </div>
+
+    <div id="yaxis" class="grouper">
+      <div class="gtitle">Select Y Access</div>
+      <select id="yvar">
+      </select>
+    </div>
+
+    <div id="remain" class="grouper">
+      <div class="gtitle">Hold Constant</div>
+    </div>
+
+    <div id="skip" class="grouper">
+      <div class="gtitle">Skip</div>
+    </div>
+  </div>
+  <div class="centerme">
+    <button id="drawgraph">draw graph</button>
+  </div>
+  <div id="graphdiv">
+  </div>
+</body>
+</html>
