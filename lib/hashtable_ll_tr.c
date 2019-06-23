@@ -76,6 +76,10 @@ void freeTable(SubTable* toadd){
 
 }
 
+int deleteVal(HashTable* head, unsigned long val){
+  return 1;
+}
+
 //creates a sub table
 SubTable* createTable(int n_size){
   SubTable* t=(SubTable*)malloc(sizeof(SubTable));

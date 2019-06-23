@@ -51,7 +51,9 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 //lookup function in insertTrial to check a given inner table
 static int lookup(SubTable* ht, entry* ent, unsigned int s);
 
-
+int deleteVal(HashTable* head, unsigned long val){
+  return 1;
+}
 
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int s){

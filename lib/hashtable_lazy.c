@@ -60,7 +60,9 @@ int setPtr(entry** ent){
   return __atomic_compare_exchange(ent,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 }
 
-
+int deleteVal(HashTable* head, unsigned long val){
+  return 1;
+}
 
 // create a sub table
 static SubTable* createTable(HashTable* head, int hsize);
