@@ -13,7 +13,7 @@
 #include "hash.h"
 
 #define VERSION "0.1"
-const char* tablename = "linked/total-resize/single-probe/remain:V" VERSION;
+const char* tablename = "linked/single-probe/remain:V" VERSION;
 const char* shortname = "LSR:V" VERSION;
 
 #define resizeShift 1

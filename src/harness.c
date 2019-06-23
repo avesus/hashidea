@@ -40,6 +40,7 @@ getProgramShortPrefix(void) {
 ////////////////////////////////////////////////////////////////
 // arguments, description, version, etc.
 
+int coolOff = 0;
 int showArgs = 0;
 int verbose = 0;
 int level = 0;
@@ -125,6 +126,7 @@ setRandom(int argc, char** argv)
 static ArgOption args[] = {
   // Kind, 	  Method,		name,	    reqd,  variable,		help
   { KindOption,   Set, 		"-v", 		0, &verbose, 		"Turn on verbosity" },
+  { KindOption,   Integer,	"-c", 		0, &coolOff, 		"seconds to sleep between harness runs" },
   { KindOption,   Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
   { KindOption,   Integer, 	"-l", 		0, &level, 		"Level" },
   { KindOption,   Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
@@ -468,6 +470,7 @@ run(void* arg) {
     myBarrier(&endLoopBarrier, tid);
         free(entChunk);
 	free(rVals);
+	sleep(coolOff);
   } while (notDone);
 
   // when all done, let main thread know
@@ -510,11 +513,12 @@ main(int argc, char**argv)
   clearStats();
   
   if (showArgs) {
+    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,HEADING\n");
     // if we are asked to show all args, print them out here one one line
-    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d", 
+    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d", 
 	    getProgramPrefix(), getProgramShortPrefix(),
 	   numInsertions, trialsToRun, stopError, alpha, beta, 
-	    queryPercentage, randomSeed, nthreads,HashAttempts,InitSize);
+	    queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff);
     printf("%s,START\n", desc);
   } else {
     // just show vital ones
@@ -581,7 +585,7 @@ main(int argc, char**argv)
     trimData(trialNumber, trialTimes, trimmedTimes);
     min = getMin(trimmedTimes, n);
     max = getMax(trimmedTimes, n);
-    printf(",\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf", 
+    printf(",\tTMin:%lf, TMax:%lf, TRange:%lf, TAvg:%lf, TMedian:%lf, TSD:%lf", 
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
 	 getMean(trimmedTimes, n)/1000000.0, 
 	 getMedian(trimmedTimes, n)/1000000.0, 
@@ -605,6 +609,9 @@ main(int argc, char**argv)
 	 tomingap,
 	 tomedgap);
 
+  if (showArgs) {
+    printf("%s,END\n", desc);
+  }
 
   printStats();
   freeCommandLine();
