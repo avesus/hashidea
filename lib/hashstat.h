@@ -2,7 +2,7 @@
 #define _HASHSTAT_H_
 
 // define when you make
-#define COLLECT_STAT 1
+//#define COLLECT_STAT 1
 
 #include <stddef.h>
 
