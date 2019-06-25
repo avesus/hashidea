@@ -4,9 +4,6 @@ trials=30
 inserts=1600000
 cooloff=2
 
-trials=5
-inserts=16000
-
 make clean
 for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hashtable_local; do
     /bin/rm -f harness

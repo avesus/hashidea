@@ -4,7 +4,7 @@ google.charts.load('current', {'packages':['corechart']});
 let xvar = 'nthreads';
 let xaxis = "discrete-float";
 let yvar = "Milliseconds-Median";
-let remainSet = {'trialsToRun': "5", 'alpha':"0.500000", 'beta':"0.500000", 'queryPercentage': "0.900000", 'HashAttempts': "2", 'cooloff': "2"};
+let remainSet = {'queryPercentage': "0.900000", 'HashAttempts': "2"};
 let skipSet = {};
 let skipBoxes = {};
 
@@ -12,9 +12,33 @@ function addListener(id, ename, cb) {
     document.getElementById(id).addEventListener(ename, cb);
 }
 
+// if fld in remainSet, remove and reset it.
+// if disableToo, then disable controls.
+function removeFromRemain(fld, disableToo) {
+    if (fld in remainSet) {
+        delete remainSet[fld];
+        let opt = document.querySelector(`select#holdgroup-${fld} option[value='novalue']`);
+        opt.selected = true;
+        let  skip = document.querySelector(`#skip input[value=${fld}]`);
+        skip.checked = false;
+        skip.disabled=true;
+    }
+    let select = document.querySelector(`div#remain input[value='${fld}']`);
+    select.checked = false;
+    select.disabled = true;
+}
+
+function enableRemain(fld) {
+    let select = document.querySelector(`div#remain input[value='${fld}']`);
+    select.disabled = false;
+}
+
 function selectXaxis(evt) {
+    enableRemain(xvar);
     xvar = evt.target.value;
     console.log(`variable to plot on X is ${xvar}`);
+    // make sure that this is not selected in remain
+    removeFromRemain(xvar, true);
 }
 
 function selectXvar(evt) {
@@ -51,6 +75,12 @@ function selectRemain(evt) {
         // this is a value of a field select
         let field = evt.target.id.substring(10);
         remainSet[field] = evt.target.value;
+        // make sure the checkbox is checked
+        let select = document.querySelector(`div#remain input[value='${field}']`);
+        select.checked = true;
+        let  skip = document.querySelector(`#skip input[value=${field}]`);
+        skip.checked = false;
+        skip.disabled = true;
     }
 }
 
@@ -352,6 +382,9 @@ function buildButtons() {
     addSkipboxes('skip', window.selector['controllers'], selectSkip);
     // Button
     addListener('drawgraph', 'click', redraw);
+
+    // setup initial enable/disables
+    removeFromRemain(xvar, true);
 }
 
 document.addEventListener("DOMContentLoaded", buildButtons);

@@ -17,8 +17,9 @@ parser.add_argument("datafile", nargs=1, help="csv file with data in it.")
 args = vars(parser.parse_args())
 infile = args['datafile'][0]
 
-skip = ["version", "stopError", "randomSeed"]
-selectors = ["main", "probe", "move", "version", "SP", "numInsertions", "trialsToRun", "stopError",
+alpha = {i: 1 for i in ["main", "probe", "move", "version", "SP"]}
+skip = ["version", "stopError", "randomSeed", "numInsertions"]
+selectors = ["main", "probe", "move", "version", "trialsToRun", "stopError",
              "alpha", "beta", "queryPercentage", "randomSeed", "nthreads", "HashAttempts", "InitSize", "cooloff"]
 sdata = {i: {} for i in selectors}
 sindex = {}
@@ -49,7 +50,9 @@ with open("selectors.js", "w") as outf:
         if s in skip:
             continue
         outf.write("selector['{}'] = {};\n".format(s, json.dumps(sdata[s])))
-        controllers.append(s)
+        # check that there is more than one value before adding to controllers
+        if len(sdata[s].keys()) > 1:
+            controllers.append(s)
 
     outf.write("selector['index2name'] = {};\n".format(json.dumps(header)))
     headerdict = {}
@@ -57,3 +60,5 @@ with open("selectors.js", "w") as outf:
         headerdict[header[i]] = i
     outf.write("selector['name2index'] = {};\n".format(json.dumps(headerdict)))
     outf.write("selector['controllers'] = {};\n".format(json.dumps(controllers)))
+    name2number = {fld: 1 for fld in list(filter(lambda x: x not in alpha, header))}
+    outf.write("selector['name2number'] = {};\n".format(json.dumps(name2number)))

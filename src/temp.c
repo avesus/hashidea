@@ -10,8 +10,19 @@
 #include <stdlib.h>
 #include "temp.h"
 #include "util.h"
+extern int verbose;
 
 #define VERSION "0.1"
+
+// path to directory with core files
+static  char tempPath[128]="/sys/devices/platform/coretemp.0/";
+// the first number used to find the file with a core
+static  int coreOffset=0;	
+// number of physical cores in system
+static  int numCores=0;
+// harness specific data collection pointers.  Each points to numthreads array's of ntrials doubles.
+static  double ** tempStart=NULL;
+static  double ** tempEnd=NULL;
 
 
 
@@ -32,19 +43,28 @@ void initTemp(int verbose, int trials, int numThr){
       tempEnd[i]=malloc((trials+1)*sizeof(double));
     }
 }
-//cant use number of processors because hyperthread (on my machine at least 8 processors 4 cores)
-//also seems like processors 4-7 are on core procNum-4 so only first 4 threads will need to monitor core temp.
-int getCores(){
+
+// set number of physical cores (not hyperthreading count).  
+// Returns 1 on success (and sets `numCores`), 0 on failure
+//
+// Depends on `/proc/cpuinfo` to be available
+// cant use number of processors because hyperthread (on my machine at
+// least 8 processors 4 cores) also seems like processors 4-7 are on
+// core procNum-4 so only first 4 threads will need to monitor core
+// temp.
+static int 
+getCores(){
   FILE* fp= fopen("/proc/cpuinfo","r");
   char buf[32]="";
-  while(fgets(buf, 32,fp)){
-    if(!strncmp(buf,"cpu cores",9)){
+  while (fgets(buf, 32,fp)) {
+    if (!strncmp(buf,"cpu cores",9)) {
       numCores=atoi(buf+12);
       return 1;
     }
   }
   return 0;
 }
+
 
 
 //Finds the files that contain temp information for each core
@@ -54,7 +74,8 @@ int getCores(){
 //correspond to cores and ensures it can find all cores for later. Will print error and
 //return -1 if it cant find the temperature file for each core (0 returned on success)
 //there is a goto in there so you might want to delete the entire file?
-int setPath(int verbose){
+static int 
+setPath(int verbose) {
   DIR* d=NULL;
   int cores=0;
   int success=0;
@@ -62,19 +83,19 @@ int setPath(int verbose){
  startDir:;
   //open dir and read its contents
   d=opendir(tempPath);
-  if(d){
-    while((dir=readdir(d))!=NULL){
-      //if name of item is hwmon* add that to path (and a '/')
-      //then move on that that dir.
-      if(!strncmp("hwmon",dir->d_name,5)){
-	strcat(dir->d_name,"/");
+  if (d) {
+    while ((dir=readdir(d)) != NULL) {
+      // check to see if hwmon is in this directory
+      if (!strncmp("hwmon",dir->d_name,5)) {
 	strcat(tempPath,dir->d_name);
+	strcat(tempPath,"/");
 	closedir(d);
 	//SORRY
 	goto startDir;
       }
     }
   }
+
   //once through all the hwmon* get offset into temp*_label files
   //basically temp0_label does not exist on my computer and temp1_label is not related to a core
   //starts on my comp for temp2_label (might be different on yours) so I read through temp%d_label
@@ -116,8 +137,8 @@ int setPath(int verbose){
       //If didnt find as many
       //files as cores on machine will return -1. Returns 0 on success.
       max++;
-    }
 
+    }
     if(cores!=((1<<numCores)-1)){
       printf("Couldnt find all cores %x vs %x\n", cores,((1<<numCores)-1));
       return -1;
@@ -128,7 +149,8 @@ int setPath(int verbose){
 //reads temps for core number index (or for all cores index is set to -1).
 //trial is position in the 2d array to store the info, numThr is the thread this is foor
 //and start tells whether to store in the start temp array or end temp array.
-void doTemps(int verbose, int start, int index, int trial, int numThr, int tracking){
+void 
+doTemps(int verbose, int start, int index, int trial, int numThr, int tracking) {
   double** curPtr=NULL;
   curPtr=tempEnd;
   if(start){
@@ -137,7 +159,7 @@ void doTemps(int verbose, int start, int index, int trial, int numThr, int track
   
   char path[128]="";
   int iStart=index, iEnd=index+1;
-  if(index==-1){
+  if(index==-1) {
     iStart=0;
     iEnd=numThr;
   }
@@ -173,12 +195,14 @@ void printTempsResults(int numThr, int trial){
 }
 
 //prints temps without relevant statical data (basically for verbose mode)
-void printTempsV(int numThr, int trial){
+void 
+printTempsV(int numThr, int trial) {
   for(int i =0;i<numThr;i++){
     printf("Thread %d on core %d: %f -> %f\n", i, i%numCores, tempStart[i][trial+1], tempEnd[i][trial+1]);
 
-      }
+  }
 }
+
 
 //stays in while (1) with a sleep(1) inside until the current
 //temperature is less than 1.1*StartingTemp for a given core.
@@ -206,6 +230,6 @@ void enforceTemp(int verbose,int tid, int numThr){
 	if(!cont){
 	break;
 	}
-      }
-  }
 
+      }
+}

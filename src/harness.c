@@ -281,7 +281,7 @@ void
 startThreadTimer(int tid, int trialNum) {
 
     if(regtemp){
-      enforceTemp(verbose, tid,nthreads);
+      enforceTemp(verbose,tid, nthreads);
     }
 
   
@@ -293,6 +293,7 @@ startThreadTimer(int tid, int trialNum) {
     myBarrier(&loopBarrier, tid);
   }
   if(tracktemp){
+
     doTemps(verbose, 1, tid, trialNum, nthreads, 1);
   }
 }
@@ -531,7 +532,7 @@ main(int argc, char**argv)
 
   
   if(tracktemp||regtemp){
-    initTemp(verbose,trialsToRun,nthreads);
+    initTemp(verbose, trialsToRun, nthreads);
     if(regtemp){
 
       doTemps(verbose, 1, -1, 0, nthreads, 0);
