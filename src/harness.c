@@ -281,7 +281,7 @@ void
 startThreadTimer(int tid, int trialNum) {
 
     if(regtemp){
-      enforceTemp(verbose, tid,nthreads);
+      enforceTemp(tid, nthreads);
     }
 
   
@@ -293,7 +293,7 @@ startThreadTimer(int tid, int trialNum) {
     myBarrier(&loopBarrier, tid);
   }
   if(tracktemp){
-    doTemps(verbose, 1, tid, trialNum, nthreads);
+    doTemps(1, tid, trialNum, nthreads);
   }
 }
 
@@ -301,7 +301,7 @@ nanoseconds
 endThreadTimer(int tid, int trialNum) {
   nanoseconds duration = 0;
   if(tracktemp){
-    doTemps(verbose, 0, tid, trialNum, nthreads);
+    doTemps(0, tid, trialNum, nthreads);
   }
   if (tid == 0) {
     myBarrier(&loopBarrier, tid);
@@ -531,10 +531,10 @@ main(int argc, char**argv)
 
   
   if(tracktemp||regtemp){
-    initTemp(verbose,trialsToRun,nthreads);
+    initTemp(trialsToRun, nthreads);
     if(regtemp){
 
-      doTemps(verbose, 1, -1, 0, nthreads);
+      doTemps(1, -1, 0, nthreads);
     }
   }
   // decide on query breakdown
