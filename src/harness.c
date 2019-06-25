@@ -16,10 +16,14 @@
 #include "../lib/hashtable.h"
 #include "../lib/hashstat.h"
 #include "dist.h"
+#include "temp.h"
 
 #define Version "0.1"
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
+
+
+
 
 static char*
 getProgramPrefix(void) {
@@ -64,12 +68,10 @@ int queryCutoff = 0;
 int checkT = 0;
 int statspertrial = 0;
 
-int numCores=0;
-int regtemp = 0;
-int tracktemp=0;
-char tempPath[128]="/sys/devices/platform/coretemp.0/hwmon/hwmon1/";
-double ** tempStart=NULL;
-double ** tempEnd=NULL;
+
+
+ int regtemp = 0;
+ int tracktemp=0;
 
 int trialNumber = 0;
 nanoseconds* trialTimes;
@@ -273,53 +275,13 @@ calcBSmedian(BarrierSummary* bts, int n, double* tomin, double* tomed)
 }
 
 
-void doTemps(int verbose, int start, int index, int trial){
-  double** curPtr=NULL;
-  curPtr=tempEnd;
-  if(start){
-    curPtr=tempStart;
-  }
-  
-  char path[128]="";
-  int iStart=index, iEnd=index+1;
-  if(index==-1){
-    iStart=0;
-    iEnd=nthreads;
-  }
-  for(int i =iStart;i<iEnd;i++){
-    sprintf(path,"%s/temp%d_input", tempPath, i%numCores+2);
-    FILE* fp=fopen(path, "r");
-    fscanf(fp,"%lf", &curPtr[i][trial]);
-    curPtr[i][trial]=curPtr[i][trial]/1000.0;
-    fclose(fp);
-  }
-}
 
 
 void
 startThreadTimer(int tid, int trialNum) {
 
     if(regtemp){
-      int loopNum=0;
-      while(1){
-	int cont=0;
-	if(loopNum){
-	  sleep(1);
-	}
-	doTemps(verbose, 0, tid, 0);
-	for(int i =tid;i<tid+1;i++){
-	  if(verbose){
-	    printf("%d: Thread %d on core %d -> start %f vs cur %f\n", loopNum, i, i%numCores, tempStart[i][0], tempEnd[i][0]);
-	  }
-	  if(tempEnd[i][0]>(1.1*tempStart[i][0])){
-	    cont=1;
-	  }
-	}
-	loopNum++;
-	if(!cont){
-	break;
-	}
-      }
+      enforceTemp(verbose, tid,nthreads);
     }
 
   
@@ -331,7 +293,7 @@ startThreadTimer(int tid, int trialNum) {
     myBarrier(&loopBarrier, tid);
   }
   if(tracktemp){
-    doTemps(verbose, 1, tid, trialNum);
+    doTemps(verbose, 1, tid, trialNum, nthreads);
   }
 }
 
@@ -339,7 +301,7 @@ nanoseconds
 endThreadTimer(int tid, int trialNum) {
   nanoseconds duration = 0;
   if(tracktemp){
-  doTemps(verbose, 0, tid, trialNum);
+    doTemps(verbose, 0, tid, trialNum, nthreads);
   }
   if (tid == 0) {
     myBarrier(&loopBarrier, tid);
@@ -466,18 +428,6 @@ clearStats(void) {
 ////////////////////////////////////////////////////////////////
 // main thread function: run
 
-//cant use number of processors because hyperthread (on my machine at least 8 processors 4 cores)
-//also seems like processors 4-7 are on core procNum-4 so only first 4 threads will need to monitor core temp.
-int getCores(){
-  FILE* fp= fopen("/proc/cpuinfo","r");
-  char buf[32]="";
-  while(fgets(buf, 32,fp)){
-    if(!strncmp(buf,"cpu cores",9)){
-      return atoi(buf+12);
-    }
-  }
-  return 0;
-}
 
 
 void*
@@ -528,10 +478,7 @@ run(void* arg) {
     // record time and see if we are done
     if (tid == 0) {
       if(verbose&&tracktemp){
-      for(int i =0;i<nthreads;i++){
-	printf("Thread %d on core %d: %f -> %f\n", i, i%numCores, tempStart[i][trialNumber], tempEnd[i][trialNumber]);
-
-      }
+	printTempsV(nthreads, trialNumber);
       }
       if (verbose) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
       trialTimes[trialNumber] = ns;
@@ -580,18 +527,14 @@ main(int argc, char**argv)
   addArgumentParser(ap, getProbDistArgParsing(), 0);
   int ok = parseArguments(ap, argc, argv);
   if (ok) die("Error parsing arguments");
+
+
   
-  numCores=getCores();
   if(tracktemp||regtemp){
-    tempStart=malloc(nthreads*sizeof(double*));
-    tempEnd=malloc(nthreads*sizeof(double*));
-    for(int i =0;i<nthreads;i++){
-    tempStart[i]=malloc(trialsToRun*sizeof(double));
-    tempEnd[i]=malloc(trialsToRun*sizeof(double));
-    }
+    initTemp(verbose,trialsToRun,nthreads);
     if(regtemp){
 
-      doTemps(verbose, 1, -1, 0);
+      doTemps(verbose, 1, -1, 0, nthreads);
     }
   }
   // decide on query breakdown
@@ -672,18 +615,7 @@ main(int argc, char**argv)
   }
 
   if(tracktemp){
-    for(int i =0;i<nthreads;i++){
-      printf("START: Thread %d on core %d: Avg %lf Min-Max: %lf-%lf\n",i, i%numCores,
-	     getMeanFloat(tempStart[i], trialNumber) ,
-	     getMinFloat(tempStart[i],trialNumber),
-	     getMaxFloat(tempStart[i],trialNumber));
-    }
-    for(int i =0;i<nthreads;i++){
-      printf("END: Thread %d on core %d: Avg %lf Min-Max: %lf-%lf\n",i, i%numCores,
-	     getMeanFloat(tempEnd[i],trialNumber) ,
-	     getMinFloat(tempEnd[i],trialNumber),
-	     getMaxFloat(tempEnd[i],trialNumber));
-    }
+    printTempsResults(nthreads, trialNumber);
 
   }
 
