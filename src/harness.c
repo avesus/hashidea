@@ -22,9 +22,6 @@
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 
-
-
-
 static char*
 getProgramPrefix(void) {
   static char* prefix = NULL;
@@ -68,20 +65,25 @@ int queryCutoff = 0;
 int checkT = 0;
 int statspertrial = 0;
 
-
-
- int regtemp = 0;
- int tracktemp=0;
+int regtemp = 0;
+int tracktemp=0;
 
 int trialNumber = 0;
+
+typedef struct {
+  nanoseconds time;
+  double* memutils;
+  BarrierSummary barrierGaps;
+  double* startTemp
+} PerTrialInfo;
+PerTrialInfo* trialData;
+
 nanoseconds* trialTimes;
 double* trialUtils;
 
 typedef struct targs{
   unsigned int* seeds;
   int tid;
-
-
 }targs;
 
 double alpha = 0.5;
@@ -257,7 +259,6 @@ showThreadInfo(void)
   pthread_mutex_unlock(&showinfo_mutex);  
 }
 
-TimingStruct trialTimer;
 BarrierSummary* trialBTS;
 BarrierSummary* barrierTimesPointer;
 
@@ -275,7 +276,8 @@ calcBSmedian(BarrierSummary* bts, int n, double* tomin, double* tomed)
 }
 
 
-
+// used to keep track of each trial, used by only thread 0.
+static TimingStruct trialTimer;
 
 void
 startThreadTimer(int tid, int trialNum) {
