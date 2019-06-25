@@ -4,18 +4,26 @@
 // package to monitor temperature of cores in a multicore processor.  
 // Specific to linux.  Tested on Ubuntu.
 
-// call before anything else
-void initTemp(int trials, int numThr);
 
+//prints results after all trials
 void printTempsResults(int numThr, int trial);
+
+//prints temp dif for given trial
 void printTempsV(int numThr, int trial);
 
-// NOAH PLEASE ADD COMMENT HERE
-// can you explain what 4 arguments mean?
-void doTemps(int start, int index, int trial, int numThr);
+//initializes num cores, path to core temps and memory for data storage
+void initTemp(int verbose, int trials, int numThr);
 
-// NOAH MAKE SURE THIS IS RIGHT
-// make sure temperature is XXX within initial temperature (that in tempStart[x][0]?)
-void enforceTemp(int tid,int numThr);
+//get num cores (called in initTemp)
+static int getCores();
+
+//set path for tempPath (called in initTemp)
+static int setPath(int verbose);
+
+//gets the data from the files, read .c for explination of args
+void doTemps(int verbose, int start, int index, int trial, int numThr, int tracking);
+
+//wont let thread past until its temp is under threshold (1 sec sleep between tests).x
+void enforceTemp(int verbose,int tid,int numThr);
 
 #endif
