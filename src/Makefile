@@ -17,12 +17,12 @@ harness: harness.o arg.o  util.o timing.o dist.o temp.o ../lib/$(Hashtable) ../l
 
 testrand: testrand.o dist.o util.o
 
-harness.o: harness.c arg.h timing.h util.h temp.h ../lib/hashtable.h ../lib/hashstat.h
+harness.o: harness.c arg.h timing.h util.h temp.h ../lib/hashtable.h ../lib/hashstat.h stat.h
 arg.o: arg.c arg.h
-util.o: util.h util.c
+util.o: util.h util.c stat.h
 timing.o: timing.c timing.h util.h
 dist.o: dist.c dist.h
-temp.o: temp.c temp.h
+temp.o: temp.c temp.h stat.h
 ../lib/%.o:	../lib/%.c ../lib/hash.h ../lib/hashtable.h
 	make -C ../lib WITHSTATS=$(WITHSTATS)
 
