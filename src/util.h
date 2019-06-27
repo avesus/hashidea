@@ -28,7 +28,7 @@ typedef struct barrier_struct {
   int n;
 } Barrier;
 
-typedef struct {
+typedef struct _barrier_summary {
   double maxgap;
   double medgap;
 } BarrierSummary;
@@ -37,25 +37,10 @@ typedef struct {
 void myBarrier(Barrier* b, int t);
 void initBarrierN(Barrier* b, int n);
 void showWaiting(Barrier* b, const char* msg);
-void getBTsummary(Barrier* b, BarrierSummary* sp);
+void getBTsummary(Barrier* b, long long unsigned* tp, BarrierSummary* sp);
 
 #define initBarrier(b) initBarrierN(b, nthreads);
 
 // stats
-
-void trimData(int n, long long unsigned* trialTimes, long long unsigned* trimmedTimes);
-
-double getMedian(long long unsigned* trialTimes, int trialNumber);
-double getMean(long long unsigned* trialTimes, int trialNumber);
-double getSD(long long unsigned* trialTimes, int trialNumber);
-double getMin(long long unsigned* trialTimes, int trialNumber);
-double getMax(long long unsigned* trialTimes, int trialNumber);
-
-double getMedianFloat(double* trialUtils, int trialNumber);
-double getMeanFloat(double* trialUtils, int trialNumber);
-double getSDFloat(double* trialUtils, int trialNumber);
-double getMinFloat(double* trialUtils, int trialNumber);
-double getMaxFloat(double* trialUtils, int trialNumber);
-
 
 #endif

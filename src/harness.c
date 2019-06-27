@@ -10,6 +10,7 @@
 #include <semaphore.h>
 #include "arg.h"
 #include "timing.h"
+#include "stat.h"
 #include "util.h"
 #include <sys/sysinfo.h>
 #include "dirent.h"
@@ -67,24 +68,31 @@ int statspertrial = 0;
 
 int regtemp = 0;
 int tracktemp=0;
+double AllowedTempVariance=1.1;
 
 int trialNumber = 0;
 
-typedef struct {
-  nanoseconds time;
-  double* memutils;
-  BarrierSummary barrierGaps;
-  double* startTemp
-} PerTrialInfo;
-PerTrialInfo* trialData;
+PerTrialInfo* trialData;	/* all the data for every trial */
+PerTrialInfo* tdp;		/* pointer to PerTrialInfo for this time tick */
 
-nanoseconds* trialTimes;
-double* trialUtils;
+// make sure we are setup to collect data for this trial.  Sets global
+// tdp, assumes trialNumber is set
+void
+setupToCollectTrialStats(int tid) {
+  if (tid != 0) return;
+  tdp = trialData + trialNumber;
+  tdp->barrierEnds = calloc(nthreads, sizeof(nanoseconds));
+  if (tracktemp||regtemp) {
+    tdp->startTemp = calloc(nthreads, sizeof(double));
+    tdp->endTemp = calloc(nthreads, sizeof(double));
+  }
+  //fprintf(stderr, "stcts:%d tdp:%p, tdp->BE:%p, tdp:ST:%p, tdp:ET:%p\n", tid, tdp, tdp->barrierEnds, tdp->startTemp, tdp->endTemp);
+}
 
-typedef struct targs{
+typedef struct targs {
   unsigned int* seeds;
   int tid;
-}targs;
+} targs;
 
 double alpha = 0.5;
 double beta = 0.5;
@@ -163,7 +171,7 @@ static ArgOption args[] = {
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
   { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table" },
   { KindOption,   Set,          "--regtemp",    0, &regtemp,            "Set so that between trials will wait until cpu temp returns to close to starting temp." },
-  { KindOption,   Set,          "--tracktemp",  0, &tracktemp,            "Track thread temps for each trial. Note this will affect timing slightly" },
+  { KindOption,   Set,          "--tracktemp",  0, &tracktemp,          "Track thread temps for each trial. Note this will affect timing slightly" },
   { KindEnd }
 };
 static ArgDefs argp = { args, "Harness for parallel hashing", Version, NULL };
@@ -280,39 +288,32 @@ calcBSmedian(BarrierSummary* bts, int n, double* tomin, double* tomed)
 static TimingStruct trialTimer;
 
 void
-startThreadTimer(int tid, int trialNum) {
-
-    if(regtemp){
-      enforceTemp(verbose,tid, nthreads);
-    }
-
-  
+startThreadTimer(int tid, int trialNum) 
+{
   if (tid == 0) {
-    
+    if (regtemp) enforceTemps(nthreads);	/* enforce temperature if asked */
+    if (tracktemp) doTemps(0, statAdrOf(tdp, startTemp, double), nthreads);
     myBarrier(&loopBarrier, tid);
     startTimer(&trialTimer);
   } else {
     myBarrier(&loopBarrier, tid);
-  }
-  if(tracktemp){
-
-    doTemps(verbose, 1, tid, trialNum, nthreads, 1);
   }
 }
 
 nanoseconds
 endThreadTimer(int tid, int trialNum) {
   nanoseconds duration = 0;
-  if(tracktemp){
-    doTemps(verbose, 0, tid, trialNum, nthreads, 1);
+  if(tracktemp) {
+    doTemps(tid, statAdrOf(tdp, endTemp, double), 1);
+    printPTI(stdout, tdp);
   }
+
   if (tid == 0) {
     myBarrier(&loopBarrier, tid);
     duration = endTimer(&trialTimer);
     if (verbose) showWaiting(&loopBarrier, "ETT");
-    getBTsummary(&loopBarrier, barrierTimesPointer);
-    if (verbose) printf("BT Summary: max:%g\tmedian:%g\n", barrierTimesPointer->maxgap, barrierTimesPointer->medgap);
-    barrierTimesPointer++;
+    getBTsummary(&loopBarrier, tdp->barrierEnds, &tdp->barrierGaps);
+    if (verbose) printf("BT Summary: max:%g\tmedian:%g\n", tdp->barrierGaps.maxgap, tdp->barrierGaps.medgap);
   } else {
     myBarrier(&loopBarrier, tid);
   }
@@ -450,6 +451,8 @@ run(void* arg) {
   
 
   do {
+    setupToCollectTrialStats(tid);
+    
     unsigned long* rVals=(unsigned long*)malloc(2*sizeof(unsigned long)*numInsertions);
     for(int i =0;i<numInsertions;i++){
       rVals[i]=random();
@@ -480,15 +483,15 @@ run(void* arg) {
 
     // record time and see if we are done
     if (tid == 0) {
-      if(verbose&&tracktemp){
-	printTempsV(nthreads, trialNumber);
-      }
       if (verbose) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
-      trialTimes[trialNumber] = ns;
+      if(verbose&&tracktemp){
+	printTempsV(tdp, nthreads);
+      }
+      tdp->time = ns;
       if ((stopError != 0)&&(trialNumber+1 > trialsToRun)) {
-	double median = getMedian(trialTimes, trialNumber);
-	double mean = getMean(trialTimes, trialNumber);
-	double stddev = getSD(trialTimes, trialNumber);
+	double median = getMedianL(tdp, statOffset(time), trialNumber);
+	double mean = getMeanL(tdp, statOffset(time), trialNumber);
+	double stddev = getSDL(tdp, statOffset(time), trialNumber);
       
 	if (stddev <= stopError) notDone = 0;
 	else if ((trialNumber+1) >= 10*trialsToRun) notDone = 0;
@@ -497,18 +500,18 @@ run(void* arg) {
 	notDone = 0;
       }
 
-      trialUtils[trialNumber]= freeAll(globalHead, !notDone, verbose);
-      trialNumber++;
+      tdp->memutils= freeAll(globalHead, !notDone, verbose);
       if (statspertrial) {
 	printStats();
 	clearStats();
       }
+      trialNumber++;
     }
-
+    free(entChunk);
+    free(rVals);
+    sleep(coolOff);
+    // make sure we start the loop anew at the same basic time
     myBarrier(&endLoopBarrier, tid);
-        free(entChunk);
-	free(rVals);
-	sleep(coolOff);
   } while (notDone);
 
   // when all done, let main thread know
@@ -534,10 +537,9 @@ main(int argc, char**argv)
 
   
   if(tracktemp||regtemp){
-    initTemp(verbose, trialsToRun, nthreads);
+    initTemp(trialsToRun, nthreads);
     if(regtemp){
-
-      doTemps(verbose, 1, -1, 0, nthreads, 0);
+      setEnforcedTemps(AllowedTempVariance, nthreads);
     }
   }
   // decide on query breakdown
@@ -551,21 +553,19 @@ main(int argc, char**argv)
   } else if (trialsToRun == 0) {
     trialsToRun = 1;
   }
-  trialTimes = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(nanoseconds));
-  trialUtils = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(double));
-  trialBTS =  calloc(trialsToRun*((stopError > 0)?10:1), sizeof(BarrierSummary));
-  barrierTimesPointer = trialBTS;
+  trialData = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(PerTrialInfo));
+  tdp = trialData;
 
   // allocate stats if compiled in
   clearStats();
   
   if (showArgs) {
-    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,HEADING\n");
+    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING\n");
     // if we are asked to show all args, print them out here one one line
-    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d", 
+    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf", 
 	    getProgramPrefix(), getProgramShortPrefix(),
 	   numInsertions, trialsToRun, stopError, alpha, beta, 
-	    queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff);
+	    queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff,regtemp,AllowedTempVariance);
     printf("%s,START\n", desc);
   } else {
     // just show vital ones
@@ -617,26 +617,19 @@ main(int argc, char**argv)
     pthread_join(threadids[i], NULL);
   }
 
-  if(tracktemp){
-    printTempsResults(nthreads, trialNumber);
-
-  }
-
-
-  
   // exit and print out any results
-  double min = getMin(trialTimes, trialNumber);
-  double max = getMax(trialTimes, trialNumber);
+  double min = getMinL(trialData, statOffset(time), trialNumber);
+  double max = getMaxL(trialData, statOffset(time), trialNumber);
   printf("%s,\tMilliseconds,\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf",
 	 desc,
 	 min/1000000.0, max/1000000.0, (max-min)/1000000.0, 
-	 getMean(trialTimes, trialNumber)/1000000.0, 
-	 getMedian(trialTimes, trialNumber)/1000000.0, 
-	 getSD(trialTimes, trialNumber)/1000000.0);
+	 getMeanL(trialData, statOffset(time), trialNumber)/1000000.0, 
+	 getMedianL(trialData, statOffset(time), trialNumber)/1000000.0, 
+	 getSDL(trialData, statOffset(time), trialNumber)/1000000.0);
   if (trialNumber > 4) {
     nanoseconds* trimmedTimes = mycalloc(trialNumber, sizeof(sizeof(nanoseconds)));
     int n = trialNumber-2;
-    trimData(trialNumber, trialTimes, trimmedTimes);
+    trimData(trialNumber, statOffset(time), trialData, trimmedTimes);
     min = getMin(trimmedTimes, n);
     max = getMax(trimmedTimes, n);
     printf(",\tTMin:%lf, TMax:%lf, TRange:%lf, TAvg:%lf, TMedian:%lf, TSD:%lf", 
@@ -647,21 +640,21 @@ main(int argc, char**argv)
   }
   printf("\n");
 
-  min = getMinFloat(trialUtils, trialNumber);
-  max = getMaxFloat(trialUtils, trialNumber);
+  min = getMinFloat(trialData, statOffset(memutils), trialNumber);
+  max = getMaxFloat(trialData, statOffset(memutils), trialNumber);
   printf("%s,\tMemusage,\tMin:%lf, Max:%lf, Range:%lf, Avg:%lf, Median:%lf, SD:%lf\n",
 	 desc,
 	 min, max, max-min, 
-	 getMeanFloat(trialUtils, trialNumber), 
-	 getMedianFloat(trialUtils, trialNumber), 
-	 getSDFloat(trialUtils, trialNumber));
-  double tomingap;
-  double tomedgap;
-  calcBSmedian(trialBTS, trialNumber, &tomingap, &tomedgap);
+	 getMeanFloat(trialData, statOffset(memutils), trialNumber), 
+	 getMedianFloat(trialData, statOffset(memutils), trialNumber), 
+	 getSDFloat(trialData, statOffset(memutils), trialNumber));
+  double tomingap = getMedianFloat(trialData, statOffset(barrierGaps), trialNumber);
+  double tomedgap = getMedianFloat(trialData, statOffset(barrierGaps)+sizeof(double), trialNumber);
   printf("%s,\tBarrier Gap,\tMax->Min:%lf, Max->Median:%lf\n",
 	 desc,
 	 tomingap,
 	 tomedgap);
+  if(tracktemp) printTempsResults(desc, nthreads, trialNumber, showArgs);
 
   if (showArgs) {
     printf("%s,END\n", desc);
