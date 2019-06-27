@@ -125,7 +125,7 @@ int deleteVal(HashTable* head, unsigned long val){
 
 
 
-int constainedCheckTableQuery(HashTable* head, unsigned long val, int start, int end){
+int constrainedCheckTableQuery(HashTable* head, unsigned long val, int start, int end){
   SubTable* ht=NULL;
   unsigned int buckets[10];
   for(int i =0;i<head->hashAttempts;i++){
@@ -279,7 +279,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
 
 
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
-
+  printf("Starting: %p->%d = %lu\n", ent, getBool(ent), ent->val);
   SubTable* ht=NULL;
   int LocalCur=head->cur;
   unsigned int buckets[10];
@@ -319,22 +319,25 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	return 0;
       }
       if(res==del){
+	int b=buckets[i]%ht->TableSize;
+	printf("Adding to deleted slot: %lu to %lu\n", ent->val, getPtr(ht->InnerTable[b])->val);
+	printf("%p->%d vs %p->%d\n", ent, getBool(ent), ht->InnerTable[b], getBool(ht->InnerTable[b]));
 	setPtr(&ent, claimed|deleted);
 	entry* expected=NULL;
 	setPtr(&expected,deleted);
-	int cmp= __atomic_compare_exchange((ht->InnerTable+res),
+	int cmp= __atomic_compare_exchange((ht->InnerTable+b),
 					   &expected,
 					   &ent,
 					   1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 	if(cmp){
-	  if(constainedCheckTableQuery(head, getPtr(ent)->val, j, head->cur)){
-	    unsetPtr(&ht->InnerTable[res], claimed);
+	  if(constrainedCheckTableQuery(head, getPtr(ent)->val, j, head->cur)){
+	    unsetPtr(&ht->InnerTable[b], claimed);
 	  }
 	  return 1;
 	}
 	else{
-	  unsetPtr(&ent, claimed);
-	  if(getPtr(ht->InnerTable[res])->val==getPtr(ent)->val){
+	  unsetPtr(&ent, claimed|deleted);
+	  if(getPtr(ht->InnerTable[b])->val==getPtr(ent)->val){
 	    return 0;
 	  }
 	}

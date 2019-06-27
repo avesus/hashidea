@@ -37,14 +37,16 @@ static int setPath(void);
 
 //initializes variables. Gets number of cores, sets variables for finding tempature files
 //and mallocs arrays for storing information
-void initTemp(int trials, int numThr) {
+int
+initTemp(int trials, int numThr) {
   if (!getCores()) {
     printf("Couldnt find cores on your machine\n");
-    return;
+    return -1;
   }
   if (setPath()) {
-    return;
+    return -1;
   }
+  return 0;
 }
 
 // set number of physical cores (not hyperthreading count).  

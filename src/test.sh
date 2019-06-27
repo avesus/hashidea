@@ -1,8 +1,7 @@
 #!/bin/bash
 
 trials=30
-inserts=1600000
-cooloff=2
+inserts=16000000
 
 make clean
 for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hashtable_local; do
@@ -19,8 +18,8 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 		    for ha in {1..5}; do
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"
-			echo ./harness --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha  -c $cooloff  --args
-			./harness --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha -c $cooloff --args
+			echo ./harness --trials $trials --regtemp --inserts $in --qp $qp -t $t -i $it -a $ha  --args
+			./harness --trials $trials --regtemp --inserts $in --qp $qp -t $t -i $it -a $ha --args
 			sleep 5
 		    done
 		done

@@ -537,7 +537,10 @@ main(int argc, char**argv)
 
   
   if(tracktemp||regtemp){
-    initTemp(trialsToRun, nthreads);
+    if(initTemp(trialsToRun, nthreads)){
+      printf("Error accessing CPU temp/cores\n");
+      return;
+    }
     if(regtemp){
       setEnforcedTemps(AllowedTempVariance, nthreads);
     }

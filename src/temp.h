@@ -13,7 +13,7 @@ void printTempsResults(const char* desc, int numThr, int trial, int mode);
 void printTempsV(PerTrialInfo* pti, int numThr);
 
 //initializes num cores, path to core temps and memory for data storage
-void initTemp(int trials, int numThr);
+int initTemp(int trials, int numThr);
 
 //gets the data from the files, read .c for explination of args
 void doTemps(int index, double* dest, int cnt);
