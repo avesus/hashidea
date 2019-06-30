@@ -291,7 +291,7 @@ void
 startThreadTimer(int tid, int trialNum) 
 {
   if (tid == 0) {
-    if (regtemp) enforceTemps(nthreads);	/* enforce temperature if asked */
+    if (regtemp) enforceTemps(nthreads, 60);	/* enforce temperature if asked */
     if (tracktemp) doTemps(0, statAdrOf(tdp, startTemp, double), nthreads);
     myBarrier(&loopBarrier, tid);
     startTimer(&trialTimer);
@@ -305,7 +305,7 @@ endThreadTimer(int tid, int trialNum) {
   nanoseconds duration = 0;
   if(tracktemp) {
     doTemps(tid, statAdrOf(tdp, endTemp, double), 1);
-    printPTI(stdout, tdp);
+    // printPTI(stdout, tdp);
   }
 
   if (tid == 0) {
@@ -468,6 +468,8 @@ run(void* arg) {
       globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds);
 
     }
+    // sleep now to cool off processor in case all the above raised the temperature
+    sleep(coolOff);
     startThreadTimer(tid, trialNumber);
 
     if (checkT) {
@@ -509,7 +511,6 @@ run(void* arg) {
     }
     free(entChunk);
     free(rVals);
-    sleep(coolOff);
     // make sure we start the loop anew at the same basic time
     myBarrier(&endLoopBarrier, tid);
   } while (notDone);
