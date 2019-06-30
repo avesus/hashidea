@@ -12,6 +12,7 @@ typedef struct {
   BarrierSummary barrierGaps;	/* the ratio of max finisher to median finisher and max finisher to min finisher */
   double* startTemp;		/* the starting temps of each core */
   double* endTemp;		/* the ending temps of each core */
+  double avgCoolWait;		/* average time to cool down if requested enforcetemps */
 } PerTrialInfo;
 
 void printPTI(FILE* f, PerTrialInfo* p);
