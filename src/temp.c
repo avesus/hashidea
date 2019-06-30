@@ -217,7 +217,7 @@ void printTempsResults(const char* desc, int numThr, int trial, int mode) {
   for (int i =0; i<numThr; i++) {
     double* thisdata = data+(i*trial);
     gatherTemps(trialData, statOffset(startTemp), i, trial, thisdata);
-    if (1 || !mode)
+    if (!mode)
       printf("START: Thread %d on core %d: Avg %lf Min-Max: %lf-%lf\n", 
 	     i, i%numCores,
 	     getMeanD(thisdata, trial) ,
@@ -227,7 +227,7 @@ void printTempsResults(const char* desc, int numThr, int trial, int mode) {
   for (int i =0; i<numThr; i++) {
     double* thisdata = data+((numThr+i)*trial);
     gatherTemps(trialData, statOffset(endTemp), i, trial, thisdata);
-    if (1 || !mode)
+    if (!mode)
       printf("END: Thread %d on core %d: Avg %lf Min-Max: %lf-%lf\n", 
 	     i, i%numCores,
 	     getMeanD(thisdata, trial) ,
@@ -243,8 +243,8 @@ void printTempsResults(const char* desc, int numThr, int trial, int mode) {
   double meanDelta = getMeanD(data, trial*numThr);
   double minDelta = getMinD(data, trial*numThr);
   double maxDelta = getMaxD(data, trial*numThr);  
-  printf("%s,\tstartTemp:%lf, endTemp:%lf, minDelta:%lf, maxDelta:%lf, meanDelta:%lf\n",
-	 desc, meanStart, meanEnd, minDelta, maxDelta, meanDelta);
+  printf("%s,\tstartTemp:%lf, endTemp:%lf, minDelta:%lf, maxDelta:%lf, meanDelta:%lf, meanCoolWait:%lf\n",
+	 desc, meanStart, meanEnd, minDelta, maxDelta, meanDelta, getMeanFloat(trialData, statOffset(avgCoolWait), trial));
 }
 
 //prints temps without relevant statical data (basically for verbose mode)
@@ -286,15 +286,16 @@ setEnforcedTemps(double delta, int nthreads)
 
 #define MaxSleepBeforeExit 1000
 
-//stays in while (1) with a sleep(1) inside until the current
-//temperature is less than 1.1*StartingTemp for a given core.
+// stays in while (1) with a sleep(1) inside until the current
+// temperature is less than 1.1*StartingTemp for a given core.  Wait a
+// maximum of `maxWait` seconds before terminating program
 void 
-enforceTemps(int numThr) 
+enforceTemps(int numThr, int maxWait) 
 {
-  int loopNum=0;
+  int loopNum=maxWait;
   while (1) {
     int cont=0;
-    if (loopNum) {
+    if (loopNum > 0) {
       //sleep here to let cool off between loops, can adjust this to fit your needs
       sleep(1);
     }
@@ -309,12 +310,18 @@ enforceTemps(int numThr)
 	cont=1;
       }
     }
-    loopNum++;
+    loopNum--;
     if (!cont) {
+      // all cores are cool enough
+      tdp->avgCoolWait = (double)(maxWait - loopNum);
       break;
     }
-    if (loopNum > MaxSleepBeforeExit) {
-      fprintf(stderr, "Exceeded %d loops without reaching cool down temperature\n", MaxSleepBeforeExit);
+    if (loopNum <= 0) {
+      fprintf(stderr, 
+	      "Exceeded %d loops without reaching cool down temperature\n", maxWait);
+      for (int i=0; i<numCores; i++) {
+	fprintf(stderr, "\tcore %d: %lf isn't lower than %lf\n", i, nowTemps[i], enforcedTemps[i]);
+      }
       exit(-1);
     }
   }
