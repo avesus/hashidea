@@ -19,7 +19,7 @@ int initTemp(int trials, int numThr);
 void doTemps(int index, double* dest, int cnt);
 
 //wont let thread past until its temp is under threshold (1 sec sleep between tests).x
-void enforceTemps(int numThr);
+void enforceTemps(int numThr, int maxWait);
 
 // get the current temps as the enforcement limits within +-delta celcius degrees.
 void setEnforcedTemps(double delta, int nthreads);
