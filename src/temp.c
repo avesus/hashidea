@@ -100,6 +100,7 @@ setPath(void) {
       }
     }
   }
+  closedir(d);
 
   //once through all the hwmon* get offset into temp*_label files
   //basically temp0_label does not exist on my computer and temp1_label is not related to a core
@@ -245,6 +246,7 @@ void printTempsResults(const char* desc, int numThr, int trial, int mode) {
   double maxDelta = getMaxD(data, trial*numThr);  
   printf("%s,\tstartTemp:%lf, endTemp:%lf, minDelta:%lf, maxDelta:%lf, meanDelta:%lf, meanCoolWait:%lf\n",
 	 desc, meanStart, meanEnd, minDelta, maxDelta, meanDelta, getMeanFloat(trialData, statOffset(avgCoolWait), trial));
+  free(data);
 }
 
 //prints temps without relevant statical data (basically for verbose mode)
