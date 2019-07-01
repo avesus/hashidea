@@ -303,12 +303,13 @@ enforceTemps(int numThr, int maxWait)
     }
     // get current temperatures
     getTemps(nowTemps, numThr);
-    for (int i=0; i<numCores; i++) {
+    for (int t=0; t<numThr; t++) {
+      int i = t%numCores;
       if (verbose) {
 	printf("%d: core %d -> start %f vs cur %f\n", loopNum, i, enforcedTemps[i], nowTemps[i]);
       }
       //compare, if cont is set will redo loop, else will break
-      if (nowTemps[i] > deltaEnforcedTemp * enforcedTemps[i]) {
+      if (nowTemps[i] > (deltaEnforcedTemp * enforcedTemps[i])) {
 	cont=1;
       }
     }
