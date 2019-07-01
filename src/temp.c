@@ -173,7 +173,7 @@ doTemps(int index, double* dest, int numThr) {
   int iStart=index;
   int iEnd=index+numThr;
   long long int gotit = 0;
-  assert(numThr <= sizeof(unsigned long long)); /* if running on more threads need better way to avoid duplicate queries */
+  assert(numThr <= (8*sizeof(unsigned long long))); /* if running on more threads need better way to avoid duplicate queries */
   
   for (int i = iStart; i < iEnd; i++) {
     int coreIndex = i%numCores;
@@ -322,7 +322,7 @@ enforceTemps(int numThr, int maxWait)
       fprintf(stderr, 
 	      "Exceeded %d loops without reaching cool down temperature\n", maxWait);
       for (int i=0; i<numCores; i++) {
-	fprintf(stderr, "\tcore %d: %lf isn't lower than %lf\n", i, nowTemps[i], enforcedTemps[i]);
+	fprintf(stderr, "\tcore %d: %lf isn't lower than %lf*%lf\n", i, nowTemps[i], deltaEnforcedTemp, enforcedTemps[i]);
       }
       exit(-1);
     }
