@@ -267,7 +267,7 @@ static double* nowTemps;
 static void
 getTemps(double* buffer, int nthreads) {
   unsigned long long gotit = 0;
-  assert(nthreads <= sizeof(unsigned long long)); /* if running on more threads need better way to avoid duplicate queries */
+  assert(nthreads <= (8*sizeof(unsigned long long))); /* if running on more threads need better way to avoid duplicate queries */
 
   for (int i=0; i<nthreads; i++) {
     int idx = i%numCores;
