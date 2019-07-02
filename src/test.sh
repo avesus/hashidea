@@ -12,6 +12,9 @@ d=`date -Iseconds`
 if [ $onlyshow -ne 1 ]; then
     exec > >(tee "$d.test.log") 2>&1
 fi
+if [ $# -ne 0 ]; then
+    echo "Running tests while skipping any already preformed in the following logs: $prevlog"
+fi
 
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
