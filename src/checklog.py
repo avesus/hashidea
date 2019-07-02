@@ -7,19 +7,6 @@ import sys
 # from pprint import pprint
 
 verbose = False
-objects = {'hashtable_lazy_local': 'O1L:V0.1/h:0.1',
-           'hashtable_lazy': "OML:V0.1/h:0.1",
-           'hashtable': "OMR:V0.1/h:0.1",
-           'hashtable_ll_tr': "LSR:V0.1/h:0.1",
-           'hashtable_local': 'O1R:V0.1/h:0.1'
-           }
-
-
-def obj2sp(name):
-    if name not in objects:
-        raise ValueError('cannot find {} in mapper from .o to SP'.format(name))
-    return objects[name]
-
 
 parser = argparse.ArgumentParser(description='read log file to check for good run')
 # ./harness --trials 20 --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3
@@ -33,7 +20,7 @@ parser.add_argument("-a", "--hashattempts", type=int, help="hashattempts we are 
 parser.add_argument("logfiles", nargs='+', help="log file with run data")
 flags = parser.parse_args()
 check = {
-    'SP': obj2sp(flags.table),
+    'SP': flags.table,
     'numInsertions': flags.inserts,
     'trialsToRun': flags.trials,
     'queryPercentage': flags.qp,
