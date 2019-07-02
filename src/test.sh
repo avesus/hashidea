@@ -6,9 +6,12 @@ declare -a threads=(1 2 4 8 16)
 declare -a queryp=(0 0.5 0.9)
 declare -a attempts=(1 2 3 4)
 
+onlyshow=0
 prevlog=$*
 d=`date -Iseconds`
-exec > >(tee "$d.test.log") 2>&1
+if [ $onlyshow -ne 1 ]; then
+    exec > >(tee "$d.test.log") 2>&1
+fi
 
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
@@ -28,6 +31,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
     if [ $? != 0 ]; then
 	echo "Error:Failed to make harness for $table"
     else
+	tablever=`./harness --version | sed -e 's/.*aka //'`
 	for t in ${threads[@]}; do
 	    d=`date`
 	    echo "Running for threads $t on table ${table} ($d)"
@@ -38,7 +42,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"
 			if [ $# -ne 0 ]; then
-			    ./checklog.py --table ${table} --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
+			    ./checklog.py --table ${tablever} --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
 			    doit=$?
 			else
 			    doit=1
@@ -47,8 +51,10 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 			    echo ALREADY ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
 			else
 			    echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
-			    ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
-			    sleep 5
+			    if [ $onlyshow -ne 1 ]; then
+				./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
+				sleep 5
+			    fi
 			fi
 		    done
 		done
@@ -56,4 +62,4 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 	done
     fi
 done
-	    
+echo "ALL DONE!"
