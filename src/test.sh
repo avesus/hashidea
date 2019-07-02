@@ -6,6 +6,7 @@ declare -a threads=(1 2 4 8 16)
 declare -a queryp=(0 0.5 0.9)
 declare -a attempts=(1 2 3 4)
 
+prevlog=$*
 d=`date -Iseconds`
 exec > >(tee "$d.test.log") 2>&1
 
@@ -36,9 +37,19 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 		    for ha in ${attempts[@]}; do
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"
-			echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
-			./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
-			sleep 5
+			if [ $# -ne 0 ]; then
+			    ./checklog.py --table ${table} --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
+			    doit=$?
+			else
+			    doit=1
+			fi
+			if [ $doit == 0 ]; then
+			    echo ALREADY ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+			else
+			    echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+			    ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
+			    sleep 5
+			fi
 		    done
 		done
 	    done
