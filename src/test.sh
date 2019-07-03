@@ -1,6 +1,6 @@
 #!/bin/bash
 
-trials=20
+trials=15
 inserts=16000000
 declare -a threads=(1 2 4 8 16)
 declare -a queryp=(0 0.5 0.9)
@@ -45,7 +45,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"
 			if [ $# -ne 0 ]; then
-			    ./checklog.py --table ${tablever} --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
+			    ./checklog.py --table ${tablever}  --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
 			    doit=$?
 			else
 			    doit=1
