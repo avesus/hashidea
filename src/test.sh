@@ -1,5 +1,6 @@
 #!/bin/bash
 
+starttemp=49
 trials=15
 inserts=16000000
 declare -a threads=(1 2 4 8 16)
@@ -55,8 +56,8 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 			else
 			    echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
 			    if [ $onlyshow -ne 1 ]; then
+				./waitfortemp -t 300 -n $t $starttemp
 				./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
-				sleep 5
 			    fi
 			fi
 		    done
