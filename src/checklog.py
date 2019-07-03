@@ -11,7 +11,7 @@ verbose = False
 parser = argparse.ArgumentParser(description='read log file to check for good run')
 # ./harness --trials 20 --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3
 parser.add_argument("--table", type=str, help="table we are looking for", required=True)
-parser.add_argument("--trials", type=int, help="how many trials we are searching for", required=True)
+parser.add_argument("--trials", type=int, help="how many trials we are searching for")
 parser.add_argument("--inserts", type=int, help="how many inserts we are searching for", required=True)
 parser.add_argument("--qp", type=float, help="query percentage we are searching for", required=True)
 parser.add_argument("-t", "--threads", type=int, help="number of threads we are searching for", required=True)
@@ -22,7 +22,6 @@ flags = parser.parse_args()
 check = {
     'SP': flags.table,
     'numInsertions': flags.inserts,
-    'trialsToRun': flags.trials,
     'queryPercentage': flags.qp,
     'InitSize': flags.initialsize,
     'HashAttempts': flags.hashattempts,
