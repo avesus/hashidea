@@ -11,9 +11,10 @@ LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
 Hashtable = hashtable.o
 Hashfunction = hash.o 
 
-all:	harness 
+all:	harness waitfortemp
 
 harness: harness.o arg.o  util.o timing.o dist.o temp.o ../lib/$(Hashtable) ../lib/$(Hashfunction)
+waitfortemp: waitfortemp.o temp.o arg.o util.o
 
 testrand: testrand.o dist.o util.o
 
