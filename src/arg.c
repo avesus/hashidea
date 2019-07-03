@@ -188,8 +188,10 @@ makeCommandline(int argc, char** argv)
   commandLine = p;
 }
 
+// offset is 1 for option args (argv[0] points at option, argv[1] at start of data)
+// offset is 0 for positional args (argv[0] points at actual argument)
 static int
-assignArg(ArgOption* desc, int argc, char** argv, ArgParser* ap)
+assignArg(ArgOption* desc, int argc, char** argv, ArgParser* ap, int offset)
 {
   switch (desc->type) {
   case Increment:
@@ -212,10 +214,10 @@ assignArg(ArgOption* desc, int argc, char** argv, ArgParser* ap)
     break;
 
   case String:
-    if (verbose) printf("Saving %s to %s\n", argv[1], desc->longarg);
+    if (verbose) printf("Saving %s to %s\n", argv[offset], desc->longarg);
     {
       char** p = (char**)desc->dest;
-      *p = argv[1];
+      *p = argv[offset];
       return 1;
     }
     break;
@@ -237,19 +239,19 @@ assignArg(ArgOption* desc, int argc, char** argv, ArgParser* ap)
     break;
 
   case Double:
-    if (verbose) printf("double -> [%s] = %lf\n", desc->longarg, atof(argv[1]));
+    if (verbose) printf("double -> [%s] = %lf\n", desc->longarg, atof(argv[offset]));
     {
       double* p = (double*)desc->dest;
-      *p = atof(argv[1]);
+      *p = atof(argv[offset]);
       return 1;
     }
     break;
 
   case Integer:
-    if (verbose) printf("int -> [%s] = %d\n", desc->longarg, atoi(argv[1]));
+    if (verbose) printf("int -> [%s] = %d\n", desc->longarg, atoi(argv[offset]));
     {
       int* p = (int*)desc->dest;
-      *p = atoi(argv[1]);
+      *p = atoi(argv[offset]);
       return 1;
     }
     break;
@@ -406,7 +408,7 @@ parseArguments(ArgParser* ap, int argc, char**argv)
 	      break;
 	    }
 	    // process it
-	    int consumed = assignArg(desc+j, argc-i, argv+i, ap);
+	    int consumed = assignArg(desc+j, argc-i, argv+i, ap, 1);
 	    i += consumed;
 	  }
 	}
@@ -435,11 +437,11 @@ parseArguments(ArgParser* ap, int argc, char**argv)
   }
   // base is first positional arg we are passed, j is first descriptor for positional arg
   if (verbose) 
-    fprintf(stderr, "start pos: j=%d %s kind=%d\n", baseDestOffset, desc[baseDestOffset].longarg, desc[baseDestOffset].type);
+    fprintf(stderr, "start pos: j=%d %s kind=%d basearg=%d\n", baseDestOffset, desc[baseDestOffset].longarg, desc[baseDestOffset].type, baseArg);
   int j=0;			/* positional offset */
   while ( (desc[baseDestOffset+j].kind == KindPositional) && ((baseArg+j) < argc) ) {
     if (verbose) printf("%d: %s\n", j, baseArg+desc[baseDestOffset+j].longarg);
-    int consumed = assignArg(desc+baseDestOffset+j, argc-(baseArg+j), argv+baseArg+j, ap);
+    int consumed = assignArg(desc+baseDestOffset+j, argc-(baseArg+j), argv+baseArg+j, ap, 0);
     j += consumed;
   }
   // check that we used all the arguments and don't have any extra
