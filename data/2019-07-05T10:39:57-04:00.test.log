@@ -1,0 +1,989 @@
+Running tests while skipping any already preformed in the following logs: ../data/2019-07-02T00:05:14-04:00.test.log ../data/2019-07-02T18:58:49-04:00.test.log ../data/2019-07-02T20:13:53-04:00.test.log ../data/2019-07-02T22:53:00-04:00.test.log ../data/2019-07-02T22:57:13-04:00.test.log ../data/2019-07-03T15:43:44-04:00.test.log ../data/2019-07-04T16:05:52-04:00.test.log ../data/2019-07-04T18:35:42-04:00.test.log
+/bin/rm -f *.o harness *~
+make -C ../lib clean
+make[1]: Entering directory '/mnt/shared/seth/research/hashidea/lib'
+/bin/rm -f *.o *~
+make[1]: Leaving directory '/mnt/shared/seth/research/hashidea/lib'
+---- Making with hashtable_lazy_local ---- (Fri Jul  5 10:39:57 EDT 2019)
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o harness.o harness.c
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o arg.o arg.c
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o util.o util.c
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o timing.o timing.c
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o dist.o dist.c
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o temp.o temp.c
+make -C ../lib WITHSTATS=0
+make[1]: Entering directory '/mnt/shared/seth/research/hashidea/lib'
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hashtable_lazy.c -o hashtable_lazy.o
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hashtable_ll_tr.c -o hashtable_ll_tr.o
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hashtable_local.c -o hashtable_local.o
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hashtable_delete.c -o hashtable_delete.o
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hashtable_lazy_local.c -o hashtable_lazy_local.o
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hash.c -o hash.o
+gcc -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hashtable.c -o hashtable.o
+make[1]: Leaving directory '/mnt/shared/seth/research/hashidea/lib'
+gcc   harness.o arg.o util.o timing.o dist.o temp.o ../lib/hashtable_lazy_local.o ../lib/hash.o  -lpthread -lm -lgsl -lgslcblas -lm -o harness
+gcc -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=0   -c -o waitfortemp.o waitfortemp.c
+gcc   waitfortemp.o temp.o arg.o util.o  -lpthread -lm -lgsl -lgslcblas -lm -o waitfortemp
+Running for threads 1 on table hashtable_lazy_local (Fri Jul  5 10:39:59 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 4 --regtemp --args
+Running for threads 2 on table hashtable_lazy_local (Fri Jul  5 10:39:59 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 4 --regtemp --args
+Running for threads 4 on table hashtable_lazy_local (Fri Jul  5 10:39:59 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 4 --regtemp --args
+Running for threads 8 on table hashtable_lazy_local (Fri Jul  5 10:40:00 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 4 --regtemp --args
+Running for threads 16 on table hashtable_lazy_local (Fri Jul  5 10:40:00 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 4 --regtemp --args
+---- Making with hashtable_lazy ---- (Fri Jul  5 10:40:00 EDT 2019)
+gcc   harness.o arg.o util.o timing.o dist.o temp.o ../lib/hashtable_lazy.o ../lib/hash.o  -lpthread -lm -lgsl -lgslcblas -lm -o harness
+Running for threads 1 on table hashtable_lazy (Fri Jul  5 10:40:00 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 4 --regtemp --args
+Running for threads 2 on table hashtable_lazy (Fri Jul  5 10:40:01 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 4 --regtemp --args
+Running for threads 4 on table hashtable_lazy (Fri Jul  5 10:40:01 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 4 --regtemp --args
+Running for threads 8 on table hashtable_lazy (Fri Jul  5 10:40:01 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 4 --regtemp --args
+Running for threads 16 on table hashtable_lazy (Fri Jul  5 10:40:02 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 4 --regtemp --args
+---- Making with hashtable ---- (Fri Jul  5 10:40:02 EDT 2019)
+gcc   harness.o arg.o util.o timing.o dist.o temp.o ../lib/hashtable.o ../lib/hash.o  -lpthread -lm -lgsl -lgslcblas -lm -o harness
+Running for threads 1 on table hashtable (Fri Jul  5 10:40:02 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 4 --regtemp --args
+Running for threads 2 on table hashtable (Fri Jul  5 10:40:02 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 4 --regtemp --args
+Running for threads 4 on table hashtable (Fri Jul  5 10:40:03 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 4 --regtemp --args
+Running for threads 8 on table hashtable (Fri Jul  5 10:40:03 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 4 --regtemp --args
+Running for threads 16 on table hashtable (Fri Jul  5 10:40:03 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 4 --regtemp --args
+---- Making with hashtable_ll_tr ---- (Fri Jul  5 10:40:04 EDT 2019)
+gcc   harness.o arg.o util.o timing.o dist.o temp.o ../lib/hashtable_ll_tr.o ../lib/hash.o  -lpthread -lm -lgsl -lgslcblas -lm -o harness
+Running for threads 1 on table hashtable_ll_tr (Fri Jul  5 10:40:04 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 3 --regtemp --args
+./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 4 --regtemp --args
+Target:49.000000	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+linked/single-probe/remain:V0.1:harness:0.1,LSR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562337617,1,4,8192,0,1,1.100000,START
+linked/single-probe/remain:V0.1:harness:0.1,LSR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562337617,1,4,8192,0,1,1.100000,	Milliseconds,	Min:56151.195045, Max:58848.129543, Range:2696.934498, Avg:57235.199447, Median:57436.417080, SD:781.172768,	TMin:56168.571293, TMax:58624.041662, TRange:2455.470369, TAvg:57194.512856, TMedian:57436.417080, TSD:641.832364
+linked/single-probe/remain:V0.1:harness:0.1,LSR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562337617,1,4,8192,0,1,1.100000,	Memusage,	Min:1.906549, Max:1.908163, Range:0.001614, Avg:1.907467, Median:1.908157, SD:0.000469
+linked/single-probe/remain:V0.1:harness:0.1,LSR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562337617,1,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
+linked/single-probe/remain:V0.1:harness:0.1,LSR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562337617,1,4,8192,0,1,1.100000,	startTemp:51.066667, endTemp:52.533333, minDelta:0.000000, maxDelta:2.000000, meanDelta:1.466667, meanCoolWait:1.000000
+linked/single-probe/remain:V0.1:harness:0.1,LSR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562337617,1,4,8192,0,1,1.100000,END
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 4 --regtemp --args
+Running for threads 2 on table hashtable_ll_tr (Fri Jul  5 10:55:06 EDT 2019)
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 1 --regtemp --args
+Target:49.000000	 50.0	 49.0
+./test.sh: line 45: 32280 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 2 --regtemp --args
+Target:49.000000	 50.0	 49.0
+./test.sh: line 45: 32339 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 3 --regtemp --args
+Target:49.000000	 50.0	 48.0
+./test.sh: line 45: 32565 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45: 32571 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 1 --regtemp --args
+Target:49.000000	 50.0	 48.0
+./test.sh: line 45: 32597 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45: 32606 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45: 32618 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45: 32625 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45: 32671 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45: 32687 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45: 32694 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45: 32700 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45: 32709 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45: 32735 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45: 32744 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45: 32750 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:   323 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:   338 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:   356 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:   362 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:   372 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:   382 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:   390 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:   409 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+Running for threads 4 on table hashtable_ll_tr (Fri Jul  5 11:09:21 EDT 2019)
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:   487 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:   495 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:   503 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:   513 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:   521 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:   578 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:   588 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:   604 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:   614 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:   623 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:   632 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:   641 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:   649 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:   659 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:   668 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:   678 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:   686 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:   694 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:   705 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:   713 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:   721 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:   729 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:   784 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:   793 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+Running for threads 8 on table hashtable_ll_tr (Fri Jul  5 11:16:11 EDT 2019)
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:   822 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:   852 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:   864 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:   876 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:   893 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:   907 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:   919 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0 -t 8 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:   934 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:   949 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:   961 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:   974 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:   987 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:   999 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:  1012 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:  1024 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.5 -t 8 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:  1076 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:  1090 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:  1110 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:  1122 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:  1136 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:  1148 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:  1166 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:  1182 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 2000000 --qp 0.9 -t 8 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:  1201 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+Running for threads 16 on table hashtable_ll_tr (Fri Jul  5 11:23:15 EDT 2019)
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:  1218 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:  1258 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:  1289 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:  1316 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:  1343 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:  1363 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:  1388 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0 -t 16 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:  1458 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:  1512 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:  1547 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:  1569 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:  1598 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:  1618 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:  1638 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:  1660 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.5 -t 16 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:  1680 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 1 --regtemp --args
+./test.sh: line 45:  1702 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 2 --regtemp --args
+./test.sh: line 45:  1734 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 3 --regtemp --args
+./test.sh: line 45:  1757 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 32000000 -a 4 --regtemp --args
+./test.sh: line 45:  1777 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 1 --regtemp --args
+./test.sh: line 45:  1798 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 2 --regtemp --args
+./test.sh: line 45:  1819 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 3 --regtemp --args
+./test.sh: line 45:  1839 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+./harness --trials 15 --tracktemp --inserts 1000000 --qp 0.9 -t 16 -i 8192 -a 4 --regtemp --args
+./test.sh: line 45:  1862 Segmentation fault      (core dumped) ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+---- Making with hashtable_local ---- (Fri Jul  5 11:30:22 EDT 2019)
+gcc   harness.o arg.o util.o timing.o dist.o temp.o ../lib/hashtable_local.o ../lib/hash.o  -lpthread -lm -lgsl -lgslcblas -lm -o harness
+Running for threads 1 on table hashtable_local (Fri Jul  5 11:30:22 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.5 -t 1 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 4 --regtemp --args
+Running for threads 2 on table hashtable_local (Fri Jul  5 11:30:22 EDT 2019)
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 3 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 4 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 1 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 2 --regtemp --args
+ALREADY ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 3 --regtemp --args
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 4 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340625,2,4,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340625,2,4,32000000,0,1,1.100000,	Milliseconds,	Min:1062.129225, Max:1086.104440, Range:23.975215, Avg:1075.155812, Median:1076.469937, SD:7.189258,	TMin:1065.724373, TMax:1084.394259, TRange:18.669886, TAvg:1075.315655, TMedian:1076.469937, TSD:6.110425
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340625,2,4,32000000,0,1,1.100000,	Memusage,	Min:0.083146, Max:0.083219, Range:0.000073, Avg:0.083178, Median:0.083154, SD:0.000023
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340625,2,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:1.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340625,2,4,32000000,0,1,1.100000,	startTemp:52.133333, endTemp:56.966667, minDelta:3.000000, maxDelta:6.000000, meanDelta:4.833333, meanCoolWait:4.666667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340625,2,4,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 1 --regtemp --args
+Target:49.000000	 50.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340956,2,1,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340956,2,1,8192,0,1,1.100000,	Milliseconds,	Min:15303.431733, Max:16027.588504, Range:724.156771, Avg:15685.920445, Median:15721.272728, SD:174.795615,	TMin:15471.633679, TMax:15901.877891, TRange:430.244212, TAvg:15689.060496, TMedian:15721.272728, TSD:122.518366
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340956,2,1,8192,0,1,1.100000,	Memusage,	Min:0.476110, Max:0.476343, Range:0.000233, Avg:0.476238, Median:0.476240, SD:0.000064
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340956,2,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999793, Max->Median:0.999897
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340956,2,1,8192,0,1,1.100000,	startTemp:51.733333, endTemp:50.133333, minDelta:-3.000000, maxDelta:0.000000, meanDelta:-1.600000, meanCoolWait:2.933333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562340956,2,1,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 2 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341459,2,2,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341459,2,2,8192,0,1,1.100000,	Milliseconds,	Min:16700.365469, Max:17509.748593, Range:809.383124, Avg:17213.299481, Median:17228.874533, SD:208.749191,	TMin:16936.861721, TMax:17438.687840, TRange:501.826119, TAvg:17229.952165, TMedian:17228.874533, TSD:151.671442
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341459,2,2,8192,0,1,1.100000,	Memusage,	Min:0.475892, Max:0.476384, Range:0.000492, Avg:0.476174, Median:0.476117, SD:0.000146
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341459,2,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999821, Max->Median:0.999911
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341459,2,2,8192,0,1,1.100000,	startTemp:51.333333, endTemp:49.466667, minDelta:-3.000000, maxDelta:-1.000000, meanDelta:-1.866667, meanCoolWait:3.466667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341459,2,2,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 3 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341992,2,3,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341992,2,3,8192,0,1,1.100000,	Milliseconds,	Min:16940.769638, Max:17578.814851, Range:638.045213, Avg:17145.983341, Median:17157.925138, SD:159.087965,	TMin:16958.764312, TMax:17262.452951, TRange:303.688639, TAvg:17128.474279, TMedian:17157.925138, TSD:106.045548
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341992,2,3,8192,0,1,1.100000,	Memusage,	Min:0.476006, Max:0.476412, Range:0.000406, Avg:0.476214, Median:0.476392, SD:0.000109
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341992,2,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999155, Max->Median:0.999577
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341992,2,3,8192,0,1,1.100000,	startTemp:51.366667, endTemp:49.633333, minDelta:-3.000000, maxDelta:-1.000000, meanDelta:-1.733333, meanCoolWait:3.066667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562341992,2,3,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 8192 -a 4 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562342520,2,4,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562342520,2,4,8192,0,1,1.100000,	Milliseconds,	Min:17231.402158, Max:19058.217664, Range:1826.815506, Avg:18506.235222, Median:18632.714139, SD:400.368094,	TMin:18057.638179, TMax:18780.814923, TRange:723.176744, TAvg:18561.839116, TMedian:18632.714139, TSD:182.786529
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562342520,2,4,8192,0,1,1.100000,	Memusage,	Min:0.475974, Max:0.476393, Range:0.000419, Avg:0.476125, Median:0.476118, SD:0.000138
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562342520,2,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999698, Max->Median:0.999849
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562342520,2,4,8192,0,1,1.100000,	startTemp:51.400000, endTemp:49.666667, minDelta:-3.000000, maxDelta:2.000000, meanDelta:-1.733333, meanCoolWait:3.200000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562342520,2,4,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 1 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343067,2,1,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343067,2,1,32000000,0,1,1.100000,	Milliseconds,	Min:908.849866, Max:926.587850, Range:17.737984, Avg:916.020161, Median:915.169207, SD:5.088183,	TMin:909.510103, TMax:923.227153, TRange:13.717050, TAvg:915.758823, TMedian:915.169207, TSD:4.154396
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343067,2,1,32000000,0,1,1.100000,	Memusage,	Min:0.016645, Max:0.016673, Range:0.000029, Avg:0.016660, Median:0.016671, SD:0.000008
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343067,2,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:1.000000, Max->Median:1.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343067,2,1,32000000,0,1,1.100000,	startTemp:51.666667, endTemp:52.000000, minDelta:0.000000, maxDelta:5.000000, meanDelta:0.333333, meanCoolWait:5.933333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343067,2,1,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 2 --regtemp --args
+Target:49.000000	 50.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343416,2,2,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343416,2,2,32000000,0,1,1.100000,	Milliseconds,	Min:865.901527, Max:915.510129, Range:49.608602, Avg:885.877707, Median:884.865860, SD:13.398746,	TMin:867.250239, TMax:903.587625, TRange:36.337386, TAvg:885.134919, TMedian:884.865860, TSD:10.409297
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343416,2,2,32000000,0,1,1.100000,	Memusage,	Min:0.016653, Max:0.016680, Range:0.000027, Avg:0.016662, Median:0.016667, SD:0.000007
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343416,2,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:1.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343416,2,2,32000000,0,1,1.100000,	startTemp:52.333333, endTemp:52.433333, minDelta:0.000000, maxDelta:3.000000, meanDelta:0.100000, meanCoolWait:5.200000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343416,2,2,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 3 --regtemp --args
+Target:49.000000	 50.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343748,2,3,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343748,2,3,32000000,0,1,1.100000,	Milliseconds,	Min:872.190950, Max:904.643481, Range:32.452531, Avg:894.012596, Median:892.952273, SD:7.563668,	TMin:889.948171, TMax:904.312917, TRange:14.364746, TAvg:894.873424, TMedian:892.952273, TSD:4.466136
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343748,2,3,32000000,0,1,1.100000,	Memusage,	Min:0.016641, Max:0.016685, Range:0.000044, Avg:0.016663, Median:0.016669, SD:0.000012
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343748,2,3,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:1.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343748,2,3,32000000,0,1,1.100000,	startTemp:52.300000, endTemp:52.300000, minDelta:0.000000, maxDelta:0.000000, meanDelta:0.000000, meanCoolWait:5.333333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562343748,2,3,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 32000000 -a 4 --regtemp --args
+Target:49.000000	 50.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344085,2,4,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344085,2,4,32000000,0,1,1.100000,	Milliseconds,	Min:866.525093, Max:929.325734, Range:62.800641, Avg:891.456334, Median:895.889803, SD:15.779348,	TMin:866.912567, TMax:910.050306, TRange:43.137739, TAvg:890.461091, TMedian:895.889803, TSD:11.321466
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344085,2,4,32000000,0,1,1.100000,	Memusage,	Min:0.016653, Max:0.050063, Range:0.033410, Avg:0.027767, Median:0.049960, SD:0.015707
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344085,2,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:1.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344085,2,4,32000000,0,1,1.100000,	startTemp:52.300000, endTemp:52.433333, minDelta:0.000000, maxDelta:4.000000, meanDelta:0.133333, meanCoolWait:5.533333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344085,2,4,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 1 --regtemp --args
+Target:49.000000	 50.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344432,2,1,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344432,2,1,8192,0,1,1.100000,	Milliseconds,	Min:5664.208726, Max:5939.529734, Range:275.321008, Avg:5788.493572, Median:5783.619974, SD:68.345567,	TMin:5722.653171, TMax:5897.994885, TRange:175.341714, TAvg:5786.435778, TMedian:5783.619974, TSD:49.422087
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344432,2,1,8192,0,1,1.100000,	Memusage,	Min:0.381670, Max:0.382475, Range:0.000805, Avg:0.382109, Median:0.382230, SD:0.000238
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344432,2,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999513, Max->Median:0.999756
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344432,2,1,8192,0,1,1.100000,	startTemp:52.033333, endTemp:52.566667, minDelta:-1.000000, maxDelta:2.000000, meanDelta:0.533333, meanCoolWait:4.466667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344432,2,1,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 2 --regtemp --args
+Target:49.000000	 50.0	 48.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344818,2,2,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344818,2,2,8192,0,1,1.100000,	Milliseconds,	Min:5895.629097, Max:6115.703223, Range:220.074126, Avg:6007.252081, Median:6008.384492, SD:52.347453,	TMin:5946.518712, TMax:6067.711513, TRange:121.192801, TAvg:6007.496069, TMedian:6008.384492, TSD:36.036010
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344818,2,2,8192,0,1,1.100000,	Memusage,	Min:0.381727, Max:0.382578, Range:0.000851, Avg:0.382086, Median:0.381814, SD:0.000281
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344818,2,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999998, Max->Median:0.999999
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344818,2,2,8192,0,1,1.100000,	startTemp:52.166667, endTemp:52.500000, minDelta:-1.000000, maxDelta:2.000000, meanDelta:0.333333, meanCoolWait:4.466667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562344818,2,2,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 3 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345207,2,3,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345207,2,3,8192,0,1,1.100000,	Milliseconds,	Min:5890.678348, Max:6327.247016, Range:436.568668, Avg:6049.539449, Median:6015.564492, SD:109.594177,	TMin:5905.405331, TMax:6220.446394, TRange:315.041063, TAvg:6040.397413, TMedian:6015.564492, TSD:76.820677
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345207,2,3,8192,0,1,1.100000,	Memusage,	Min:0.381716, Max:0.382489, Range:0.000774, Avg:0.382121, Median:0.382112, SD:0.000230
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345207,2,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:0.999999
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345207,2,3,8192,0,1,1.100000,	startTemp:52.166667, endTemp:52.600000, minDelta:-1.000000, maxDelta:2.000000, meanDelta:0.433333, meanCoolWait:4.266667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345207,2,3,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.9 -t 2 -i 8192 -a 4 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345604,2,4,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345604,2,4,8192,0,1,1.100000,	Milliseconds,	Min:5734.969734, Max:6592.662452, Range:857.692718, Avg:6353.009501, Median:6383.601983, SD:188.449991,	TMin:6236.676453, TMax:6533.191851, TRange:296.515398, TAvg:6382.116179, TMedian:6383.601983, TSD:79.556808
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345604,2,4,8192,0,1,1.100000,	Memusage,	Min:0.381355, Max:0.382463, Range:0.001108, Avg:0.382031, Median:0.381355, SD:0.000295
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345604,2,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999423, Max->Median:0.999711
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345604,2,4,8192,0,1,1.100000,	startTemp:52.100000, endTemp:52.366667, minDelta:-1.000000, maxDelta:2.000000, meanDelta:0.266667, meanCoolWait:4.333333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.900000,1562345604,2,4,8192,0,1,1.100000,END
+Running for threads 4 on table hashtable_local (Fri Jul  5 12:59:55 EDT 2019)
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 1 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346004,4,1,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346004,4,1,32000000,0,1,1.100000,	Milliseconds,	Min:872.744591, Max:968.837814, Range:96.093223, Avg:916.561388, Median:915.317105, SD:19.751914,	TMin:901.954815, TMax:934.641477, TRange:32.686662, TAvg:915.910647, TMedian:915.317105, TSD:9.582959
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346004,4,1,32000000,0,1,1.100000,	Memusage,	Min:0.071161, Max:0.071165, Range:0.000004, Avg:0.071163, Median:0.071164, SD:0.000001
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346004,4,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.998854, Max->Median:0.741988
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346004,4,1,32000000,0,1,1.100000,	startTemp:52.483333, endTemp:52.600000, minDelta:0.000000, maxDelta:4.000000, meanDelta:0.116667, meanCoolWait:4.733333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346004,4,1,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 2 --regtemp --args
+Target:49.000000	 50.0	 49.0	 49.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346168,4,2,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346168,4,2,32000000,0,1,1.100000,	Milliseconds,	Min:859.522895, Max:872.845079, Range:13.322184, Avg:866.578635, Median:867.684590, SD:3.570085,	TMin:861.217346, TMax:870.842244, TRange:9.624898, TAvg:866.639350, TMedian:867.684590, TSD:2.802237
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346168,4,2,32000000,0,1,1.100000,	Memusage,	Min:0.071161, Max:0.071165, Range:0.000004, Avg:0.071163, Median:0.071163, SD:0.000001
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346168,4,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999003, Max->Median:0.793419
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346168,4,2,32000000,0,1,1.100000,	startTemp:52.450000, endTemp:52.633333, minDelta:0.000000, maxDelta:6.000000, meanDelta:0.183333, meanCoolWait:4.333333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346168,4,2,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 3 --regtemp --args
+Target:49.000000	 50.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346332,4,3,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346332,4,3,32000000,0,1,1.100000,	Milliseconds,	Min:864.697352, Max:888.837266, Range:24.139914, Avg:872.044523, Median:871.048697, SD:6.928091,	TMin:866.311385, TMax:883.593527, TRange:17.282142, TAvg:871.317940, TMedian:871.048697, TSD:5.386139
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346332,4,3,32000000,0,1,1.100000,	Memusage,	Min:0.071161, Max:0.071165, Range:0.000004, Avg:0.071163, Median:0.071164, SD:0.000001
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346332,4,3,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.998983, Max->Median:0.876228
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346332,4,3,32000000,0,1,1.100000,	startTemp:52.383333, endTemp:52.733333, minDelta:0.000000, maxDelta:6.000000, meanDelta:0.350000, meanCoolWait:4.866667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346332,4,3,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 32000000 -a 4 --regtemp --args
+Target:49.000000	 49.0	 48.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346495,4,4,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346495,4,4,32000000,0,1,1.100000,	Milliseconds,	Min:846.243409, Max:863.957100, Range:17.713691, Avg:849.048282, Median:847.657646, SD:4.103354,	TMin:846.780572, TMax:849.834295, TRange:3.053723, TAvg:848.117210, TMedian:847.657646, TSD:0.926238
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346495,4,4,32000000,0,1,1.100000,	Memusage,	Min:0.071164, Max:0.166051, Range:0.094887, Avg:0.159722, Median:0.166047, SD:0.023668
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346495,4,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999347, Max->Median:0.759945
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346495,4,4,32000000,0,1,1.100000,	startTemp:52.433333, endTemp:52.550000, minDelta:0.000000, maxDelta:7.000000, meanDelta:0.116667, meanCoolWait:4.600000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346495,4,4,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 1 --regtemp --args
+Target:49.000000	 50.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346650,4,1,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346650,4,1,8192,0,1,1.100000,	Milliseconds,	Min:17365.352425, Max:18087.307606, Range:721.955181, Avg:17649.681102, Median:17621.562930, SD:156.406492,	TMin:17476.672157, TMax:17813.989420, TRange:337.317263, TAvg:17637.888962, TMedian:17621.562930, TSD:84.479128
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346650,4,1,8192,0,1,1.100000,	Memusage,	Min:0.475169, Max:0.475195, Range:0.000025, Avg:0.475182, Median:0.475181, SD:0.000008
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346650,4,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999970, Max->Median:0.659130
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346650,4,1,8192,0,1,1.100000,	startTemp:52.333333, endTemp:50.166667, minDelta:-4.000000, maxDelta:0.000000, meanDelta:-2.166667, meanCoolWait:1.466667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346650,4,1,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 2 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346992,4,2,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346992,4,2,8192,0,1,1.100000,	Milliseconds,	Min:19248.603266, Max:19866.521246, Range:617.917980, Avg:19585.849351, Median:19618.411706, SD:176.921663,	TMin:19262.212532, TMax:19817.011169, TRange:554.798637, TAvg:19590.201212, TMedian:19618.411706, TSD:145.908634
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346992,4,2,8192,0,1,1.100000,	Memusage,	Min:0.475166, Max:0.475195, Range:0.000030, Avg:0.475181, Median:0.475182, SD:0.000008
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346992,4,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999973, Max->Median:0.621095
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346992,4,2,8192,0,1,1.100000,	startTemp:51.616667, endTemp:49.633333, minDelta:-3.000000, maxDelta:0.000000, meanDelta:-1.983333, meanCoolWait:1.133333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562346992,4,2,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 3 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347366,4,3,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347366,4,3,8192,0,1,1.100000,	Milliseconds,	Min:18870.347858, Max:19768.224311, Range:897.876453, Avg:19494.096030, Median:19515.935913, SD:219.666776,	TMin:19240.935264, TMax:19732.659413, TRange:491.724149, TAvg:19520.989867, TMedian:19515.935913, TSD:138.728199
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347366,4,3,8192,0,1,1.100000,	Memusage,	Min:0.475158, Max:0.475191, Range:0.000032, Avg:0.475180, Median:0.475185, SD:0.000008
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347366,4,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999984, Max->Median:0.724317
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347366,4,3,8192,0,1,1.100000,	startTemp:51.366667, endTemp:49.583333, minDelta:-3.000000, maxDelta:1.000000, meanDelta:-1.783333, meanCoolWait:1.400000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347366,4,3,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0 -t 4 -i 8192 -a 4 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347740,4,4,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347740,4,4,8192,0,1,1.100000,	Milliseconds,	Min:20891.610074, Max:21405.561967, Range:513.951893, Avg:21187.979546, Median:21186.435891, SD:144.563640,	TMin:20998.807768, TMax:21392.870340, TRange:394.062572, TAvg:21194.040089, TMedian:21186.435891, TSD:116.956673
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347740,4,4,8192,0,1,1.100000,	Memusage,	Min:0.475172, Max:0.475190, Range:0.000018, Avg:0.475180, Median:0.475175, SD:0.000006
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347740,4,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999979, Max->Median:0.590109
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347740,4,4,8192,0,1,1.100000,	startTemp:51.433333, endTemp:49.283333, minDelta:-3.000000, maxDelta:0.000000, meanDelta:-2.150000, meanCoolWait:1.266667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.000000,1562347740,4,4,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 1 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348133,4,1,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348133,4,1,32000000,0,1,1.100000,	Milliseconds,	Min:738.470102, Max:771.208573, Range:32.738471, Avg:766.157422, Median:768.389771, SD:7.617445,	TMin:762.840044, TMax:769.792899, TRange:6.952855, TAvg:767.898666, TMedian:768.389771, TSD:1.729052
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348133,4,1,32000000,0,1,1.100000,	Memusage,	Min:0.035637, Max:0.035656, Range:0.000019, Avg:0.035648, Median:0.035642, SD:0.000007
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348133,4,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.998234, Max->Median:0.667953
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348133,4,1,32000000,0,1,1.100000,	startTemp:52.366667, endTemp:52.550000, minDelta:0.000000, maxDelta:6.000000, meanDelta:0.183333, meanCoolWait:3.733333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348133,4,1,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 2 --regtemp --args
+Target:49.000000	 50.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348285,4,2,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348285,4,2,32000000,0,1,1.100000,	Milliseconds,	Min:619.779702, Max:656.353693, Range:36.573991, Avg:641.176711, Median:642.050349, SD:7.039827,	TMin:638.184205, TMax:644.991208, TRange:6.807003, TAvg:641.655175, TMedian:642.050349, TSD:2.004585
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348285,4,2,32000000,0,1,1.100000,	Memusage,	Min:0.083142, Max:0.083242, Range:0.000100, Avg:0.083179, Median:0.083170, SD:0.000026
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348285,4,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999227, Max->Median:0.763509
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348285,4,2,32000000,0,1,1.100000,	startTemp:52.550000, endTemp:52.683333, minDelta:0.000000, maxDelta:8.000000, meanDelta:0.133333, meanCoolWait:3.800000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348285,4,2,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 3 --regtemp --args
+Target:49.000000	 49.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348419,4,3,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348419,4,3,32000000,0,1,1.100000,	Milliseconds,	Min:614.065860, Max:648.123361, Range:34.057501, Avg:639.305159, Median:641.824247, SD:7.917439,	TMin:629.949918, TMax:645.541763, TRange:15.591845, TAvg:640.568321, TMedian:641.824247, TSD:3.968745
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348419,4,3,32000000,0,1,1.100000,	Memusage,	Min:0.083131, Max:0.083225, Range:0.000094, Avg:0.083179, Median:0.083131, SD:0.000022
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348419,4,3,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999427, Max->Median:0.798548
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348419,4,3,32000000,0,1,1.100000,	startTemp:52.450000, endTemp:52.916667, minDelta:0.000000, maxDelta:8.000000, meanDelta:0.466667, meanCoolWait:4.666667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348419,4,3,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 32000000 -a 4 --regtemp --args
+Target:49.000000	 49.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348580,4,4,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348580,4,4,32000000,0,1,1.100000,	Milliseconds,	Min:574.476963, Max:596.551862, Range:22.074899, Avg:591.253337, Median:592.838623, SD:5.837403,	TMin:580.202876, TMax:596.103670, TRange:15.900794, TAvg:592.136249, TMedian:592.838623, TSD:3.837809
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348580,4,4,32000000,0,1,1.100000,	Memusage,	Min:0.083156, Max:0.083223, Range:0.000067, Avg:0.083183, Median:0.083168, SD:0.000018
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348580,4,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999187, Max->Median:0.783130
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348580,4,4,32000000,0,1,1.100000,	startTemp:51.933333, endTemp:52.466667, minDelta:0.000000, maxDelta:7.000000, meanDelta:0.533333, meanCoolWait:5.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348580,4,4,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 1 --regtemp --args
+Target:49.000000	 50.0	 49.0	 49.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348741,4,1,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348741,4,1,8192,0,1,1.100000,	Milliseconds,	Min:9509.710967, Max:9919.598164, Range:409.887197, Avg:9743.090629, Median:9757.772453, SD:122.522990,	TMin:9557.981430, TMax:9915.473386, TRange:357.491956, TAvg:9747.465408, TMedian:9757.772453, TSD:103.518288
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348741,4,1,8192,0,1,1.100000,	Memusage,	Min:0.475993, Max:0.476459, Range:0.000466, Avg:0.476167, Median:0.476042, SD:0.000123
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348741,4,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999975, Max->Median:0.740585
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348741,4,1,8192,0,1,1.100000,	startTemp:51.650000, endTemp:51.350000, minDelta:-2.000000, maxDelta:1.000000, meanDelta:-0.300000, meanCoolWait:2.733333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348741,4,1,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 2 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348989,4,2,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348989,4,2,8192,0,1,1.100000,	Milliseconds,	Min:10318.825515, Max:10773.527019, Range:454.701504, Avg:10533.288342, Median:10566.762846, SD:154.752129,	TMin:10335.885386, TMax:10727.895853, TRange:392.010467, TAvg:10531.305585, TMedian:10566.762846, TSD:140.182104
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348989,4,2,8192,0,1,1.100000,	Memusage,	Min:0.475942, Max:0.476376, Range:0.000434, Avg:0.476174, Median:0.476152, SD:0.000105
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348989,4,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999952, Max->Median:0.618836
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348989,4,2,8192,0,1,1.100000,	startTemp:51.883333, endTemp:51.316667, minDelta:-2.000000, maxDelta:0.000000, meanDelta:-0.566667, meanCoolWait:2.266667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562348989,4,2,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 3 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349239,4,3,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349239,4,3,8192,0,1,1.100000,	Milliseconds,	Min:10226.210492, Max:10773.286369, Range:547.075877, Avg:10478.331696, Median:10494.675187, SD:148.014799,	TMin:10287.644518, TMax:10653.092837, TRange:365.448319, TAvg:10475.036814, TMedian:10494.675187, TSD:116.988237
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349239,4,3,8192,0,1,1.100000,	Memusage,	Min:0.475907, Max:0.476351, Range:0.000444, Avg:0.476195, Median:0.476208, SD:0.000121
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349239,4,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999956, Max->Median:0.592275
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349239,4,3,8192,0,1,1.100000,	startTemp:52.216667, endTemp:51.566667, minDelta:-2.000000, maxDelta:1.000000, meanDelta:-0.650000, meanCoolWait:1.666667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349239,4,3,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.5 -t 4 -i 8192 -a 4 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349479,4,4,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349479,4,4,8192,0,1,1.100000,	Milliseconds,	Min:10753.157409, Max:11721.951000, Range:968.793591, Avg:11461.604368, Median:11545.255259, SD:247.836355,	TMin:11202.963535, TMax:11694.615927, TRange:491.652392, TAvg:11496.073624, TMedian:11545.255259, TSD:160.819950
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349479,4,4,8192,0,1,1.100000,	Memusage,	Min:0.475891, Max:0.476313, Range:0.000422, Avg:0.476125, Median:0.476143, SD:0.000110
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349479,4,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999966, Max->Median:0.618338
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349479,4,4,8192,0,1,1.100000,	startTemp:52.233333, endTemp:51.350000, minDelta:-2.000000, maxDelta:2.000000, meanDelta:-0.883333, meanCoolWait:1.866667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.500000,1562349479,4,4,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 1 --regtemp --args
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349739,4,1,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349739,4,1,32000000,0,1,1.100000,	Milliseconds,	Min:493.162604, Max:532.650533, Range:39.487929, Avg:510.506619, Median:510.484381, SD:7.375073,	TMin:506.309535, TMax:511.467428, TRange:5.157893, TAvg:510.137396, TMedian:510.484381, TSD:1.328256
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349739,4,1,32000000,0,1,1.100000,	Memusage,	Min:0.016643, Max:0.016686, Range:0.000043, Avg:0.016664, Median:0.016664, SD:0.000010
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349739,4,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.999089, Max->Median:0.672282
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349739,4,1,32000000,0,1,1.100000,	startTemp:52.383333, endTemp:52.750000, minDelta:0.000000, maxDelta:6.000000, meanDelta:0.366667, meanCoolWait:4.333333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349739,4,1,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 2 --regtemp --args
+Target:49.000000	 50.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349891,4,2,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349891,4,2,32000000,0,1,1.100000,	Milliseconds,	Min:463.535385, Max:485.646732, Range:22.111347, Avg:481.135076, Median:482.218578, SD:4.965608,	TMin:477.964110, TMax:483.995435, TRange:6.031325, TAvg:482.141848, TMedian:482.218578, TSD:1.429850
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349891,4,2,32000000,0,1,1.100000,	Memusage,	Min:0.016641, Max:0.016681, Range:0.000040, Avg:0.016661, Median:0.016681, SD:0.000010
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349891,4,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.998934, Max->Median:0.790116
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349891,4,2,32000000,0,1,1.100000,	startTemp:52.216667, endTemp:52.433333, minDelta:0.000000, maxDelta:4.000000, meanDelta:0.216667, meanCoolWait:5.000000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562349891,4,2,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 3 --regtemp --args
+Target:49.000000	 49.0	 48.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350045,4,3,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350045,4,3,32000000,0,1,1.100000,	Milliseconds,	Min:488.786359, Max:510.782349, Range:21.995990, Avg:492.418691, Median:491.762358, SD:5.080868,	TMin:489.436007, TMax:493.698096, TRange:4.262089, TAvg:491.285512, TMedian:491.762358, TSD:1.243977
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350045,4,3,32000000,0,1,1.100000,	Memusage,	Min:0.016643, Max:0.016687, Range:0.000044, Avg:0.016664, Median:0.016661, SD:0.000011
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350045,4,3,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.998924, Max->Median:0.710029
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350045,4,3,32000000,0,1,1.100000,	startTemp:52.100000, endTemp:52.650000, minDelta:0.000000, maxDelta:4.000000, meanDelta:0.550000, meanCoolWait:4.800000
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350045,4,3,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 32000000 -a 4 --regtemp --args
+Target:49.000000	 49.0	 49.0	 49.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350194,4,4,32000000,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350194,4,4,32000000,0,1,1.100000,	Milliseconds,	Min:476.117841, Max:503.036339, Range:26.918498, Avg:481.818135, Median:480.939247, SD:5.942695,	TMin:477.387126, TMax:482.259924, TRange:4.872798, TAvg:480.624450, TMedian:480.939247, TSD:1.480781
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350194,4,4,32000000,0,1,1.100000,	Memusage,	Min:0.016645, Max:0.050081, Range:0.033436, Avg:0.032222, Median:0.016667, SD:0.016634
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350194,4,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.998513, Max->Median:0.802507
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350194,4,4,32000000,0,1,1.100000,	startTemp:52.383333, endTemp:52.600000, minDelta:0.000000, maxDelta:4.000000, meanDelta:0.216667, meanCoolWait:4.533333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350194,4,4,32000000,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 1 --regtemp --args
+Target:49.000000	 50.0	 49.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350345,4,1,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350345,4,1,8192,0,1,1.100000,	Milliseconds,	Min:3688.873927, Max:3893.118339, Range:204.244412, Avg:3836.455792, Median:3858.107507, SD:51.343066,	TMin:3742.699579, TMax:3875.168815, TRange:132.469236, TAvg:3843.449586, TMedian:3858.107507, TSD:32.716420
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350345,4,1,8192,0,1,1.100000,	Memusage,	Min:0.381538, Max:0.382627, Range:0.001090, Avg:0.382202, Median:0.382351, SD:0.000275
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350345,4,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999812, Max->Median:0.767903
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350345,4,1,8192,0,1,1.100000,	startTemp:52.433333, endTemp:53.266667, minDelta:-1.000000, maxDelta:3.000000, meanDelta:0.833333, meanCoolWait:3.066667
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350345,4,1,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 2 --regtemp --args
+Target:49.000000	 49.0	 48.0	 49.0	 49.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350523,4,2,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350523,4,2,8192,0,1,1.100000,	Milliseconds,	Min:3956.094122, Max:4044.209195, Range:88.115073, Avg:3995.388751, Median:3993.759186, SD:23.264377,	TMin:3961.230961, TMax:4039.271733, TRange:78.040772, TAvg:3994.655996, TMedian:3993.759186, TSD:17.940039
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350523,4,2,8192,0,1,1.100000,	Memusage,	Min:0.381697, Max:0.382401, Range:0.000704, Avg:0.382097, Median:0.382058, SD:0.000191
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350523,4,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999996, Max->Median:0.022530
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350523,4,2,8192,0,1,1.100000,	startTemp:52.600000, endTemp:53.516667, minDelta:0.000000, maxDelta:3.000000, meanDelta:0.916667, meanCoolWait:3.133333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350523,4,2,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 3 --regtemp --args
+Target:49.000000	 49.0	 48.0	 50.0	 50.0
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350704,4,3,8192,0,1,1.100000,START
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350704,4,3,8192,0,1,1.100000,	Milliseconds,	Min:3949.559191, Max:4043.692303, Range:94.133112, Avg:3990.386658, Median:3986.329907, SD:25.318249,	TMin:3956.749328, TMax:4022.560773, TRange:65.811445, TAvg:3989.426798, TMedian:3986.329907, TSD:19.796764
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350704,4,3,8192,0,1,1.100000,	Memusage,	Min:0.381621, Max:0.382638, Range:0.001017, Avg:0.382165, Median:0.382041, SD:0.000258
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350704,4,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999995, Max->Median:0.045845
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350704,4,3,8192,0,1,1.100000,	startTemp:52.500000, endTemp:53.583333, minDelta:0.000000, maxDelta:2.000000, meanDelta:1.083333, meanCoolWait:3.333333
+open/local1probe/remain:V0.1:harness:0.1,O1R:V0.1/h:0.1,4000000,15,0.000000,0.500000,0.500000,0.900000,1562350704,4,3,8192,0,1,1.100000,END
+./harness --trials 15 --tracktemp --inserts 4000000 --qp 0.9 -t 4 -i 8192 -a 4 --regtemp --args
