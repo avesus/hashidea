@@ -19,7 +19,7 @@
 #include "dist.h"
 #include "temp.h"
 
-#define Version "0.1"
+#define Version "0.2"
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 

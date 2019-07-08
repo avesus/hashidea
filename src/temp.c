@@ -244,7 +244,7 @@ void printTempsResults(const char* desc, int numThr, int trial, int mode) {
   double meanDelta = getMeanD(data, trial*numThr);
   double minDelta = getMinD(data, trial*numThr);
   double maxDelta = getMaxD(data, trial*numThr);  
-  printf("%s,\tstartTemp:%lf, endTemp:%lf, minDelta:%lf, maxDelta:%lf, meanDelta:%lf, meanCoolWait:%lf\n",
+  printf("%s,\ttemp, start:%lf, end:%lf, minDelta:%lf, maxDelta:%lf, meanDelta:%lf, meanCoolWait:%lf\n",
 	 desc, meanStart, meanEnd, minDelta, maxDelta, meanDelta, getMeanFloat(trialData, statOffset(avgCoolWait), trial));
   free(data);
 }
