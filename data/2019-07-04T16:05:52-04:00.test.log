@@ -300,7 +300,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562270763,1,4,8192,0,1,1.100000,	Milliseconds,	Min:18838.882733, Max:22622.064327, Range:3783.181594, Avg:21642.144553, Median:22003.645518, SD:926.048373,	TMin:20658.222593, TMax:22342.280601, TRange:1684.058008, TAvg:21782.401633, TMedian:21975.610113, TSD:539.887995
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562270763,1,4,8192,0,1,1.100000,	Memusage,	Min:0.237916, Max:0.476111, Range:0.238195, Avg:0.253918, Median:0.237916, SD:0.059384
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562270763,1,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562270763,1,4,8192,0,1,1.100000,	startTemp:51.000000, endTemp:51.400000, minDelta:-1.000000, maxDelta:1.000000, meanDelta:0.400000, meanCoolWait:1.133333
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562270763,1,4,8192,0,1,1.100000,	temp,	startTemp:51.000000, endTemp:51.400000, minDelta:-1.000000, maxDelta:1.000000, meanDelta:0.400000, meanCoolWait:1.133333
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.500000,1562270763,1,4,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 1 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -308,7 +308,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271114,1,1,32000000,0,1,1.100000,	Milliseconds,	Min:1946.081691, Max:2017.585404, Range:71.503713, Avg:1981.127786, Median:1972.301751, SD:25.740665,	TMin:1946.106185, TMax:2016.637194, TRange:70.531009, TAvg:1981.019207, TMedian:1972.301751, TSD:23.828212
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271114,1,1,32000000,0,1,1.100000,	Memusage,	Min:0.003326, Max:0.007146, Range:0.003820, Avg:0.004602, Median:0.003326, SD:0.001798
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271114,1,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271114,1,1,32000000,0,1,1.100000,	startTemp:49.866667, endTemp:51.866667, minDelta:1.000000, maxDelta:3.000000, meanDelta:2.000000, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271114,1,1,32000000,0,1,1.100000,	temp,	startTemp:49.866667, endTemp:51.866667, minDelta:1.000000, maxDelta:3.000000, meanDelta:2.000000, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271114,1,1,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 2 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -316,7 +316,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271183,1,2,32000000,0,1,1.100000,	Milliseconds,	Min:1954.488420, Max:2052.641480, Range:98.153060, Avg:2011.055857, Median:2014.200363, SD:30.930015,	TMin:1969.303804, TMax:2048.361613, TRange:79.057809, TAvg:2012.208304, TMedian:2014.200363, TSD:26.895070
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271183,1,2,32000000,0,1,1.100000,	Memusage,	Min:0.007137, Max:0.016680, Range:0.009543, Avg:0.014119, Median:0.016658, SD:0.004207
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271183,1,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271183,1,2,32000000,0,1,1.100000,	startTemp:49.933333, endTemp:52.200000, minDelta:2.000000, maxDelta:3.000000, meanDelta:2.266667, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271183,1,2,32000000,0,1,1.100000,	temp,	startTemp:49.933333, endTemp:52.200000, minDelta:2.000000, maxDelta:3.000000, meanDelta:2.266667, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271183,1,2,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 3 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -324,7 +324,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271241,1,3,32000000,0,1,1.100000,	Milliseconds,	Min:3022.414121, Max:3121.526247, Range:99.112126, Avg:3067.764838, Median:3067.886171, SD:32.429465,	TMin:3028.476494, TMax:3120.368728, TRange:91.892234, TAvg:3067.117862, TMedian:3067.886171, TSD:28.853255
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271241,1,3,32000000,0,1,1.100000,	Memusage,	Min:0.016649, Max:0.016680, Range:0.000031, Avg:0.016667, Median:0.016672, SD:0.000009
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271241,1,3,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271241,1,3,32000000,0,1,1.100000,	startTemp:49.000000, endTemp:51.000000, minDelta:2.000000, maxDelta:2.000000, meanDelta:2.000000, meanCoolWait:1.133333
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271241,1,3,32000000,0,1,1.100000,	temp,	startTemp:49.000000, endTemp:51.000000, minDelta:2.000000, maxDelta:2.000000, meanDelta:2.000000, meanCoolWait:1.133333
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271241,1,3,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 32000000 -a 4 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -332,7 +332,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271315,1,4,32000000,0,1,1.100000,	Milliseconds,	Min:3049.992318, Max:3175.958007, Range:125.965689, Avg:3121.956090, Median:3117.877179, SD:33.727744,	TMin:3080.177883, TMax:3166.717545, TRange:86.539662, TAvg:3123.337771, TMedian:3117.877179, TSD:26.229169
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271315,1,4,32000000,0,1,1.100000,	Memusage,	Min:0.016644, Max:0.016681, Range:0.000036, Avg:0.016662, Median:0.016663, SD:0.000010
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271315,1,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271315,1,4,32000000,0,1,1.100000,	startTemp:48.333333, endTemp:51.066667, minDelta:2.000000, maxDelta:4.000000, meanDelta:2.733333, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271315,1,4,32000000,0,1,1.100000,	temp,	startTemp:48.333333, endTemp:51.066667, minDelta:2.000000, maxDelta:4.000000, meanDelta:2.733333, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271315,1,4,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 1 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -340,7 +340,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271389,1,1,8192,0,1,1.100000,	Milliseconds,	Min:5497.496859, Max:5745.428051, Range:247.931192, Avg:5617.260033, Median:5611.269620, SD:93.156950,	TMin:5516.904665, TMax:5741.278164, TRange:224.373499, TAvg:5616.613506, TMedian:5611.269620, TSD:87.441219
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271389,1,1,8192,0,1,1.100000,	Memusage,	Min:0.023816, Max:0.047715, Range:0.023899, Avg:0.038149, Median:0.047715, SD:0.011684
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271389,1,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271389,1,1,8192,0,1,1.100000,	startTemp:47.600000, endTemp:49.000000, minDelta:1.000000, maxDelta:2.000000, meanDelta:1.400000, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271389,1,1,8192,0,1,1.100000,	temp,	startTemp:47.600000, endTemp:49.000000, minDelta:1.000000, maxDelta:2.000000, meanDelta:1.400000, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271389,1,1,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 2 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -348,7 +348,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271498,1,2,8192,0,1,1.100000,	Milliseconds,	Min:6965.853133, Max:8250.280217, Range:1284.427084, Avg:7855.524002, Median:7913.237385, SD:314.165242,	TMin:7326.834961, TMax:8113.000373, TRange:786.165412, TAvg:7893.594360, TMedian:7913.237385, TSD:198.902505
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271498,1,2,8192,0,1,1.100000,	Memusage,	Min:0.190661, Max:0.191025, Range:0.000364, Avg:0.190845, Median:0.190678, SD:0.000117
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271498,1,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271498,1,2,8192,0,1,1.100000,	startTemp:47.266667, endTemp:48.466667, minDelta:0.000000, maxDelta:2.000000, meanDelta:1.200000, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271498,1,2,8192,0,1,1.100000,	temp,	startTemp:47.266667, endTemp:48.466667, minDelta:0.000000, maxDelta:2.000000, meanDelta:1.200000, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271498,1,2,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 3 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -356,7 +356,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271640,1,3,8192,0,1,1.100000,	Milliseconds,	Min:8991.962617, Max:10573.695676, Range:1581.733059, Avg:10212.626045, Median:10310.995354, SD:349.225443,	TMin:10092.146216, TMax:10502.264733, TRange:410.118517, TAvg:10278.748645, TMedian:10310.995354, TSD:108.183282
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271640,1,3,8192,0,1,1.100000,	Memusage,	Min:0.381549, Max:0.382636, Range:0.001088, Avg:0.382152, Median:0.382611, SD:0.000324
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271640,1,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271640,1,3,8192,0,1,1.100000,	startTemp:47.333333, endTemp:48.266667, minDelta:0.000000, maxDelta:2.000000, meanDelta:0.933333, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271640,1,3,8192,0,1,1.100000,	temp,	startTemp:47.333333, endTemp:48.266667, minDelta:0.000000, maxDelta:2.000000, meanDelta:0.933333, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271640,1,3,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 16000000 --qp 0.9 -t 1 -i 8192 -a 4 --regtemp --args
 GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING
@@ -364,7 +364,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.50
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271818,1,4,8192,0,1,1.100000,	Milliseconds,	Min:12485.997540, Max:12903.031476, Range:417.033936, Avg:12740.986068, Median:12801.715225, SD:131.240717,	TMin:12529.022742, TMax:12902.180560, TRange:373.157818, TAvg:12748.135539, TMedian:12801.715225, TSD:113.143724
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271818,1,4,8192,0,1,1.100000,	Memusage,	Min:0.381703, Max:0.382868, Range:0.001165, Avg:0.382194, Median:0.381751, SD:0.000337
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271818,1,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271818,1,4,8192,0,1,1.100000,	startTemp:51.066667, endTemp:52.133333, minDelta:1.000000, maxDelta:2.000000, meanDelta:1.066667, meanCoolWait:1.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271818,1,4,8192,0,1,1.100000,	temp,	startTemp:51.066667, endTemp:52.133333, minDelta:1.000000, maxDelta:2.000000, meanDelta:1.066667, meanCoolWait:1.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,16000000,15,0.000000,0.500000,0.500000,0.900000,1562271818,1,4,8192,0,1,1.100000,END
 Running for threads 2 on table hashtable (Thu Jul  4 16:27:13 EDT 2019)
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 1 --regtemp --args
@@ -377,7 +377,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272075,2,1,32000000,0,1,1.100000,	Milliseconds,	Min:1919.978552, Max:1946.910354, Range:26.931802, Avg:1936.244980, Median:1935.167204, SD:8.967237,	TMin:1924.256633, TMax:1946.591881, TRange:22.335248, TAvg:1936.675830, TMedian:1935.167204, TSD:7.968254
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272075,2,1,32000000,0,1,1.100000,	Memusage,	Min:0.007907, Max:0.016069, Range:0.008163, Avg:0.013348, Median:0.016069, SD:0.003848
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272075,2,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:0.997296, Max->Median:0.998649
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272075,2,1,32000000,0,1,1.100000,	startTemp:52.200000, endTemp:58.100000, minDelta:5.000000, maxDelta:7.000000, meanDelta:5.900000, meanCoolWait:10.533333
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272075,2,1,32000000,0,1,1.100000,	temp,	startTemp:52.200000, endTemp:58.100000, minDelta:5.000000, maxDelta:7.000000, meanDelta:5.900000, meanCoolWait:10.533333
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272075,2,1,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 2 --regtemp --args
 Target:49.000000	 52.0	 50.0
@@ -387,7 +387,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272550,2,2,32000000,0,1,1.100000,	Milliseconds,	Min:1675.555943, Max:1726.117858, Range:50.561915, Avg:1705.510143, Median:1704.311435, SD:13.349423,	TMin:1691.241791, TMax:1725.435314, TRange:34.193523, TAvg:1706.229103, TMedian:1704.311435, TSD:10.169542
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272550,2,2,32000000,0,1,1.100000,	Memusage,	Min:0.033210, Max:0.071165, Range:0.037955, Avg:0.068633, Median:0.071164, SD:0.009467
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272550,2,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:1.000000, Max->Median:0.500000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272550,2,2,32000000,0,1,1.100000,	startTemp:52.366667, endTemp:56.033333, minDelta:2.000000, maxDelta:5.000000, meanDelta:3.666667, meanCoolWait:10.666667
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272550,2,2,32000000,0,1,1.100000,	temp,	startTemp:52.366667, endTemp:56.033333, minDelta:2.000000, maxDelta:5.000000, meanDelta:3.666667, meanCoolWait:10.666667
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272550,2,2,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 3 --regtemp --args
 Target:49.000000	 51.0	 51.0
@@ -397,7 +397,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272988,2,3,32000000,0,1,1.100000,	Milliseconds,	Min:2213.344476, Max:2274.951108, Range:61.606632, Avg:2248.367970, Median:2250.591482, SD:16.755207,	TMin:2218.820651, TMax:2265.375128, TRange:46.554477, TAvg:2249.017228, TMedian:2250.591482, TSD:13.220806
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272988,2,3,32000000,0,1,1.100000,	Memusage,	Min:0.071161, Max:0.071165, Range:0.000003, Avg:0.071163, Median:0.071162, SD:0.000001
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272988,2,3,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:1.000000, Max->Median:1.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272988,2,3,32000000,0,1,1.100000,	startTemp:52.500000, endTemp:56.000000, minDelta:2.000000, maxDelta:5.000000, meanDelta:3.500000, meanCoolWait:10.333333
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272988,2,3,32000000,0,1,1.100000,	temp,	startTemp:52.500000, endTemp:56.000000, minDelta:2.000000, maxDelta:5.000000, meanDelta:3.500000, meanCoolWait:10.333333
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562272988,2,3,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 32000000 -a 4 --regtemp --args
 Target:49.000000	 52.0	 50.0
@@ -407,7 +407,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273435,2,4,32000000,0,1,1.100000,	Milliseconds,	Min:2257.641643, Max:2301.402108, Range:43.760465, Avg:2278.374345, Median:2278.798815, SD:11.263469,	TMin:2264.348727, TMax:2295.989804, TRange:31.641077, TAvg:2278.197802, TMedian:2278.798815, TSD:8.514504
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273435,2,4,32000000,0,1,1.100000,	Memusage,	Min:0.071161, Max:0.071165, Range:0.000004, Avg:0.071163, Median:0.071162, SD:0.000001
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273435,2,4,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:1.000000, Max->Median:1.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273435,2,4,32000000,0,1,1.100000,	startTemp:52.266667, endTemp:55.933333, minDelta:2.000000, maxDelta:5.000000, meanDelta:3.666667, meanCoolWait:12.466667
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273435,2,4,32000000,0,1,1.100000,	temp,	startTemp:52.266667, endTemp:55.933333, minDelta:2.000000, maxDelta:5.000000, meanDelta:3.666667, meanCoolWait:12.466667
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273435,2,4,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 1 --regtemp --args
 Target:49.000000	 51.0	 51.0
@@ -417,7 +417,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273923,2,1,8192,0,1,1.100000,	Milliseconds,	Min:5110.625599, Max:5441.699670, Range:331.074071, Avg:5352.071723, Median:5356.988024, SD:75.718171,	TMin:5305.239272, TMax:5440.472310, TRange:135.233038, TAvg:5363.750044, TMedian:5356.988024, TSD:37.103017
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273923,2,1,8192,0,1,1.100000,	Memusage,	Min:0.014846, Max:0.029693, Range:0.014847, Avg:0.026723, Median:0.029692, SD:0.005938
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273923,2,1,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.997658, Max->Median:0.998829
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273923,2,1,8192,0,1,1.100000,	startTemp:52.366667, endTemp:54.533333, minDelta:1.000000, maxDelta:4.000000, meanDelta:2.166667, meanCoolWait:10.666667
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273923,2,1,8192,0,1,1.100000,	temp,	startTemp:52.366667, endTemp:54.533333, minDelta:1.000000, maxDelta:4.000000, meanDelta:2.166667, meanCoolWait:10.666667
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562273923,2,1,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 2 --regtemp --args
 Target:49.000000	 51.0	 50.0
@@ -427,7 +427,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274418,2,2,8192,0,1,1.100000,	Milliseconds,	Min:8239.747185, Max:8501.665517, Range:261.918332, Avg:8384.733073, Median:8404.457387, SD:96.770296,	TMin:8272.913823, TMax:8492.343501, TRange:219.429678, TAvg:8386.891031, TMedian:8404.457387, TSD:90.176199
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274418,2,2,8192,0,1,1.100000,	Memusage,	Min:0.118773, Max:0.237566, Range:0.118794, Avg:0.213803, Median:0.237560, SD:0.047515
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274418,2,2,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:1.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274418,2,2,8192,0,1,1.100000,	startTemp:52.300000, endTemp:53.766667, minDelta:0.000000, maxDelta:3.000000, meanDelta:1.466667, meanCoolWait:10.400000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274418,2,2,8192,0,1,1.100000,	temp,	startTemp:52.300000, endTemp:53.766667, minDelta:0.000000, maxDelta:3.000000, meanDelta:1.466667, meanCoolWait:10.400000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274418,2,2,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 3 --regtemp --args
 Target:49.000000	 51.0	 50.0
@@ -436,7 +436,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274946,2,3,8192,0,1,1.100000,	Milliseconds,	Min:11617.589022, Max:12188.694232, Range:571.105210, Avg:11860.735589, Median:11862.395051, SD:123.883975,	TMin:11745.554437, TMax:11961.138537, TRange:215.584100, TAvg:11854.211583, TMedian:11862.395051, TSD:69.602249
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274946,2,3,8192,0,1,1.100000,	Memusage,	Min:0.237552, Max:0.237567, Range:0.000015, Avg:0.237561, Median:0.237557, SD:0.000003
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274946,2,3,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999999, Max->Median:1.000000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274946,2,3,8192,0,1,1.100000,	startTemp:52.266667, endTemp:52.600000, minDelta:-1.000000, maxDelta:2.000000, meanDelta:0.333333, meanCoolWait:9.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274946,2,3,8192,0,1,1.100000,	temp,	startTemp:52.266667, endTemp:52.600000, minDelta:-1.000000, maxDelta:2.000000, meanDelta:0.333333, meanCoolWait:9.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562274946,2,3,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0 -t 2 -i 8192 -a 4 --regtemp --args
 Target:49.000000	 51.0	 49.0
@@ -445,7 +445,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562275496,2,4,8192,0,1,1.100000,	Milliseconds,	Min:14223.555130, Max:15361.855577, Range:1138.300447, Avg:15037.934894, Median:15077.137846, SD:244.698605,	TMin:14942.053596, TMax:15287.729064, TRange:345.675468, TAvg:15075.662516, TMedian:15077.137846, TSD:92.619255
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562275496,2,4,8192,0,1,1.100000,	Memusage,	Min:0.237557, Max:0.475181, Range:0.237625, Avg:0.269242, Median:0.475181, SD:0.080773
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562275496,2,4,8192,0,1,1.100000,	Barrier Gap,	Max->Min:0.999201, Max->Median:0.999600
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562275496,2,4,8192,0,1,1.100000,	startTemp:52.266667, endTemp:52.033333, minDelta:-2.000000, maxDelta:1.000000, meanDelta:-0.233333, meanCoolWait:8.066667
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562275496,2,4,8192,0,1,1.100000,	temp,	startTemp:52.266667, endTemp:52.033333, minDelta:-2.000000, maxDelta:1.000000, meanDelta:-0.233333, meanCoolWait:8.066667
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.000000,1562275496,2,4,8192,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 1 --regtemp --args
 Target:49.000000	 50.0	 48.0
@@ -454,7 +454,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276075,2,1,32000000,0,1,1.100000,	Milliseconds,	Min:1478.222280, Max:1519.192099, Range:40.969819, Avg:1503.979783, Median:1500.273379, SD:11.766237,	TMin:1491.219590, TMax:1519.167819, TRange:27.948229, TAvg:1504.790951, TMedian:1500.273379, TSD:9.499990
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276075,2,1,32000000,0,1,1.100000,	Memusage,	Min:0.008045, Max:0.008053, Range:0.000008, Avg:0.008049, Median:0.008049, SD:0.000002
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276075,2,1,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:1.000000, Max->Median:0.500000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276075,2,1,32000000,0,1,1.100000,	startTemp:52.400000, endTemp:57.700000, minDelta:4.000000, maxDelta:7.000000, meanDelta:5.300000, meanCoolWait:10.466667
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276075,2,1,32000000,0,1,1.100000,	temp,	startTemp:52.400000, endTemp:57.700000, minDelta:4.000000, maxDelta:7.000000, meanDelta:5.300000, meanCoolWait:10.466667
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276075,2,1,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 2 --regtemp --args
 Target:49.000000	 52.0	 50.0
@@ -464,7 +464,7 @@ open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276527,2,2,32000000,0,1,1.100000,	Milliseconds,	Min:1494.501187, Max:1525.157816, Range:30.656629, Avg:1510.713403, Median:1510.328608, SD:8.924560,	TMin:1496.998124, TMax:1524.821768, TRange:27.823644, TAvg:1510.849388, TMedian:1510.328608, TSD:7.457568
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276527,2,2,32000000,0,1,1.100000,	Memusage,	Min:0.035633, Max:0.035661, Range:0.000028, Avg:0.035645, Median:0.035634, SD:0.000008
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276527,2,2,32000000,0,1,1.100000,	Barrier Gap,	Max->Min:1.000000, Max->Median:0.500000
-open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276527,2,2,32000000,0,1,1.100000,	startTemp:52.433333, endTemp:56.600000, minDelta:3.000000, maxDelta:6.000000, meanDelta:4.166667, meanCoolWait:11.000000
+open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276527,2,2,32000000,0,1,1.100000,	temp,	startTemp:52.433333, endTemp:56.600000, minDelta:3.000000, maxDelta:6.000000, meanDelta:4.166667, meanCoolWait:11.000000
 open/multiprobe/remain:V0.1:harness:0.1,OMR:V0.1/h:0.1,8000000,15,0.000000,0.500000,0.500000,0.500000,1562276527,2,2,32000000,0,1,1.100000,END
 ./harness --trials 15 --tracktemp --inserts 8000000 --qp 0.5 -t 2 -i 32000000 -a 3 --regtemp --args
 Target:49.000000	 52.0	 51.0
