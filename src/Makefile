@@ -6,7 +6,7 @@ endif
 CC = gcc
 #LDFLAGS = -pg
 #-pg
-CFLAGS = -O0 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
+CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
 LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
 Hashtable = hashtable.o
 Hashfunction = hash.o 
