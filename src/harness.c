@@ -612,6 +612,7 @@ main(int argc, char**argv)
     
     result = pthread_create(&threadids[i], &attr, run, (void*)temp_args);
     if (result) errdie("Can't create threads");
+    pthread_attr_destroy(&attr);
   }
 
   // threads are all launched, now wait til they are all done
@@ -668,4 +669,5 @@ main(int argc, char**argv)
   printStats();
   freeCommandLine();
   freeArgumentParser(ap);
+  free(seeds);
 }
