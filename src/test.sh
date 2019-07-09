@@ -3,9 +3,9 @@
 starttemp=49
 trials=15
 inserts=16000000
-declare -a threads=(1 2 4 8 16)
+declare -a threads=(1 2 4 8)
 declare -a queryp=(0 0.5 0.9)
-declare -a attempts=(1 2 3 4)
+declare -a attempts=(1 2 3)
 
 onlyshow=0
 prevlog=$*
@@ -54,10 +54,16 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 			if [ $doit == 0 ]; then
 			    echo ALREADY ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
 			else
-			    echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
 			    if [ $onlyshow -ne 1 ]; then
-				./waitfortemp -t 300 -n $t $starttemp
-				./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
+				./waitfortemp -t 600 -n $t $starttemp
+				if [ $? == 1 ]; then
+				    echo "Failed to reach $starttemp, not running"
+				else
+				    echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+				    ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
+				fi
+			    else
+				echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
 			    fi
 			fi
 		    done
