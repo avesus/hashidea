@@ -107,7 +107,7 @@ double freeAll(HashTable* head, int last, int verbose){
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
       if(ht->InnerTable[j]!=NULL){
-	//free(ht->InnerTable[j]);
+	//ht->InnerTable[j]);
 	count++;
 	if(verbose){
 	  
@@ -129,9 +129,7 @@ double freeAll(HashTable* head, int last, int verbose){
     free(items);
   }
 
-  if(last){
-    free(head->seeds);
-  }
+
   free(head);
   return count/totalSize;  
 }

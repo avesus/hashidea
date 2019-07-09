@@ -195,9 +195,7 @@ double freeAll(HashTable* head, int last, int verbose){
     free(items);
     printf("Total: %d\n", (int)count);
   }
-  if(last){
-    //    free(head->seeds);
-  }
+
   free(head);
   return count/totalSize;  
 }

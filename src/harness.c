@@ -669,5 +669,5 @@ main(int argc, char**argv)
   printStats();
   freeCommandLine();
   freeArgumentParser(ap);
-  free(seeds);
+   free(seeds);
 }

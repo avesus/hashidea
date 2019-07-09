@@ -128,9 +128,7 @@ double freeAll(HashTable* head, int last, int verbose){
     free(items);
   }
 
-  if(last){
-    free(head->seeds);
-  }
+
   free(head);
   return count/totalSize;  
 }
