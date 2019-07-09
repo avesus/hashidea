@@ -24,4 +24,7 @@ void enforceTemps(int numThr, int maxWait);
 // get the current temps as the enforcement limits within +-delta celcius degrees.
 void setEnforcedTemps(double delta, int nthreads);
 
+// print n doubles 
+void printNdouble(FILE* f, const char* prompt, int n, double* ds);
+
 #endif
