@@ -14,8 +14,8 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
     else
 	for t in ${threads[@]}; do
 	    for ha in ${attempts[@]}; do
-		echo -n "${table}: harness --trials 3 --tracktemp --inserts 1000 --qp 0.1 -t $t -i 2 -a $ha --regtemp "
-		valgrind harness --trials 3 --tracktemp --inserts 1000 --qp 0.1 -t $t -i 2 -a $ha --regtemp 2>&1 | grep "ERROR SUMMARY"
+		echo "${table}: harness --trials 3 --tracktemp --inserts 1000 --qp 0.1 -t $t -i 2 -a $ha --regtemp "
+		valgrind ./harness --trials 3 --tracktemp --inserts 1000 --qp 0.1 -t $t -i 2 -a $ha --regtemp 2>&1 | grep "ERROR SUMMARY"
 	    done
 	done
     fi
