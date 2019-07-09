@@ -284,6 +284,9 @@ setEnforcedTemps(double delta, int nthreads)
   nowTemps = calloc(nthreads, sizeof(double));
   deltaEnforcedTemp = delta;
   getTemps(enforcedTemps, nthreads);
+  fprintf(stderr, "Enforcing temp:");
+  for (int i=0; i<nthreads; i++) fprintf(stderr, "\t%lf", enforcedTemps[i]);
+  fprintf(stderr, "\n");
 }
 
 #define MaxSleepBeforeExit 1000
