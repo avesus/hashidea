@@ -40,6 +40,7 @@ typedef struct HashTable{
 #define in -1
 #define unk -2
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
+#define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 // create a sub table
 static SubTable* createTable(int hsize);
 // free a subtable 

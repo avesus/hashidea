@@ -509,10 +509,11 @@ run(void* arg) {
       }
       trialNumber++;
     }
-    free(entChunk);
-    free(rVals);
+     
+        free(rVals);
     // make sure we start the loop anew at the same basic time
     myBarrier(&endLoopBarrier, tid);
+    free(entChunk);
   } while (notDone);
 
   // when all done, let main thread know

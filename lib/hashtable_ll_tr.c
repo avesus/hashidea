@@ -308,7 +308,7 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
 //free all and returns total elements/bucket slots
 double freeAll(HashTable* head, int last, int verbose){
   if(verbose){
-    printf("free all\n");
+    printf("free all: %p\n", head);
   }
   int amt=0;
   SubTable* t;
@@ -316,6 +316,7 @@ double freeAll(HashTable* head, int last, int verbose){
   int  t_amt=0;
   double total=0;
   for(int j =0;j<head->cur;j++){
+
     t=head->TableArray[j];
     total+=t->TableSize;
     if(verbose){
