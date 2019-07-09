@@ -34,6 +34,12 @@ static int getCores(void);
 static int setPath(void);
 
 
+void
+printNdouble(FILE* f, const char* prompt, int n, double* ds) {
+  fputs(prompt, f);
+  for (int i=0; i<n; i++) fprintf(f, "\t%lf", ds[i]);
+  fputs("\n", f);
+}
 
 //initializes variables. Gets number of cores, sets variables for finding tempature files
 //and mallocs arrays for storing information
@@ -159,8 +165,13 @@ getTempFromCore(int coreid) {
   sprintf(path,"%s/temp%d_input", tempPath, coreid);
   FILE* fp=fopen(path, "r");
   if (fp) {
-    fscanf(fp,"%lf", &temp);
+    int x = fscanf(fp,"%lf", &temp);
+    if (x != 1) {
+      die("Failed to read temperature from [%s]\n", path);
+    }
     fclose(fp);
+  } else {
+      die("Failed to open [%s]\n", path);
   }
   return temp/1000.0;
 }
@@ -284,12 +295,12 @@ setEnforcedTemps(double delta, int nthreads)
   nowTemps = calloc(nthreads, sizeof(double));
   deltaEnforcedTemp = delta;
   getTemps(enforcedTemps, nthreads);
-  fprintf(stderr, "Enforcing temp:");
-  for (int i=0; i<nthreads; i++) fprintf(stderr, "\t%lf", enforcedTemps[i]);
-  fprintf(stderr, "\n");
+  printNdouble(stderr, "Enforcing temp:", nthreads, enforcedTemps);
 }
 
 #define MaxSleepBeforeExit 1000
+
+static int showenforcedtemps = 1;
 
 // stays in while (1) with a sleep(1) inside until the current
 // temperature is less than 1.1*StartingTemp for a given core.  Wait a
@@ -320,6 +331,9 @@ enforceTemps(int numThr, int maxWait)
     if (!cont) {
       // all cores are cool enough
       tdp->avgCoolWait = (double)(maxWait - loopNum);
+      char buffer[64];
+      sprintf(buffer, "After enforcing temp(%7.3lf):", tdp->avgCoolWait);
+      printNdouble(stderr, buffer, numThr, nowTemps);
       break;
     }
     if (loopNum <= 0) {
