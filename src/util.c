@@ -152,12 +152,12 @@ static int dblcomp(const void* a, const void *b) {
 double
 getMedian(nanoseconds* trialTimes, int trialNumber)
 {
-  nanoseconds* tt = calloc(trialNumber+1, sizeof(nanoseconds));//mycalloc(trialNumber, sizeof(nanoseconds));
+  nanoseconds* tt = calloc(trialNumber, sizeof(nanoseconds));//mycalloc(trialNumber, sizeof(nanoseconds));
   memcpy(tt, trialTimes, trialNumber*sizeof(nanoseconds));
   qsort(tt, trialNumber, sizeof(nanoseconds), nanocomp);
   nanoseconds median;
   if (trialNumber & 1) median = tt[trialNumber >> 1];
-  else median = (tt[trialNumber >> 1] + tt[(trialNumber >> 1)+1])>>1;
+  else median = (tt[(trialNumber-1) >> 1] + tt[((trialNumber-1) >> 1)+1])>>1;
   free(tt);
   return median;
 }
@@ -257,7 +257,7 @@ getMedianL(PerTrialInfo* base, int offset, int n)
   nanoseconds* tt = (nanoseconds*)gatherAndSort(base, offset, sizeof(nanoseconds), n, nanocomp);
   nanoseconds median;
   if (n & 1) median = tt[n >> 1];
-  else median = (tt[n >> 1] + tt[(n >> 1)+1])>>1;
+  else median = (tt[(n-1) >> 1] + tt[((n-1) >> 1)+1])>>1;
   free(tt);
   return median;
 }
@@ -318,7 +318,7 @@ getMedianFloat(PerTrialInfo* base, int offset, int n)
   double* tt = (double*)gatherAndSort(base, offset, sizeof(double), n, dblcomp);
   double median;
   if (n & 1) median = tt[n >> 1];
-  else median = (tt[n >> 1] + tt[(n >> 1)+1])/2.0;
+  else median = (tt[(n-1) >> 1] + tt[((n-1) >> 1)+1])/2.0;
   free(tt);
   return median;
 }
