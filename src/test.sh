@@ -41,7 +41,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
-		for it in $((2*inserts)) $(($inserts)) $((inserts/2)) $((inserts/4)); do 
+		for it in $((2*inserts)) $((inserts)) $((inserts/2)) $((inserts/4)); do 
 		    for ha in ${attempts[@]}; do
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"
