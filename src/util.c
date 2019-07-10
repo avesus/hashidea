@@ -152,7 +152,7 @@ static int dblcomp(const void* a, const void *b) {
 double
 getMedian(nanoseconds* trialTimes, int trialNumber)
 {
-  nanoseconds* tt = mycalloc(trialNumber, sizeof(nanoseconds));
+  nanoseconds* tt = calloc(trialNumber+1, sizeof(nanoseconds));//mycalloc(trialNumber, sizeof(nanoseconds));
   memcpy(tt, trialTimes, trialNumber*sizeof(nanoseconds));
   qsort(tt, trialNumber, sizeof(nanoseconds), nanocomp);
   nanoseconds median;
@@ -211,7 +211,7 @@ getMax(nanoseconds* trialTimes, int trialNumber) {
 
 void* gatherAndSort(PerTrialInfo* base, int offset, int datasize, int n, int (*compfunc)(const void* a, const void *b)) {
   assert(datasize == sizeof(double)); /* assuming doing it only for long long int and double */
-  double* data = mycalloc(n, datasize);
+  double* data = mycalloc(n+1, datasize);
   for (int i=0; i<n; i++) {
     data[i] = *(double*)(((char*)(base+i))+offset);
   }

@@ -307,7 +307,6 @@ endThreadTimer(int tid, int trialNum) {
     doTemps(tid, statAdrOf(tdp, endTemp, double), 1);
     // printPTI(stdout, tdp);
   }
-
   if (tid == 0) {
     myBarrier(&loopBarrier, tid);
     duration = endTimer(&trialTimer);
@@ -462,7 +461,7 @@ run(void* arg) {
       rVals[i]=random();
     }
     
-    void* entChunk=malloc(numInsertions*sizeof(entry)*2);
+    void* entChunk=malloc(numInsertions*sizeof(entry)*2+16);
     //start timer
     if(!tid){
       globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds);
@@ -513,6 +512,7 @@ run(void* arg) {
         free(rVals);
     // make sure we start the loop anew at the same basic time
     myBarrier(&endLoopBarrier, tid);
+
     free(entChunk);
   } while (notDone);
 
