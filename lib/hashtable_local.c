@@ -74,9 +74,10 @@ int checkTableQuery(HashTable* head, unsigned long val){
     ht=head->TableArray[j];
 
     unsigned int s= bucket%ht->TableSize;
-    unsigned int maxInd=min(s+1, ht->TableSize);
-    unsigned int minInd=s-(s!=0);
-    for(int i =minInd; i<=maxInd; i++) {
+    unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
+    unsigned int minTemp=s-((head->hashAttempts>>1)+j);
+    unsigned int minInd=minTemp*(minTemp<=s);
+    for(int i =minInd; i<maxInd; i++) {
       int res=lookupQuery(ht, val, i);
       if(res==unk){ //unkown if in our not
 	continue;

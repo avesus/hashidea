@@ -1,9 +1,9 @@
 #!/bin/bash
 
-starttemp=49
+starttemp=56
 trials=15
 inserts=16000000
-declare -a threads=(1 2 4 8)
+declare -a threads=(1 2 4 8 16 32)
 declare -a queryp=(0 0.5 0.9)
 declare -a attempts=(1 2 3)
 
@@ -20,7 +20,7 @@ fi
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
     attempts=(1 3)
-    threads=(1 2 4 16)
+    threads=(1 2 4 8 16 32)
     queryp=(0 0.9)
     trials=5
     inserts=100
@@ -41,7 +41,7 @@ for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hasht
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
-		for it in $(( inserts * 2 )) 8192; do
+		for it in $((2*inserts)) $((inserts)) $((inserts/2)) $((inserts/4)); do 
 		    for ha in ${attempts[@]}; do
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"
