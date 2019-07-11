@@ -13,7 +13,7 @@
 #include "hash.h"
 
 #define VERSION "0.1"
-const char* tablename = "open/multiprobe/remain:V" VERSION;
+const char* tablename = "linked-locks/single-probe/remain:V" VERSION;
 const char* shortname = "OMR:V" VERSION;
 
 
