@@ -295,7 +295,7 @@ int insertTable_inner(HashTable* head, node* new_node, int start, int b){
 
 //init hashtable, hashattempts will be ratio of total elements to table size (needs to be float)
 HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds){
-  head=(HashTable*)malloc(sizeof(HashTable));
+  head=(HashTable*)calloc(1,sizeof(HashTable));
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->cur=1;
   head->seed=*seeds;
