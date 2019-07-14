@@ -354,15 +354,18 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
 
     if ((queryPercentage > 0) && (rVals[numInsertions+i] > queryCutoff)){
       checkTableQuery(head, val);
-      //        deleteVal(head, val);
+      //   deleteVal(head, val);     
     }
     else{
       entry* ent = (entry*)(entChunk+(i<<4));  
     ent->val = val;
 
     insertTable(head, getStart(head), ent, tid);
+
     }
+
   }
+
   //  free(entChunk);
 }
 
