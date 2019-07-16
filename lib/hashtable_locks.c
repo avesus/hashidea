@@ -13,7 +13,7 @@
 #include "hash.h"
 
 #define VERSION "0.1"
-const char* tablename = "linked-locks/single-probe/remain:V" VERSION;
+const char* tablename = "linked-locks/single-probe/move:V" VERSION;
 const char* shortname = "OMR:V" VERSION;
 
 
@@ -35,7 +35,6 @@ typedef struct HashTable{
   block** table;
   volatile unsigned long resizing;
   pthread_rwlock_t* tableLocks;
-  pthread_rwlock_t resizeLock;
   pthread_rwlock_t swapLock;
   unsigned int seed;
   int TableSize;
@@ -92,7 +91,9 @@ double freeAll(HashTable* head, int last, int verbose){
       }
 
     }
+    if(verbose){
   printf("Total Elements: %d\n", total);
+    }
   return 0;
 }
 
@@ -105,15 +106,16 @@ int checkTableQuery(HashTable* head, unsigned long val){
   block* cur=head->table[start];
   while(cur!=NULL){
     if(val==cur->val){
-      pthread_rwlock_unlock(&head->swapLock);
-      pthread_rwlock_unlock(&head->tableLocks[start]);
 
+      pthread_rwlock_unlock(&head->tableLocks[start]);
+      pthread_rwlock_unlock(&head->swapLock);
       return 1;
     }
     cur=cur->next;
   }
-  pthread_rwlock_unlock(&head->swapLock);
+
   pthread_rwlock_unlock(&head->tableLocks[start]);
+  pthread_rwlock_unlock(&head->swapLock);
   return 0;
 }
 
@@ -128,7 +130,6 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   for(int i =0;i<InitSize;i++){
     pthread_rwlock_init(&head->tableLocks[i],NULL);
   }
-  pthread_rwlock_init(&head->resizeLock,NULL);
   pthread_rwlock_init(&head->swapLock,NULL);
   return head;
 }

@@ -19,15 +19,15 @@ fi
 
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
-    attempts=(1 3)
-    threads=(1 2 4 8 16 32)
-    queryp=(0 0.9)
-    trials=5
+    attempts=(1)
+    threads=(1)
+    queryp=(0)
+    trials=1
     inserts=100
 fi    
 
 make clean
-for table in hashtable_lazy_local hashtable_lazy hashtable hashtable_ll_tr hashtable_local; do
+for table in hashtable_locks; do
     /bin/rm -f harness
     d=`date`
     echo "---- Making with ${table} ---- ($d)"
