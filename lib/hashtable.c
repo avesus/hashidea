@@ -71,12 +71,16 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   unsigned int buckets[10];
-  for(int i =0;i<head->hashAttempts;i++){
-    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
-  }
+  //  for(int i =0;i<head->hashAttempts;i++){
+    //    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+  //  }
   for(int j=0;j<head->cur;j++){
+
     ht=head->TableArray[j];
     for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
+      if(!j){
+      buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+      }
       int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
@@ -185,15 +189,18 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* ht=NULL;
   int LocalCur=head->cur;
   unsigned int buckets[10];
-  for(int i =0;i<head->hashAttempts;i++){
-    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
-  }
+  //  for(int i =0;i<head->hashAttempts;i++){
+    //    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+  //  }
 
   
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
 
     for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
+      if(j==start){
+	buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+      }
       int res=lookup(ht, ent,buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;

@@ -54,67 +54,112 @@ typedef struct HashTable{
 // create a sub table
 // free hash table when done
 void newTable(HashTable* head);
+
+
+//add nodes to ll for a given slot
 int addNode(HashTable* head, block* node, int slot){
+
+  //if slot is null just add
+  if(!head->table[slot]){
+  pthread_rwlock_wrlock(&head->tableLocks[slot]);
+
+  //after acquiring lock if still null add, else unlock
+  if(!head->table[slot]){
+    head->table[slot]=node;
+    pthread_rwlock_unlock(&head->tableLocks[slot]);
+    //return approx of amount of elements in table (for resizing)
+    return head->cur++;
+  }
+  else{
+
+    //else unlock (maybe should just iterate here for end so not much lock/unlocking).
+    pthread_rwlock_unlock(&head->tableLocks[slot]);
+  }
+
+  }
+
+  //iterate from start to end checking vals
   block* cur=head->table[slot];
+  block* p=NULL;
   while(cur!=NULL){
     if(cur->val==node->val){
       return -1;
     }
+    p=cur;
     cur=cur->next;
   }
-    node->next=head->table[slot];
-    head->table[slot]=node;
-   return head->cur++;
+  //didnt find self
+  pthread_rwlock_wrlock(&head->tableLocks[slot]);
+
+  //iterate through remaining possibly values between last iteration and locking
+  //(doesnt repeat all items unless 1 item..
+  cur=p;
+  while(cur!=NULL){
+    if(cur->val==node->val){
+      pthread_rwlock_unlock(&head->tableLocks[slot]);
+      return -1;
+    }
+    p=cur;
+    cur=cur->next;
+  }
+
+  //add item
+  p->next=node;
+  pthread_rwlock_unlock(&head->tableLocks[slot]);
+  //return approx of amt
+  return head->cur++;
 }
 
 double freeAll(HashTable* head, int last, int verbose){
-  while(head->resizing){
-    sleep(1);
-  }
 
     int total=0;
+    if(verbose){
     printf("Table[%lu]: %d\n", head->resizing, head->TableSize);
+    }
     for(int i =0;i<head->TableSize;i++){
       block* cur=head->table[i];
       if(verbose){
-      printf("%d: ", i);
+	//      printf("%d: ", i);
       }
       while(cur!=NULL){
 	total++;
 	if(verbose){
-	printf("[%lu]->", cur->val);
+	  //printf("[%lu]->", cur->val);
 	}
 	cur=cur->next;
       }
       if(verbose){
-      printf("NULL\n");
+	// printf("NULL\n");
       }
 
     }
     if(verbose){
   printf("Total Elements: %d\n", total);
     }
+    free(head->tableLocks);
+    free(head->table);
   return 0;
 }
 
 // see if entry is in the table
 int checkTableQuery(HashTable* head, unsigned long val){
 
-  int start=murmur3_32((const uint8_t *)&val, kSize, head->seed)%head->TableSize;
-  pthread_rwlock_rdlock(&head->swapLock);
+  //just itrate table
+    pthread_rwlock_rdlock(&head->swapLock);
+    unsigned int start=murmur3_32((const uint8_t *)&val, kSize, head->seed)%head->TableSize;
   pthread_rwlock_rdlock(&head->tableLocks[start]);
   block* cur=head->table[start];
   while(cur!=NULL){
     if(val==cur->val){
 
-      pthread_rwlock_unlock(&head->tableLocks[start]);
+      //  pthread_rwlock_unlock(&head->tableLocks[start]);
       pthread_rwlock_unlock(&head->swapLock);
       return 1;
     }
     cur=cur->next;
   }
 
-  pthread_rwlock_unlock(&head->tableLocks[start]);
+  //  pthread_rwlock_unlock(&head->tableLocks[start]);
   pthread_rwlock_unlock(&head->swapLock);
   return 0;
 }
@@ -134,26 +179,28 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   return head;
 }
 
-int insertTable_inner(HashTable* head, int start, block* node);
+int insertTable_inner(HashTable* head, block* node);
 // return 1 if inserted, 0 if already there
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
   unsigned long temp=ent->val;
   block* new_node=(block*)ent;
   new_node->next=NULL;
   new_node->val=temp;
-  return insertTable_inner(head, murmur3_32((const uint8_t *)&new_node->val, kSize, head->seed)%head->TableSize, new_node);
+  return insertTable_inner(head, new_node);
 }
 
-int insertTable_inner(HashTable* head, int start, block* node){
+int insertTable_inner(HashTable* head, block* node){
+ 
   pthread_rwlock_rdlock(&head->swapLock);
-
-  pthread_rwlock_wrlock(&head->tableLocks[start]);
+  unsigned int start=murmur3_32((const uint8_t *)&node->val, kSize, head->seed)%head->TableSize;
   int val=addNode(head, node, start);
-  pthread_rwlock_unlock(&head->tableLocks[start]);
   pthread_rwlock_unlock(&head->swapLock);
   if(val==-1){
     return 0;
   }
+
+  //return is approx table amt, if amt>size (lf>1) and not currently resizing cas for
+  //resizing bool and do it
   if((!head->resizing)&&val>head->TableSize){
       unsigned long ex=0;
       unsigned long n=1;
@@ -181,9 +228,10 @@ int deleteVal(HashTable* head, unsigned long val){
 // used only for testing and timing
 
 
-
+//creates new table size 2x
 void newTable(HashTable* head){
-  //malloc new cache
+
+  //alloc new table and locks
   block** tempTable=(block**)calloc(head->TableSize<<1,sizeof(block*));
 
 
@@ -191,6 +239,8 @@ void newTable(HashTable* head){
   for(int i =0;i<(head->TableSize<<1);i++){
     pthread_rwlock_init(&newLocks[i],NULL);
     }
+
+  //actually change the values stored at head 
   pthread_rwlock_wrlock(&head->swapLock);
   head->tableLocks=newLocks;
   head->cur=0;
@@ -200,20 +250,20 @@ void newTable(HashTable* head){
   head->table=tempTable;
   pthread_rwlock_unlock(&head->swapLock);
  
-  //iterate through old cache starting at tail and add to new cache
-  //this will mess up LRU but means that checking old cache in normal order
-  //during resizing if an object is not found it will check new cache before requesting
-  //info from web
+  //iterate through old table re add all (gunna really fuck up one thread).Since hashattempts
+  //is unused maybe hashattempts as bool for whether to resize at all or not?
   block* cur;
   block* next;
   for(int i =0;i<prevSize;i++){
     cur=prevTable[i];
     while(cur!=NULL){
       next=cur->next;
-      insertTable_inner(head,murmur3_32((const uint8_t *)&cur->val, kSize, head->seed)%head->TableSize, cur);
+      cur->next=NULL;
+      insertTable_inner(head, cur);
       cur=next;
     }
   }
   free(prevTable);
   head->resizing=0;
+
 }
