@@ -50,7 +50,7 @@ main(int argc, char** argv)
   if (verbose) printf("Will wait upto %d seconds for all cores to be at or below %lf C\n", timeout, endtemp);
   if (initTemp(0, nthreads) != 0)
     die("Can't init temp code");
-  double* temps = calloc(nthreads, sizeof(double));
+  double* temps = (double*)calloc(nthreads, sizeof(double));
   int allok = 1;
   for (int i=0; (timeout == 0)||(i < timeout); i++) {
     doTemps(0, temps, nthreads);

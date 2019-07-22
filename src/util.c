@@ -71,7 +71,7 @@ initBarrierN(Barrier* b, int n) {
   int s = pthread_barrier_init(&b->barrier, NULL, n);
   if (s) errdie("Can't initialize barrier");
   b->n = n;
-  b->endWait = mycalloc(n, sizeof(long long unsigned));
+  b->endWait = (nanoseconds*)mycalloc(n, sizeof(long long unsigned));
 }
 
 void
@@ -152,7 +152,7 @@ static int dblcomp(const void* a, const void *b) {
 double
 getMedian(nanoseconds* trialTimes, int trialNumber)
 {
-  nanoseconds* tt = calloc(trialNumber, sizeof(nanoseconds));//mycalloc(trialNumber, sizeof(nanoseconds));
+  nanoseconds* tt = (nanoseconds*)calloc(trialNumber, sizeof(nanoseconds));//mycalloc(trialNumber, sizeof(nanoseconds));
   memcpy(tt, trialTimes, trialNumber*sizeof(nanoseconds));
   qsort(tt, trialNumber, sizeof(nanoseconds), nanocomp);
   nanoseconds median;
@@ -211,7 +211,7 @@ getMax(nanoseconds* trialTimes, int trialNumber) {
 
 void* gatherAndSort(PerTrialInfo* base, int offset, int datasize, int n, int (*compfunc)(const void* a, const void *b)) {
   assert(datasize == sizeof(double)); /* assuming doing it only for long long int and double */
-  double* data = mycalloc(n+1, datasize);
+  double* data = (double*)mycalloc(n+1, datasize);
   for (int i=0; i<n; i++) {
     data[i] = *(double*)(((char*)(base+i))+offset);
   }

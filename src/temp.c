@@ -225,7 +225,7 @@ gatherTemps(PerTrialInfo* ptd, int offset, int tid, int n, double* data)
 //prints temps and some relevant staticical data
 void printTempsResults(const char* desc, int numThr, int trial, int mode) {
   // collect data and print per thread info
-  double* data = mycalloc(trial*numThr*2, sizeof(double));
+  double* data = (double*)mycalloc(trial*numThr*2, sizeof(double));
   for (int i =0; i<numThr; i++) {
     double* thisdata = data+(i*trial);
     gatherTemps(trialData, statOffset(startTemp), i, trial, thisdata);
@@ -291,8 +291,8 @@ getTemps(double* buffer, int nthreads) {
 void
 setEnforcedTemps(double delta, int nthreads) 
 {
-  enforcedTemps = calloc(nthreads, sizeof(double));
-  nowTemps = calloc(nthreads, sizeof(double));
+  enforcedTemps = (double*)calloc(nthreads, sizeof(double));
+  nowTemps = (double*)calloc(nthreads, sizeof(double));
   deltaEnforcedTemp = delta;
   getTemps(enforcedTemps, nthreads);
   printNdouble(stderr, "Enforcing temp:", nthreads, enforcedTemps);

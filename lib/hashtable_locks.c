@@ -170,8 +170,8 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   head->seed=seeds[0];
   head->TableSize=InitSize;
   head->cur=0;
-  head->table=calloc(InitSize, sizeof(block*));;
-  head->tableLocks=malloc(sizeof(pthread_rwlock_t)*InitSize);
+  head->table=(block**)calloc(InitSize, sizeof(block*));;
+  head->tableLocks=(pthread_rwlock_t*)malloc(sizeof(pthread_rwlock_t)*InitSize);
   for(int i =0;i<InitSize;i++){
     pthread_rwlock_init(&head->tableLocks[i],NULL);
   }
@@ -206,7 +206,7 @@ int insertTable_inner(HashTable* head, block* node){
       unsigned long n=1;
       int res = __atomic_compare_exchange(&head->resizing ,&ex, &n, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
       if(res){
-	newTable(head);
+		newTable(head);
       }
     }
   return 1;

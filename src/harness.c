@@ -19,6 +19,7 @@
 #include "dist.h"
 #include "temp.h"
 
+
 #define Version "0.2"
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
@@ -27,7 +28,7 @@ static char*
 getProgramPrefix(void) {
   static char* prefix = NULL;
   if (prefix == NULL) {
-    prefix = mycalloc(strlen(tablename)+16, 1);
+    prefix = (char*)mycalloc(strlen(tablename)+16, 1);
     sprintf(prefix, "%s:harness:%s", tablename, Version);
   }
   return prefix;
@@ -37,7 +38,7 @@ static char*
 getProgramShortPrefix(void) {
   static char* prefix = NULL;
   if (prefix == NULL) {
-    prefix = mycalloc(strlen(shortname)+16, 1);
+    prefix = (char*)mycalloc(strlen(shortname)+16, 1);
     sprintf(prefix, "%s/h:%s", shortname, Version);
   }
   return prefix;
@@ -65,7 +66,6 @@ double queryPercentage = 0.0;
 int queryCutoff = 0;
 int checkT = 0;
 int statspertrial = 0;
-
 int regtemp = 0;
 int tracktemp=0;
 double AllowedTempVariance=1.1;
@@ -81,10 +81,10 @@ void
 setupToCollectTrialStats(int tid) {
   if (tid != 0) return;
   tdp = trialData + trialNumber;
-  tdp->barrierEnds = calloc(nthreads, sizeof(nanoseconds));
+  tdp->barrierEnds = (long long unsigned int*)calloc(nthreads, sizeof(nanoseconds));
   if (tracktemp||regtemp) {
-    tdp->startTemp = calloc(nthreads, sizeof(double));
-    tdp->endTemp = calloc(nthreads, sizeof(double));
+    tdp->startTemp = (double*)calloc(nthreads, sizeof(double));
+    tdp->endTemp = (double*)calloc(nthreads, sizeof(double));
   }
   //fprintf(stderr, "stcts:%d tdp:%p, tdp->BE:%p, tdp:ST:%p, tdp:ET:%p\n", tid, tdp, tdp->barrierEnds, tdp->startTemp, tdp->endTemp);
 }
@@ -153,15 +153,15 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
   { KindOption,   Integer, 	"-l", 		0, &level, 		"Level" },
   { KindOption,   Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
-  { KindOption,   Function, 	"--version",	0, &showVersion,	"show current version" },
+  { KindOption,   Function, 	"--version",	0, (void*)&showVersion,	"show current version" },
   { KindOption,   Set,	 	"--args",	0, &showArgs,		"show all args on stdout" },
   { KindOption,   Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
   { KindOption,   Double, 	"--terror", 	0, &stopError, 		"Run trials til get to error below this (0 means use --trials)" },
   { KindOption,   Set, 		"-q", 		0, &quiet, 		"Run Silently - no output (useful for timing)" },    
   { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
-  { KindOption,   Function,	"--ab",		0, &initAlphaBeta, 	"default alpha beta for keys" },
+  { KindOption,   Function,	"--ab",		0, (void*)&initAlphaBeta, 	"default alpha beta for keys" },
   { KindOption,   Double,	"--qp",		0, &queryPercentage, 	"Percent of actions that are queries" },
-  { KindOption,   Function, 	"-r", 		0, &setRandom, 		"Set random seed (otherwise uses time)" },    
+  { KindOption,   Function, 	"-r", 		0, (void*)&setRandom, 		"Set random seed (otherwise uses time)" },    
   { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },    
 #if COLLECT_STAT==1
   { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
@@ -206,14 +206,14 @@ showThreadInfo(void)
 
   {
     cpu_set_t cpuset;
-    char* before = " ";
+    char before[8] = " ";
     s = pthread_attr_getaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     if (s) errdie("pthread_attr_getaffinity_np");
     printf("%sCPUs (%3d)          =", prefix, CPU_COUNT(&cpuset));
     for (int i=0; i<CPU_SETSIZE; i++) {
       if (CPU_ISSET(i, &cpuset)) {
 	printf("%s%d", before, i);
-	before = ", ";
+	strcpy(before,", ");
       }
     }
     printf("\n");
@@ -357,7 +357,7 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
       //   deleteVal(head, val);     
     }
     else{
-      entry* ent = (entry*)(entChunk+(i<<4));  
+      entry* ent = (entry*)((char*)entChunk+(i<<4));  
     ent->val = val;
 
     insertTable(head, getStart(head), ent, tid);
@@ -466,6 +466,7 @@ run(void* arg) {
     
     void* entChunk=malloc(numInsertions*sizeof(entry)*2+16);
     //start timer
+
     if(!tid){
       globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds);
 
@@ -528,14 +529,14 @@ static char desc[256];
 ////////////////////////////////////////////////////////////////
 // main entry point
 
-void
+int
 main(int argc, char**argv)
 {
   progname = argv[0];
   randomSeed = time(NULL);
   srand(randomSeed);
   ArgParser* ap = createArgumentParser(&argp);
-  addArgumentParser(ap, getProbDistArgParsing(), 0);
+  addArgumentParser(ap, (ArgDefs*)getProbDistArgParsing(), 0);
   int ok = parseArguments(ap, argc, argv);
   if (ok) die("Error parsing arguments");
 
@@ -544,7 +545,7 @@ main(int argc, char**argv)
   if(tracktemp||regtemp){
     if(initTemp(trialsToRun, nthreads)){
       printf("Error accessing CPU temp/cores\n");
-      return;
+      return -1;
     }
     if(regtemp){
       setEnforcedTemps(AllowedTempVariance, nthreads);
@@ -561,7 +562,7 @@ main(int argc, char**argv)
   } else if (trialsToRun == 0) {
     trialsToRun = 1;
   }
-  trialData = calloc(trialsToRun*((stopError > 0)?10:1), sizeof(PerTrialInfo));
+  trialData = (PerTrialInfo*)calloc(trialsToRun*((stopError > 0)?10:1), sizeof(PerTrialInfo));
   tdp = trialData;
 
   // allocate stats if compiled in
@@ -584,7 +585,7 @@ main(int argc, char**argv)
   //creating num_threads threads to add items in parallel
   //see run function for more details
   int numcores=sysconf(_SC_NPROCESSORS_ONLN);
-  threadids = calloc(nthreads, sizeof(pthread_t));
+  threadids = (pthread_t*)calloc(nthreads, sizeof(pthread_t));
   int result = sem_init(&threadsDone, 0, 0);
   if (result) errdie("Can't init threadsDone Sem");
 
@@ -609,7 +610,7 @@ main(int argc, char**argv)
     result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     if (result) die("setaffinitity fails: %d", result);
     
-    targs* temp_args=malloc(sizeof(targs));
+    targs* temp_args=(targs*)malloc(sizeof(targs));
     temp_args->seeds=seeds;
     temp_args->tid=i;
     
@@ -636,7 +637,7 @@ main(int argc, char**argv)
 	 getMedianL(trialData, statOffset(time), trialNumber)/1000000.0, 
 	 getSDL(trialData, statOffset(time), trialNumber)/1000000.0);
   if (trialNumber > 4) {
-    nanoseconds* trimmedTimes = mycalloc(trialNumber, sizeof(sizeof(nanoseconds)));
+    nanoseconds* trimmedTimes = (nanoseconds*)mycalloc(trialNumber, sizeof(sizeof(nanoseconds)));
     int n = trialNumber-2;
     trimData(trialNumber, statOffset(time), trialData, trimmedTimes);
     min = getMin(trimmedTimes, n);

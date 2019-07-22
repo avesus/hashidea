@@ -2,7 +2,7 @@
 #define _HASHSTAT_H_
 
 // define when you make
-//#define COLLECT_STAT 1
+//#define COLLECT_STAT 0
 
 #include <stddef.h>
 
@@ -20,11 +20,12 @@ typedef struct {
 
 extern StatInfo* stats;
 
-#if COLLECT_STAT==1
+#if 0
 #define IncrStat(x)	do { stats[threadId].x++; } while (0)
 #else
 #define IncrStat(x)
 #endif
+
 
 ////////////////////////////////////////////////////////////////
 // for printing stats

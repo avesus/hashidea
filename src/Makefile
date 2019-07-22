@@ -3,10 +3,10 @@ ifndef WITHSTATS
 WITHSTATS=0
 endif
 
-CC = gcc
+CC = g++
 #LDFLAGS = -pg
 #-pg
-CFLAGS = -O3 -g -std=c11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
+CFLAGS = -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
 LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
 Hashtable = hashtable.o
 Hashfunction = hash.o 

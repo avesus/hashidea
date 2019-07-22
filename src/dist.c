@@ -52,7 +52,7 @@ freeRandGenerator(ProbDist* pd)
 ProbDist* 
 makeRandGenerator(double a, double b)
 {
-  ProbDist* pd = mycalloc(1, sizeof(ProbDist));
+  ProbDist* pd = (ProbDist*)mycalloc(1, sizeof(ProbDist));
   pd->alpha = a;
   pd->beta = b;
   pd->r = gsl_rng_alloc(T);

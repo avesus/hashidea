@@ -15,14 +15,14 @@
 
 #define false 0
 #define true (!false)
-typedef unsigned int bool;
+//typedef unsigned int bool;
 
 static int verbose = 0;
 static char* commandLine;
 static const char* pname;
 
 // order is based on how enums are defined in ArgType
-static char* type2fmt[] = {
+static const char* type2fmt[] = {
   "",
   "<int>",
   "<char>",
@@ -57,7 +57,7 @@ arg2str(ArgOption* desc)
   char* p = buffer;
   char sep = (desc->kind == KindPositional) ? ':' : ' ';
 
-  if (desc->kind == Help) {
+  if (desc->kind == (ArgKind)Help) {
     return "[-h]";
   }
   
@@ -301,7 +301,7 @@ checkArgDef(ArgParser* ap, ArgDefs* def, bool main)
 	continue;
       }
       if (desc[i].kind < state)
-	argdie(ap, "Bad order of arg defs: %s comes before last of %s", kind2str(state),  kind2str(desc[i].kind));
+	argdie(ap, "Bad order of arg defs: %s comes before last of %s", kind2str((ArgKind)state),  kind2str(desc[i].kind));
       state = desc[i].kind;
     }
     if (((state == KindPositional)||(state == KindRest))&&!main)
@@ -335,8 +335,8 @@ parseArgs(int argc, char** argv, ArgDefs* def)
 ArgParser* 
 createArgumentParser(ArgDefs* def)
 {
-  ArgParser* ap = mycalloc(1, sizeof(ArgParser));
-  ap->parsers = mycalloc(1, sizeof(ArgParserNode));
+  ArgParser* ap = (ArgParser*)mycalloc(1, sizeof(ArgParser));
+  ap->parsers = (ArgParserNode*)mycalloc(1, sizeof(ArgParserNode));
   ap->parsers->parser = def;
   ap->parsers->main = 1;
   ap->mainProg = def;
@@ -358,7 +358,7 @@ freeArgumentParser(ArgParser* ap)
 void 
 addArgumentParser(ArgParser* ap, ArgDefs* def, int order)
 {
-  ArgParserNode* p = mycalloc(1, sizeof(ArgParserNode));
+  ArgParserNode* p = (ArgParserNode*)mycalloc(1, sizeof(ArgParserNode));
   p->parser = def;
   p->next = NULL;
   p->main = 0;
@@ -445,13 +445,13 @@ parseArguments(ArgParser* ap, int argc, char**argv)
     j += consumed;
   }
   // check that we used all the arguments and don't have any extra
-  if (desc[baseDestOffset+j].type == KindPositional)
+  if (desc[baseDestOffset+j].type == (ArgType)KindPositional)
     argdie(ap, "Expected more arguments, only given %d", j);
-  else if ((desc[baseDestOffset+j].type == KindEnd)&&((baseArg+j) < argc)) {
+  else if ((desc[baseDestOffset+j].type == (ArgType)KindEnd)&&((baseArg+j) < argc)) {
     argdie(ap, "Too many arguments, given %d", j);
   }
   // see if we have a variable number of args at end
-  if (desc[baseDestOffset+j].type == KindRest)
+  if (desc[baseDestOffset+j].type == (ArgType)KindRest)
     argdie(ap, "Haven't implemented Rest args yets");
 
   // if user defined a post parsing function, call it - main prog called last
