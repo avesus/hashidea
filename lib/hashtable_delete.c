@@ -13,21 +13,21 @@
 #include "hash.h"
 
 #define VERSION "0.1"
-const char* tablename = "open/local1probe/remain:V" VERSION;
-const char* shortname = "O1R:V" VERSION;
+const char* tablename = "open/multiprobe/remain:V" VERSION;
+const char* shortname = "OMR:V" VERSION;
 
 
 //a sub table (this should be hidden)
 typedef struct SubTable {
   entry** InnerTable; //rows (table itself)
-  unsigned int TableSize; //size
+  int TableSize; //size
 } SubTable;
 
 // head of cache: this is the main hahstable
 typedef struct HashTable{
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
-  unsigned int hashAttempts;
+  int hashAttempts;
   int cur; //current max index (max exclusive)
 } HashTable;
 
@@ -35,10 +35,12 @@ typedef struct HashTable{
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
+#define kSize 4
 #define notIn -3 
 #define in -1
 #define unk -2
-#define kSize 4
+#define deleted 1
+
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 // create a sub table
@@ -50,18 +52,39 @@ static void freeTable(SubTable* table);
 static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
-static int lookup(SubTable* ht, entry* ent, unsigned int seeds);
+static int lookup(SubTable* ht, entry* ent, unsigned int s);
 
-int deleteVal(HashTable* head, unsigned long val){
-  return 1;
+
+
+int getBool(entry* ptr){
+  return ((unsigned long)ptr)&deleted;
 }
+
+//gets pointer by anding off the first 4 bits from a ptr
+entry* getPtr(entry* ptr){
+  unsigned long mask=deleted;
+  return (entry*)((((unsigned long)ptr)&(~mask)));
+}
+
+//set count value for a pointer
+int setPtr(entry** ptr){
+  entry* newEnt=(entry*)((unsigned long)(*ptr)|deleted);
+  entry* exEnt= getPtr(*ptr);
+  return __atomic_compare_exchange(ptr,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+}
+
+
 
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
+
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
-  else if(val==ht->InnerTable[s]->val){
+  else if(val==getPtr(ht->InnerTable[s])->val){
+    if(getBool(ht->InnerTable[s])){
+      return notIn;
+    }
     return s;
   }
   return unk;
@@ -69,16 +92,15 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
 
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
-  unsigned int bucket=murmur3_32((const uint8_t *)&val, kSize, head->seeds[0]);
+  unsigned int buckets[head->hashAttempts];
   for(int j=0;j<head->cur;j++){
-    ht=head->TableArray[j];
 
-    unsigned int s= bucket%ht->TableSize;
-    unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
-    unsigned int minTemp=s-((head->hashAttempts>>1)+j);
-    unsigned int minInd=minTemp*(minTemp<=s);
-    for(int i =minInd; i<maxInd; i++) {
-      int res=lookupQuery(ht, val, i);
+    ht=head->TableArray[j];
+    for(int i =0; i<head->hashAttempts; i++) {
+      if(!j){
+	buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+      }
+      int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -107,11 +129,10 @@ double freeAll(HashTable* head, int last, int verbose){
     ht=head->TableArray[i];
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
-      if(ht->InnerTable[j]!=NULL){
-	//ht->InnerTable[j]);
+      if(ht->InnerTable[j]!=NULL&&!getBool(ht->InnerTable[j])){
+	//free(ht->InnerTable[j]);
 	count++;
 	if(verbose){
-	  
 	  items[i]++;
 	}
       }
@@ -137,19 +158,21 @@ double freeAll(HashTable* head, int last, int verbose){
 
 static void 
 freeTable(SubTable* ht){
-   free(ht->InnerTable);
-   free(ht);
+  free(ht->InnerTable);
+  free(ht);
 }
 
 
 //check if entry for a given hashing vector is in a table
 static int lookup(SubTable* ht, entry* ent, unsigned int s){
 
-
   if(ht->InnerTable[s]==NULL){
     return s;
   }
-  else if(ht->InnerTable[s]->val==ent->val){
+  else if(getPtr(ht->InnerTable[s])->val==ent->val){
+    if(getBool(ht->InnerTable[s])){
+      return s;
+      }
     return in;
   }
   return unk;
@@ -183,22 +206,48 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
 
 
 
-int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
+int deleteVal(HashTable* head, unsigned long val){
+  SubTable* ht=NULL;
+  unsigned int buckets[head->hashAttempts];
+  for(int j=0;j<head->cur;j++){
+
+    ht=head->TableArray[j];
+    for(int i =0; i<head->hashAttempts; i++) {
+      if(!j){
+	buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+      }
+      int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
+      if(res==unk){ //unkown if in our not
+	continue;
+      }
+      if(res==notIn){ //is in
+	return 0;
+      }
+
+      
+      return setPtr(&ht->InnerTable[res]);
+
+      //not in (we got null so it would have been there)
+      return 1;
+    }
+  }
+  return 0;
+}
+
+
+int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* ht=NULL;
   int LocalCur=head->cur;
-  unsigned int bucket=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[0]);
+  unsigned int buckets[head->hashAttempts];
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
-    //    for(int i =0;i<head->hashAttempts;i++){
-      // for(int i =0;i<(j<<1)+1;i++){
-    //    for(int h=0;h<head->hashAttempts;h++){
-    unsigned int s= bucket%ht->TableSize;
-    unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
-    unsigned int minTemp=s-((head->hashAttempts>>1)+j);
-    unsigned int minInd=minTemp*(minTemp<=s);
-    for(int i =minInd; i<maxInd; i++) {
-      int res=lookup(ht, ent, i);
+
+    for(int i =0; i<head->hashAttempts; i++) {
+      if(j==start){
+	buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+      }
+      int res=lookup(ht, ent,buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
       }
@@ -207,7 +256,10 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       }
 
       entry* expected=NULL;
-      int cmp= __atomic_compare_exchange(&ht->InnerTable[res],
+      if(getBool(ht->InnerTable[res])){
+	expected=ht->InnerTable[res];
+      }
+      int cmp= __atomic_compare_exchange(ht->InnerTable+res,
 					 &expected,
 					 &ent,
 					 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
@@ -215,14 +267,13 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	return 1;
       }
       else{
-	if(ht->InnerTable[res]->val==ent->val){
+	if(getPtr(ht->InnerTable[res])->val==ent->val){
 	  return 0;
 	}
       }
     }
-    
     LocalCur=head->cur;
-			    }
+  }
   SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
   addDrop(head, new_table, LocalCur, ent);
 }

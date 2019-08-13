@@ -15,7 +15,7 @@ if [ $onlyshow -ne 1 ]; then
 fi
 if [ $# -ne 0 ]; then
     echo "Running tests while skipping any already preformed in the following logs: $prevlog"
-fi
+if
 
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then

@@ -147,7 +147,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
   //just itrate table
     pthread_rwlock_rdlock(&head->swapLock);
     unsigned int start=murmur3_32((const uint8_t *)&val, kSize, head->seed)%head->TableSize;
-  pthread_rwlock_rdlock(&head->tableLocks[start]);
+    //pthread_rwlock_rdlock(&head->tableLocks[start]);
   block* cur=head->table[start];
   while(cur!=NULL){
     if(val==cur->val){

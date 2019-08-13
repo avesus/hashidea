@@ -117,7 +117,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
 
   //iterate through sub tables
-  unsigned int buckets[10];
+  unsigned int buckets[head->hashAttempts];
   //  for(int i =0;i<head->hashAttempts;i++){
     //    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
     //  }
@@ -129,7 +129,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
     //iterate through hash functions
     //        for(int i =0;i<(j<<1)+1;i++){
     
-    for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
+    for(int i =0; i<head->hashAttempts; i++) {
       if(first){
 	buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
       }
@@ -298,7 +298,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* ht=NULL;
   int LocalCur=head->cur;
 
-  unsigned int buckets[10];
+  unsigned int buckets[head->hashAttempts];
   //  for(int i =0;i<head->hashAttempts;i++){
   //    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
   //  }
@@ -314,7 +314,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
     //iterate through hash functions
     //        for(int i =0;i<(j<<1)+1;i++){
-        for(int i =0; i<min((j<<1)+1,head->hashAttempts); i++) {
+        for(int i =0; i<head->hashAttempts; i++) {
 	  if(j==start){
 	    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
 	  }
@@ -361,14 +361,10 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
 //initial hashtable. First table head will be null, after that will just reinitialize first table
 //returns a pointer to the hashtable
-HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds){
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds, double lines){
 
   head=(HashTable*)calloc(1,sizeof(HashTable));
   head->seeds=seeds;
-  if(HashAttempts>10){
-    printf("Changing value for hashattempts from %d to 10\n", HashAttempts);
-    HashAttempts=10;
-  }
   head->hashAttempts=HashAttempts;
   head->numThreads=numThreads;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));

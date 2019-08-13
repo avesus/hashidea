@@ -12,6 +12,8 @@
 #include "hashtable.h"
 #include "hash.h"
 
+#define ashift 1
+#define assos 2
 #define VERSION "0.1"
 const char* tablename = "open/local1probe/remain:V" VERSION;
 const char* shortname = "O1R:V" VERSION;
@@ -28,6 +30,7 @@ typedef struct HashTable{
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
   unsigned int hashAttempts;
+  int lineReads;
   int cur; //current max index (max exclusive)
 } HashTable;
 
@@ -56,6 +59,7 @@ int deleteVal(HashTable* head, unsigned long val){
   return 1;
 }
 
+
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
   if(ht->InnerTable[s]==NULL){
@@ -73,11 +77,9 @@ int checkTableQuery(HashTable* head, unsigned long val){
   for(int j=0;j<head->cur;j++){
     ht=head->TableArray[j];
 
-    unsigned int s= bucket%ht->TableSize;
-    unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
-    unsigned int minTemp=s-((head->hashAttempts>>1)+j);
-    unsigned int minInd=minTemp*(minTemp<=s);
-    for(int i =minInd; i<maxInd; i++) {
+    unsigned int s= bucket%(ht->TableSize>>ashift);
+    s=s<<ashift;
+    for(int i =s; i<s+assos; i++) {
       int res=lookupQuery(ht, val, i);
       if(res==unk){ //unkown if in our not
 	continue;
@@ -127,6 +129,7 @@ double freeAll(HashTable* head, int last, int verbose){
 
   if(verbose){
     printf("Total: %d\n", (int)count);
+
     free(items);
   }
 
@@ -193,11 +196,9 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
     //    for(int i =0;i<head->hashAttempts;i++){
       // for(int i =0;i<(j<<1)+1;i++){
     //    for(int h=0;h<head->hashAttempts;h++){
-    unsigned int s= bucket%ht->TableSize;
-    unsigned int maxInd=min(s+(head->hashAttempts>>1)+1+j, ht->TableSize);
-    unsigned int minTemp=s-((head->hashAttempts>>1)+j);
-    unsigned int minInd=minTemp*(minTemp<=s);
-    for(int i =minInd; i<maxInd; i++) {
+    unsigned int s= bucket%(ht->TableSize>>ashift);
+    s=s<<ashift;
+    for(int i =s; i<s+assos; i++) {
       int res=lookup(ht, ent, i);
       if(res==unk){ //unkown if in our not
 	continue;
@@ -238,6 +239,7 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   head->hashAttempts=HashAttempts;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
+  head->lineReads=(int)((64/sizeof(entry))*lines);
   head->cur=1;
   return head;
 }

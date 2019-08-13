@@ -15,7 +15,7 @@ double freeAll(HashTable* head, int last, int verbose);
 int checkTableQuery(HashTable* head, unsigned long val);
 
 // initialize a new main hashtable
-HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int * seeds);
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int * seeds, double lines);
 
 
 // return 1 if inserted, 0 if already there

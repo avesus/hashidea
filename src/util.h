@@ -19,6 +19,8 @@ void* myCalloc(size_t nmemb, size_t size, const char* fname, const int ln);
 
 // basic pthread related functions
 
+int getCacheLineSize();
+int log2Int(int input);
 void semWait(sem_t *sem);
 void semPost(sem_t* sem);
 

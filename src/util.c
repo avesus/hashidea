@@ -51,6 +51,25 @@ myCalloc(size_t nmemb, size_t size, const char* fname, const int ln)
   return p;
 }
 
+int log2Int(int input){
+  int a=0;
+  while(input>>a){
+    a++;
+  }
+  return a-1;
+}
+int getCacheLineSize(){
+  FILE* fp=fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
+  if(!fp){
+    return 0;
+  }
+  char buf[16]="";
+  if(!fgets(buf, 8, fp)){
+    return 0;
+  }
+  return atoi(buf);
+}
+
 void 
 semWait(sem_t *sem) {
   while (sem_wait(sem) == -1) {

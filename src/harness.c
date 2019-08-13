@@ -19,7 +19,6 @@
 #include "dist.h"
 #include "temp.h"
 
-
 #define Version "0.2"
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
@@ -68,6 +67,10 @@ int checkT = 0;
 int statspertrial = 0;
 int regtemp = 0;
 int tracktemp=0;
+int lineSize=0;
+int logLineSize=0;
+int entPerLine=0;
+double cLines=0;
 double AllowedTempVariance=1.1;
 
 int trialNumber = 0;
@@ -161,7 +164,8 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
   { KindOption,   Function,	"--ab",		0, (void*)&initAlphaBeta, 	"default alpha beta for keys" },
   { KindOption,   Double,	"--qp",		0, &queryPercentage, 	"Percent of actions that are queries" },
-  { KindOption,   Function, 	"-r", 		0, (void*)&setRandom, 		"Set random seed (otherwise uses time)" },    
+  { KindOption,   Double,	"--lines",	0, &cLines,       	"Cache lines to read (as double i.e can say .5 lines or 1.5 lines)" },
+  { KindOption,   Function, 	"-r", 		0, (void*)&setRandom,   "Set random seed (otherwise uses time)" },    
   { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },    
 #if COLLECT_STAT==1
   { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
@@ -353,8 +357,8 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
     unsigned long val = rVals[i];
 
     if ((queryPercentage > 0) && (rVals[numInsertions+i] > queryCutoff)){
-      checkTableQuery(head, val);
-      //   deleteVal(head, val);     
+            checkTableQuery(head, val);
+      //            deleteVal(head, val);     
     }
     else{
       entry* ent = (entry*)((char*)entChunk+(i<<4));  
@@ -468,7 +472,7 @@ run(void* arg) {
     //start timer
 
     if(!tid){
-      globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds);
+      globalHead=initTable(globalHead, InitSize, HashAttempts, nthreads, seeds, cLines);
 
     }
     // sleep now to cool off processor in case all the above raised the temperature
@@ -541,7 +545,14 @@ main(int argc, char**argv)
   if (ok) die("Error parsing arguments");
 
 
-  
+  lineSize=getCacheLineSize();
+  if(!lineSize){
+    fprintf(stderr,"Error getting cache line size\n");
+    return -1;
+  }
+
+  entPerLine=lineSize/sizeof(entry);
+  logLineSize=log2Int(entPerLine);
   if(tracktemp||regtemp){
     if(initTemp(trialsToRun, nthreads)){
       printf("Error accessing CPU temp/cores\n");
