@@ -54,6 +54,8 @@ int quiet = 0;
 int timeit = 0;
 int randomSeed = 0;
 int nthreads = 1;
+int startCore=0;
+int endCore=0;
 int showthreadattr = 0;
 int trialsToRun = 0;
 double stopError = 0.0;
@@ -171,6 +173,8 @@ static ArgOption args[] = {
   { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
 #endif
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
+  { KindOption,   Integer, 	"--sc", 		0, &startCore, 		"Starting core" },
+  { KindOption,   Integer, 	"--ec", 		0, &endCore, 		"End core" },
   { KindHelp,     Help, 	"-h" },
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
   { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table" },
@@ -354,11 +358,12 @@ initSeeds(int HashAttempts){
 void
 insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVals) {
   for (int i=0; i<n; i++) {
-    unsigned long val = rVals[i];
+    unsigned long val = rVals[i]%1000;
 
     if ((queryPercentage > 0) && (rVals[numInsertions+i] > queryCutoff)){
-            checkTableQuery(head, val);
-      //            deleteVal(head, val);     
+
+      //      checkTableQuery(head, val);
+                      deleteVal(head, val);     
     }
     else{
       entry* ent = (entry*)((char*)entChunk+(i<<4));  
@@ -367,8 +372,14 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
     insertTable(head, getStart(head), ent, tid);
 
     }
-
   }
+    for(int i =0;i<1000;i++){
+    entry* ent=(entry*)malloc(sizeof(entry));
+    ent->val=i;
+    insertTable(head, getStart(head), ent, tid);
+    }
+  
+
 
   //  free(entChunk);
 }
@@ -489,7 +500,6 @@ run(void* arg) {
     
     // end timer
     nanoseconds ns = endThreadTimer(tid, trialNumber);
-
     // record time and see if we are done
     if (tid == 0) {
       if (verbose) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
@@ -596,6 +606,24 @@ main(int argc, char**argv)
   //creating num_threads threads to add items in parallel
   //see run function for more details
   int numcores=sysconf(_SC_NPROCESSORS_ONLN);
+  if(startCore||endCore){
+    if(startCore<0||startCore>=numcores){
+      fprintf(stderr,"Invalid core range specified!\n");
+      exit(0);
+    }
+    if(endCore<0||endCore>=numcores){
+      fprintf(stderr,"Invalid core range specified!\n");
+      exit(0);
+    }
+    
+    if(startCore>=endCore){
+      fprintf(stderr,"Invalid core range specified!\n");
+      exit(0);
+    }
+    if((endCore-startCore)<(numcores-1)){
+      numcores=(endCore-startCore)+1;
+    }
+  }
   threadids = (pthread_t*)calloc(nthreads, sizeof(pthread_t));
   int result = sem_init(&threadsDone, 0, 0);
   if (result) errdie("Can't init threadsDone Sem");
@@ -608,7 +636,7 @@ main(int argc, char**argv)
   unsigned int* seeds=initSeeds(HashAttempts);
   
   // start threads
-  for(int i =0; i<nthreads; i++) {
+  for(int i =startCore; i<nthreads; i++) {
     pthread_attr_t attr;
     result = pthread_attr_init(&attr);
     if (result) errdie("Can't do attr_init");
@@ -616,7 +644,7 @@ main(int argc, char**argv)
     // allocate each thread on its own core
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-    CPU_SET(i%numcores, &cpuset);
+    CPU_SET(startCore+i%numcores, &cpuset);
     
     result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     if (result) die("setaffinitity fails: %d", result);
