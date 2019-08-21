@@ -28,9 +28,8 @@ typedef struct HashTable{
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
   int hashAttempts;
-  int lineReads; // amount of reads to do after each hash
-                 // (i.e 4 reads is check 4 entries after getting slot
-                 // so does not mean 4 entire lines)
+  int readsPerLine;
+  int logReadsPerLine;
   int cur; //current max index (max exclusive)
 } HashTable;
 
@@ -110,40 +109,34 @@ checkTableQuery(HashTable* head, unsigned long val)
 {
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
-  //  for(int i =0;i<head->hashAttempts;i++){
-  //    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
-  //  }
-  int numLines=head->lineReads>>logLineSize;
+  int uBound=head->readsPerLine;
+  int ha=head->hashAttempts;
+    for(int i =0;i<head->hashAttempts;i++){
+      buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+    }
+  
   for(int j=0;j<head->cur;j++){
 
     ht=head->TableArray[j];
     for(int i =0; i<head->hashAttempts; i++) {
-      if(!j){
-        buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
-      }
-      int s=(buckets[i]%(ht->TableSize>>head->lineReads))<<head->lineReads;
-      ht->InnerTable[s];
-
-      for(int l=0;l<numLines;l++){
-        int uBound=min((head->lineReads-(entPerLine*l)), entPerLine);
-        if(l+1<numLines){
-          ht->InnerTable[s+entPerLine];
-        }
-        else if((l+1)==numLines&&j&&(i+1)<head->hashAttempts){
-          ht->InnerTable[(buckets[i+1]%(ht->TableSize>>logLineSize)) << 
-			 logLineSize];
-        }
-        for(int c=s;c<s+uBound;c++){
-          int res=lookupQuery(ht, val, c);
-          if(res==unk){ //unkown if in our not
-            continue;
-          }
-          if(res==notIn){ //is in
-            return 0;
-          }
-          //not in (we got null so it would have been there)
-          return 1;
-        }
+      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+      
+      //call the new line before time amt of computation just cuz...
+      __builtin_prefetch(ht->InnerTable[s]);
+      //check this line
+      for(int c=0;c<uBound;c++){
+	if(uBound>(entPerLine+c)){
+	  __builtin_prefetch(ht->InnerTable[s+c+entPerLine]);
+	}
+	int res=lookupQuery(ht, val, s+c);
+	if(res==unk){ //unkown if in our not
+	  continue;
+	      }
+	if(res==notIn){ //is in
+	  return 0;
+	}
+	//not in (we got null so it would have been there)
+	return 1;
       }
     }
   }
@@ -238,7 +231,6 @@ addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent)
                               &AddSlot,
                               &newSize,
                               1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    //    insertTable(head, 1, ent, 0);
   } else {
     freeTable(toadd);
     int newSize=AddSlot+1;
@@ -247,7 +239,6 @@ addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent)
                               &newSize,
                               1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 
-    //    insertTable(head, 1, ent, 0);
   }
   return 0;
 }
@@ -260,59 +251,56 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   //create the tag for the entry and set it
   char tag=hashtag(ent->val);
   setTag(&ent, tag);
-
+  //  for(int i 
   //figure entry is in cache now so might aswell get first hash here
-  buckets[0] = murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
+  /*  buckets[0] = murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
 			  kSize, 
-			  head->seeds[0]);
+			  head->seeds[0]);*/
+  tag=tag&(head->readsPerLine-1);
+  int uBound=head->readsPerLine;
+  int ha=head->hashAttempts;
+  for(int i =0;i<ha;i++){
+        buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
+			      kSize, 
+			      head->seeds[i]);
+  }
   SubTable* ht=NULL;
   int LocalCur=head->cur;
 
 
-  int numLines=1+((head->lineReads-1)>>logLineSize);
+  //  int numLines=1+((head->readsPerLine-1)>>logLineSize);
   while(1){
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
 
-    for(int i =0; i<head->hashAttempts; i++) {
+    for(int i =0; i<ha; i++) {
       //storing hash values in buckets so dont need to recompute each
       //loop through j
-      if (!j&&i) {
+      /*      if (!j&&i) {
         buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
 			      kSize, 
 			      head->seeds[i]);
-      }
+			      }*/
 
-      //divide by lineReads (dont give lines some value so that
-      //lineReads is like 17 or something bad, try
+      //divide by readsPerLine (dont give lines some value so that
+      //readsPerLine is like 17 or something bad, try
       //1,2,4,8,16,24,etc.. (basically if less that lineSize/entry
       //Size keep power of 2, otherwise keep multiple of entry size)
       //also I assume gcc will turn the divide into >>, if not
       //probably better to precomputer log and use that
-      int s=(buckets[i]%(ht->TableSize/head->lineReads))*head->lineReads;
+      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
 
       //call the new line before time amt of computation just cuz...
-      ht->InnerTable[s];
-      for(int l=0;l<numLines;l++) {
-
-        //how many entries in the given line to check (this does allow
-        //for setting reads to 12 or something
-        int uBound=min(head->lineReads-(entPerLine*l), entPerLine);
-
-        //if we will be checking next line get it now
-        if(l+1<numLines){
-          ht->InnerTable[s+entPerLine];
-        } else if((l+1)==numLines&&j&&(i+1)<head->hashAttempts) {
-	  //if this is the last line for this hash and we are doing
-	  //another hash get it
-
-          ht->InnerTable[(buckets[i+1] % (ht->TableSize>>logLineSize)) << 
-			 logLineSize];
-        }
-
+            __builtin_prefetch(ht->InnerTable[s]);
         //check this line
-        for(int c=s;c<s+uBound;c++){
-          int res=lookup(ht, ent,c);
+	    for(int c=0;c<uBound;c++){
+	  	  if(uBound>(entPerLine+c)){
+	    	  __builtin_prefetch(ht->InnerTable[s+c+entPerLine]);
+		  }
+		  /*  else if((i+1)<ha){
+		  __builtin_prefetch(ht->InnerTable[(buckets[i+1]%(ht->TableSize>>head->logReadsPerLine)<<head->logReadsPerLine)]);
+		  }*/
+          int res=lookup(ht, ent,s+c);
           if(res==unk){ //unkown if in our not
             continue;
           }
@@ -326,7 +314,6 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
                                          1, 
 					 __ATOMIC_RELAXED, __ATOMIC_RELAXED);
       if(cmp){
-
         return 1;
       }
       else{
@@ -334,8 +321,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
           return 0;
         }
       }
-      }
-      }
+	}
     }
     LocalCur=head->cur;
   }
@@ -350,6 +336,13 @@ int getStart(HashTable* head){
   return 0;
 }
 
+int logofint(int input){
+  int a=0;
+  while(input>>a){
+    a++;
+  }
+  return a-1;
+}
 HashTable* 
 initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, 
 	  unsigned int* seeds, double lines)
@@ -362,13 +355,14 @@ initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads,
     InitSize=max(((int)((lines)*entPerLine)),entPerLine<<1);
   }
 
-  head->lineReads=(int)(entPerLine*lines);
+  head->readsPerLine=(int)(entPerLine*lines);
+  head->logReadsPerLine=logofint(head->readsPerLine);
   head->hashAttempts=HashAttempts;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
   head->cur=1;
   printf("%d, %d, %d, %d, %lf\n", 
-	 lineSize, logLineSize, entPerLine, head->lineReads, lines);
+	 lineSize, logLineSize, entPerLine, head->readsPerLine, lines);
   return head;
 }
 

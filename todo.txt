@@ -1,0 +1,9 @@
+if key/val not normalized tag of key
+possibly give set of buckets to each hash slot?
+
+Chaining is efficient for inserting or deleting single keys.
+However, lookup may require scanning the entire chain.
+Other 7 bytes (1+8=9 no good for cache).
+
+
+RCU (read copy update)
