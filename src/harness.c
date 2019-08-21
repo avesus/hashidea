@@ -615,8 +615,10 @@ main(int argc, char**argv)
       fprintf(stderr,"Invalid core range specified!\n");
       exit(0);
     }
-    
-    if(startCore>=endCore){
+    if(!endCore){
+      endCore=numcores-1;
+    }
+    if(startCore>endCore){
       fprintf(stderr,"Invalid core range specified!\n");
       exit(0);
     }
@@ -636,7 +638,7 @@ main(int argc, char**argv)
   unsigned int* seeds=initSeeds(HashAttempts);
   
   // start threads
-  for(int i =startCore; i<nthreads; i++) {
+  for(int i =0; i<nthreads; i++) {
     pthread_attr_t attr;
     result = pthread_attr_init(&attr);
     if (result) errdie("Can't do attr_init");
@@ -644,6 +646,7 @@ main(int argc, char**argv)
     // allocate each thread on its own core
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
+    printf("CORE: %d->%d\n",i, startCore+i%numcores);
     CPU_SET(startCore+i%numcores, &cpuset);
     
     result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
