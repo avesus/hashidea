@@ -15,7 +15,7 @@ if [ $onlyshow -ne 1 ]; then
 fi
 if [ $# -ne 0 ]; then
     echo "Running tests while skipping any already preformed in the following logs: $prevlog"
-if
+fi
 
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
@@ -41,7 +41,10 @@ for table in hashtable_locks; do
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
-		for it in $((2*inserts)) $((inserts)) $((inserts/2)) $((inserts/4)); do 
+		for it in $((2*inserts)) $((inserts)) $((inserts/2)) $((inserts/4)); do
+		    it=$(echo 'l('$it')/l(2)' | bc -l)
+		    it=$(echo $it+.5 | bc)
+		    it=${it%.*}
 		    for ha in ${attempts[@]}; do
 			in=$(( inserts / t ))
 			#echo "running with initial table size $it and $in inserts"

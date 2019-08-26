@@ -93,13 +93,14 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
+  for(int i =0;i<head->hashAttempts;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+  }
+
   for(int j=0;j<head->cur;j++){
 
     ht=head->TableArray[j];
     for(int i =0; i<head->hashAttempts; i++) {
-      if(!j){
-	buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
-      }
       int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
@@ -189,7 +190,6 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
 			      &AddSlot,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    insertTable(head, 1, ent, 0);
   }
   else{
     freeTable(toadd);
@@ -199,7 +199,6 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 
-    insertTable(head, 1, ent, 0);
   }
   return 0;
 }
@@ -240,13 +239,14 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* ht=NULL;
   int LocalCur=head->cur;
   unsigned int buckets[head->hashAttempts];
+      for(int i =0;i<head->hashAttempts;i++){
+        buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+    }
+      while(1){
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
 
     for(int i =0; i<head->hashAttempts; i++) {
-      if(j==start){
-	buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
-      }
       int res=lookup(ht, ent,buckets[i]%ht->TableSize);
       if(res==unk){ //unkown if in our not
 	continue;
@@ -276,6 +276,8 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   }
   SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
   addDrop(head, new_table, LocalCur, ent);
+  start=LocalCur;
+      }
 }
 
 

@@ -39,6 +39,7 @@ typedef struct HashTable{
   int delIndex;
   int hashAttempts;
   int cur; //current max index (max exclusive)
+  int start;
   
 } HashTable;
 
@@ -107,7 +108,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
   for(int i =0;i<head->hashAttempts;i++){
     buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
   }
-  for(int j=0;j<head->cur;j++){
+  for(int j=head->start;j<head->cur;j++){
 
     ht=head->TableArray[j];
         if(ht->bDel==2){
@@ -229,7 +230,7 @@ int deleteVal(HashTable* head, unsigned long val){
   for(int i =0;i<head->hashAttempts;i++){
     buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
   }
-  for(int j=0;j<head->cur;j++){
+  for(int j=head->start;j<head->cur;j++){
   
     ht=head->TableArray[j];
     if(ht->bDel==2){
@@ -317,7 +318,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
 
 int getStart(HashTable* head){
-  return 0;
+  return head->start;
 }
 
 void* delThread(void* targ){
@@ -355,6 +356,9 @@ void* delThread(void* targ){
       }
   }
     ht->bDel=2;
+    if(head->delIndex==head->start){
+      head->start++;
+    }
   }
 }
 
@@ -365,6 +369,7 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
   head->cur=1;
+  head->start=0;
   head->stopResize=0;
   pthread_mutex_init(&head->fMutex,NULL);
   pthread_create(&head->dThread,NULL, delThread,(void*)head);

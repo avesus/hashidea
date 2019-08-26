@@ -64,7 +64,9 @@ int InitSize = 1;
 int HashAttempts = 1;
 HashTable* globalHead=NULL;
 double queryPercentage = 0.0;
+double deletePercentage = 0.0;
 int queryCutoff = 0;
+int deleteCutoff = 0;
 int checkT = 0;
 int statspertrial = 0;
 int regtemp = 0;
@@ -166,6 +168,7 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-T", 		0, &timeit, 		"Time the run" },    
   { KindOption,   Function,	"--ab",		0, (void*)&initAlphaBeta, 	"default alpha beta for keys" },
   { KindOption,   Double,	"--qp",		0, &queryPercentage, 	"Percent of actions that are queries" },
+  { KindOption,   Double,	"--dp",		0, &deletePercentage, 	"Percent of actions that are delete calls" },
   { KindOption,   Double,	"--lines",	0, &cLines,       	"Cache lines to read (as double i.e can say .5 lines or 1.5 lines)" },
   { KindOption,   Function, 	"-r", 		0, (void*)&setRandom,   "Set random seed (otherwise uses time)" },    
   { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },    
@@ -177,7 +180,7 @@ static ArgOption args[] = {
   { KindOption,   Integer, 	"--ec", 		0, &endCore, 		"End core" },
   { KindHelp,     Help, 	"-h" },
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
-  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table" },
+  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table (table size = 1 << -i" },
   { KindOption,   Set,          "--regtemp",    0, &regtemp,            "Set so that between trials will wait until cpu temp returns to close to starting temp." },
   { KindOption,   Set,          "--tracktemp",  0, &tracktemp,          "Track thread temps for each trial. Note this will affect timing slightly" },
   { KindEnd }
@@ -337,6 +340,12 @@ getVal(void)
 }
 
 int
+isDelete(void)
+{
+  if ((deletePercentage > 0) && (random() > deleteCutoff)) return 1;
+  return 0;
+}
+int
 isQuery(void)
 {
   if ((queryPercentage > 0) && (random() > queryCutoff)) return 1;
@@ -357,28 +366,22 @@ initSeeds(int HashAttempts){
 
 void
 insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVals) {
+  
   for (int i=0; i<n; i++) {
-    unsigned long val = rVals[i]%1000;
+    unsigned long val = rVals[i];
 
     if ((queryPercentage > 0) && (rVals[numInsertions+i] > queryCutoff)){
-
-      //      checkTableQuery(head, val);
-                      deleteVal(head, val);     
+      checkTableQuery(head, val);
+    }
+    else if((deletePercentage > 0) && (rVals[numInsertions+i] > deleteCutoff)){
+      deleteVal(head, val);
     }
     else{
       entry* ent = (entry*)((char*)entChunk+(i<<4));  
     ent->val = val;
-
     insertTable(head, getStart(head), ent, tid);
-
     }
   }
-    for(int i =0;i<1000;i++){
-    entry* ent=(entry*)malloc(sizeof(entry));
-    ent->val=i;
-    insertTable(head, getStart(head), ent, tid);
-    }
-  
 
 
   //  free(entChunk);
@@ -554,13 +557,18 @@ main(int argc, char**argv)
   int ok = parseArguments(ap, argc, argv);
   if (ok) die("Error parsing arguments");
 
-
+  if(queryPercentage+deletePercentage>1){
+    fprintf(stderr,"Operation count cant exceed 1.0\n\t:qp=%f, dp=%f, total ops=%f\n",
+	    queryPercentage, deletePercentage, queryPercentage+deletePercentage);
+    return -1;
+  }
+  deletePercentage+=queryPercentage;
   lineSize=getCacheLineSize();
   if(!lineSize){
     fprintf(stderr,"Error getting cache line size\n");
     return -1;
   }
-
+  InitSize=1<<InitSize;
   entPerLine=lineSize/sizeof(entry);
   logLineSize=log2Int(entPerLine);
   if(tracktemp||regtemp){
@@ -576,6 +584,9 @@ main(int argc, char**argv)
   if (queryPercentage > 0) {
     queryCutoff = (long int)((1.0-queryPercentage)*(double)RAND_MAX);
   }
+  if (deletePercentage > 0) {
+    deleteCutoff = (long int)((1.0-deletePercentage)*(double)RAND_MAX);
+  }
 
   // setup to track different trials
   if (stopError > 0.0) {
@@ -590,16 +601,16 @@ main(int argc, char**argv)
   clearStats();
   
   if (showArgs) {
-    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING\n");
+    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING\n");
     // if we are asked to show all args, print them out here one one line
-    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf", 
+    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf", 
 	    getProgramPrefix(), getProgramShortPrefix(),
 	   numInsertions, trialsToRun, stopError, alpha, beta, 
-	    queryPercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff,regtemp,AllowedTempVariance);
+	    queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff,regtemp,AllowedTempVariance);
     printf("%s,START\n", desc);
   } else {
     // just show vital ones
-    printf("%s\t%s\tthreads:%d\tquery-percent:%f\n", getProgramPrefix(), getProgramShortPrefix(), nthreads, queryPercentage);
+    printf("%s\t%s\tthreads:%d\tquery-percent:%f\tdelete-percent:%f\n", getProgramPrefix(), getProgramShortPrefix(), nthreads, queryPercentage,deletePercentage);
     strcpy(desc, getProgramShortPrefix());
   }
 
@@ -646,9 +657,10 @@ main(int argc, char**argv)
     // allocate each thread on its own core
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-    printf("CORE: %d->%d\n",i, startCore+i%numcores);
     CPU_SET(startCore+i%numcores, &cpuset);
-    
+    if(verbose){
+      printf("Thread[%d]->core[%d]\n", i, startCore+i%numcores);
+    }
     result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     if (result) die("setaffinitity fails: %d", result);
     

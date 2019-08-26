@@ -165,7 +165,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
 }
 
 // initialize a new main hashtable
-HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int * seeds){
+HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int * seeds,double lines){
   head=(HashTable*)calloc(1,sizeof(HashTable));
   head->seed=seeds[0];
   head->TableSize=InitSize;

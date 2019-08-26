@@ -90,12 +90,12 @@ inline char genHashTag(unsigned long key){
   tag=tag^(tag>>8);
   return (char)(tag&0xff);
 }
-static inline int lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
+static inline int lookupQuery(SubTable* ht, unsigned long val, unsigned int s, char vTag){
 
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
-  if(hashtag(val)!=getEntTag(ht->InnerTable[s])){
+  if(vTag!=getEntTag(ht->InnerTable[s])){
     return unk;
   }
   if(val==getEntPtr(ht->InnerTable[s])->val){
@@ -111,27 +111,25 @@ checkTableQuery(HashTable* head, unsigned long val)
   unsigned int buckets[head->hashAttempts];
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
-    for(int i =0;i<head->hashAttempts;i++){
+    for(int i =0;i<ha;i++){
       buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
     }
-  
+    char tag=hashtag(val);
   for(int j=0;j<head->cur;j++){
 
     ht=head->TableArray[j];
-    for(int i =0; i<head->hashAttempts; i++) {
+    for(int i =0; i<ha; i++) {
       int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
       
       //call the new line before time amt of computation just cuz...
-      __builtin_prefetch(ht->InnerTable[s]);
+      __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
       //check this line
-      for(int c=0;c<uBound;c++){
-	if(uBound>(entPerLine+c)){
-	  __builtin_prefetch(ht->InnerTable[s+c+entPerLine]);
-	}
-	int res=lookupQuery(ht, val, s+c);
+      for(int c=tag;c<uBound+tag;c++){
+	  __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	int res=lookupQuery(ht, val, s+(c&(uBound-1)), tag);
 	if(res==unk){ //unkown if in our not
 	  continue;
-	      }
+	}
 	if(res==notIn){ //is in
 	  return 0;
 	}
@@ -204,7 +202,7 @@ static inline int lookup(SubTable* ht, entry* ent, unsigned int s){
   }
 
   //if slot is not null first check tags (if no match then return unk)
-  if(getEntTag(ht->InnerTable[s])!=getEntTag(ht->InnerTable[s])){
+  if(getEntTag(ht->InnerTable[s])!=getEntTag(ent)){
     return unk;
   }
 
@@ -251,12 +249,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   //create the tag for the entry and set it
   char tag=hashtag(ent->val);
   setTag(&ent, tag);
-  //  for(int i 
-  //figure entry is in cache now so might aswell get first hash here
-  /*  buckets[0] = murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
-			  kSize, 
-			  head->seeds[0]);*/
-  tag=tag&(head->readsPerLine-1);
+  //  tag=tag&(head->readsPerLine-1);
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
   for(int i =0;i<ha;i++){
@@ -291,16 +284,14 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
 
       //call the new line before time amt of computation just cuz...
-            __builtin_prefetch(ht->InnerTable[s]);
+            __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
         //check this line
-	    for(int c=0;c<uBound;c++){
-	  	  if(uBound>(entPerLine+c)){
-	    	  __builtin_prefetch(ht->InnerTable[s+c+entPerLine]);
-		  }
-		  /*  else if((i+1)<ha){
-		  __builtin_prefetch(ht->InnerTable[(buckets[i+1]%(ht->TableSize>>head->logReadsPerLine)<<head->logReadsPerLine)]);
-		  }*/
-          int res=lookup(ht, ent,s+c);
+	    for(int c=tag;c<uBound+tag;c++){
+	      __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	      if(s+(c&(uBound-1))<s){
+		printf("TRUE ERROR\n");
+	      }
+	      int res=lookup(ht, ent,s+(c&(uBound-1)));
           if(res==unk){ //unkown if in our not
             continue;
           }
