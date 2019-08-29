@@ -23,6 +23,7 @@ typedef struct SubTable {
   volatile unsigned long bDel; //being deleted
   int tDeleted; //total elements deleted (estimate)
   int TableSize; //size
+  
 } SubTable;
 
 // head of cache: this is the main hahstable
@@ -34,25 +35,36 @@ typedef struct HashTable{
   pthread_t dThread;
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
+  int readsPerLine;
+  int logReadsPerLine;
   int delIndex;
+  int start;
   int hashAttempts;
   int cur; //current max index (max exclusive)
-  int start;
   
 } HashTable;
+
+
+extern const int lineSize;
+extern const int logLineSize;
+extern const int entPerLine;
 
 
 #define max_tables 64 //max tables to create
 #define dClear 2
 //return values for checking table.  Returned by lookupQuery
 #define kSize 4
+#define dUnk -4
 #define notIn -3 
 #define in -1
 #define unk -2
-#define dUnk -4
 #define deleted 1
+
+
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
+#define hashtag(X) genHashTag(X)
+
 // create a sub table
 static SubTable* createTable(int hsize);
 // free a subtable 
@@ -63,7 +75,6 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
 static int lookup(SubTable* ht, entry* ent, unsigned int s);
-
 
 inline int isDeleted(entry* ptr){
   return ptr->isDeleted;
@@ -88,14 +99,48 @@ inline int unDelete(entry* ptr){
 
 
 
+//returns tag from given entry (highest byte)
+inline char getEntTag(entry* ent){
+
+  return (char)(((unsigned long)ent)>>56);
+}
+
+//returns the ptr for a given entry (0s out the tag bits)
+inline entry*  getEntPtr(entry* ent){
+  entry* ret= (entry*)((((unsigned long)ent)<<8)>>8);
+  return ((entry*)((((unsigned long)ent)<<8)>>8));
+}
+
+//sets the tag for a given entry as the highest byte in the address
+inline void setTag(entry** entp, char tag){
+  unsigned long newPtr=tag;
+  newPtr=newPtr<<56;
+  newPtr|=(unsigned long)(*entp);
+  *entp=(entry*)newPtr;
+}
+
+//generates a tag (ands top half and bottum half till 1 byte)
+inline char genHashTag(unsigned long key){
+  int tag=key^(key>>16);
+  tag=tag^(tag>>8);
+  return (char)(tag&0xff);
+}
+
+
+
 static int 
-lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
+lookupQuery(SubTable* ht, unsigned long val, unsigned int s, char vTag){
 
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
-  else if(val==ht->InnerTable[s]->val){
-    if(isDeleted(ht->InnerTable[s])){
+
+  if(vTag!=getEntTag(ht->InnerTable[s])){
+    return unk;
+  }
+  
+  else if(val==getEntPtr(ht->InnerTable[s])->val){
+    if(isDeleted(getEntPtr(ht->InnerTable[s]))){
       return notIn;
     }
     return s;
@@ -106,25 +151,39 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
-  for(int i =0;i<head->hashAttempts;i++){
+  int uBound=head->readsPerLine;
+  int ha=head->hashAttempts;
+  for(int i =0;i<ha;i++){
     buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
   }
+  char tag=hashtag(val);
+
   for(int j=head->start;j<head->cur;j++){
 
     ht=head->TableArray[j];
     if(ht->bDel==2){
       continue;
     }
-    for(int i =0; i<head->hashAttempts; i++) {
-      int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
-      if(res==unk){ //unkown if in our not
-	continue;
+    for(int i =0; i<ha; i++) {
+      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+      
+      //call the new line before time amt of computation just cuz...
+      __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
+      //check this line
+      for(int c=tag;c<uBound+tag;c++){
+	__builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+
+	//get results of lookup
+	int res=lookupQuery(ht, val, s+(c&(uBound-1)), tag);
+	if(res==unk){ //unkown if in our not
+	  continue;
+	}
+	if(res==notIn){ //is in
+	  return 0;
+	}
+	//not in (we got null so it would have been there)
+	return 1;
       }
-      if(res==notIn){ //is in
-	return 0;
-      }
-      //not in (we got null so it would have been there)
-      return 1;
     }
   }
   return 0;
@@ -132,10 +191,9 @@ int checkTableQuery(HashTable* head, unsigned long val){
 
 
 double freeAll(HashTable* head, int last, int verbose){
-  //  pthread_mutex_lock(&head->fMutex);
   head->stopResize=1;
   pthread_mutex_unlock(&head->fMutex);
-  pthread_join(head->dThread,NULL);
+    pthread_join(head->dThread,NULL);
   SubTable* ht=NULL;
   double count=0;
   double totalSize=0;
@@ -151,7 +209,7 @@ double freeAll(HashTable* head, int last, int verbose){
     }
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
-      if(ht->InnerTable[j]!=NULL&&!isDeleted(ht->InnerTable[j])){
+      if(ht->InnerTable[j]!=NULL&&(!isDeleted(getEntPtr(ht->InnerTable[j])))){
 	//free(ht->InnerTable[j]);
 	count++;
 	if(verbose){
@@ -162,16 +220,16 @@ double freeAll(HashTable* head, int last, int verbose){
     if(verbose){
       printf("%d: %d/%d -> %lu[%d]\n",i, items[i], ht->TableSize, ht->bDel, ht->tDeleted);
     }
-     free(ht->InnerTable);
-        free(ht);
+    free(ht->InnerTable);
+    free(ht);
   }
   
-    free(head->TableArray);
-
+  free(head->TableArray);
 
   if(verbose){
-    free(items);
+
     printf("Total: %d\n", (int)count);
+    free(items);
   }
 
 
@@ -192,8 +250,12 @@ static int lookup(SubTable* ht, entry* ent, unsigned int s){
   if(ht->InnerTable[s]==NULL){
     return s;
   }
-  else if(ht->InnerTable[s]->val==ent->val){
-    if(isDeleted(ht->InnerTable[s])){
+  if(getEntTag(ht->InnerTable[s])!=getEntTag(ent)){
+    return unk;
+  }
+  
+  else if(getEntPtr(ht->InnerTable[s])->val==getEntPtr(ent)->val){
+    if(isDeleted(getEntPtr(ht->InnerTable[s]))){
       return dUnk;
     }
     return in;
@@ -231,39 +293,52 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
 int deleteVal(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
-  for(int i =0;i<head->hashAttempts;i++){
+  int uBound=head->readsPerLine;
+  int ha=head->hashAttempts;
+  for(int i =0;i<ha;i++){
     buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
   }
+  char tag=hashtag(val);
   for(int j=head->start;j<head->cur;j++){
   
     ht=head->TableArray[j];
     if(ht->bDel==2){
       continue;
     }
-    for(int i =0; i<head->hashAttempts; i++) {
+    for(int i =0; i<ha; i++) {
+      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+      
+      //call the new line before time amt of computation just cuz...
+      __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
+      //check this line
+      for(int c=tag;c<uBound+tag;c++){
+	__builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	int res=lookupQuery(ht, val, s+(c&(uBound-1)), tag);
+	if(res==unk){ //unkown if in our not
+	  continue;
+	}
+	if(res==notIn){ //is in
+	  return 0;
+	}
 
-      int res=lookupQuery(ht, val, buckets[i]%ht->TableSize);
-      if(res==unk){ //unkown if in our not
-	continue;
-      }
-      if(res==notIn){ //is in
-	return 0;
-      }
+	int ret=setDelete(getEntPtr(ht->InnerTable[res]));
+	if(ret&&!ht->bDel){
+	  ht->tDeleted++;
+	  if(ht->tDeleted>(ht->TableSize>>dClear)&&j!=(head->cur-1)&&!head->deleting&&pthread_mutex_trylock(&head->fMutex)){
+	    unsigned long expec=0, newv=1;
+	    int cret=__atomic_compare_exchange(&head->deleting,&expec, &newv, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+	    if(cret){
+	    
+	      ht->bDel=1;
+	      head->delIndex=j;
+	      pthread_mutex_unlock(&head->fMutex);
 
-      int ret=setDelete(ht->InnerTable[res]);
-      if(ret&&!ht->bDel){
-	ht->tDeleted++;
-	if(ht->tDeleted>(ht->TableSize>>dClear)&&j!=(head->cur-1)&&!head->deleting&&pthread_mutex_trylock(&head->fMutex)){
-	  unsigned long expec=0, newv=1;
-	  int cret=__atomic_compare_exchange(&head->deleting,&expec, &newv, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-	  if(cret){
-	    ht->bDel=1;
-	    head->delIndex=j;
-	    pthread_mutex_unlock(&head->fMutex);
+	    }
 	  }
 	}
+      
+	return ret; 
       }
-      return ret; 
     }
   }
   return 0;
@@ -271,46 +346,71 @@ int deleteVal(HashTable* head, unsigned long val){
 
 
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
+  unsigned int buckets[head->hashAttempts];
+  char tag;
+  if(tid==-1){
+    tag=getEntTag(ent);
+  }
+  else{
+    tag=hashtag(getEntPtr(ent)->val);
+    setTag(&ent, tag);
+  }
+  int uBound=head->readsPerLine;
+  int ha=head->hashAttempts;
+  for(int i =0;i<ha;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
+			  kSize, 
+			  head->seeds[i]);
+  }
+  
   SubTable* ht=NULL;
   int LocalCur=head->cur;
-  unsigned int buckets[head->hashAttempts];
-  for(int i =0;i<head->hashAttempts;i++){
-    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);    
-  }
   while(1){
     for(int j=start;j<head->cur;j++){
       ht=head->TableArray[j];
       if(ht->bDel==2){
 	continue;
       }
-      for(int i =0; i<head->hashAttempts; i++) {
-	int res=lookup(ht, ent,buckets[i]%ht->TableSize);
-	if(res==unk){ //unkown if in our not
-	  continue;
-	}
-	if(res==in){ //is in
-	  return 0;
-	}
-	entry* expected=NULL;
-	if(res==dUnk){
-	  res=buckets[i]%ht->TableSize;
-	  return unDelete(ht->InnerTable[res]);
-	}
-	else{
-	int cmp= __atomic_compare_exchange(ht->InnerTable+res,
-					   &expected,
-					   &ent,
-					   1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+      for(int i =0; i<ha; i++) {
+	int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
 
+	//call the new line before time amt of computation just cuz...
+	__builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
+        //check this line
+	for(int c=tag;c<uBound+tag;c++){
+	  __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
 
-	if(cmp){
-	  return 1;
-	}
-	else{
-	  if(ht->InnerTable[res]->val==ent->val){
+	  //lookup value in sub table
+
+	  int res=lookup(ht, ent,s+(c&(uBound-1)));
+	  if(res==unk){ //unkown if in our not
+	    continue;
+	  }
+	  if(res==in){ //is in
 	    return 0;
 	  }
-	}
+	  if(ht->bDel){
+	    //	continue;
+	  }
+	  entry* expected=NULL;
+	  if(res==dUnk){
+	    res=s+(c&(uBound-1));
+	    return unDelete(getEntPtr(ht->InnerTable[res]));
+	  }
+	  else{
+	    int cmp= __atomic_compare_exchange(ht->InnerTable+res,
+					       &expected,
+					       &ent,
+					       1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+	    if(cmp){
+	      return 1;
+	    }
+	    else{
+	      if(getEntPtr(ht->InnerTable[res])->val==getEntPtr(ent)->val){
+		return 0;
+	      }
+	    }
+	  }
 	}
       }
       LocalCur=head->cur;
@@ -324,45 +424,53 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
 int getStart(HashTable* head){
   return head->start;
-  //  return 0;
 }
 
 void* delThread(void* targ){
   HashTable* head=(HashTable*)targ;
-  int first=1;//, skip=0;
-  SubTable* ht=NULL;
+  int first=1;
+  int skip=0;
   pthread_mutex_lock(&head->fMutex);
+  SubTable* ht=NULL;
   while(1){
-    //    skip=0;
-    /*     if(!first&&!head->stopResize){
-       for(int i =0;i<head->cur;i++){
-	 ht=head->TableArray[i];
-	 if(ht->tDeleted>(ht->TableSize>>dClear)&&i!=(head->cur-1)&&!ht->bDel){
-	   head->delIndex=i;
-	   ht->bDel=1;
-	   skip=1;
-	   break;
-	 }	
-       }
-     }*/
-    //    if(!skip){
+    /*        skip=0;
+    	  if(!first&&!head->stopResize){
+	  for(int i =0;i<head->cur;i++){
+	  ht=head->TableArray[i];
+	  if(ht->tDeleted>(ht->TableSize>>dClear)&&i!=(head->cur-1)&&!ht->bDel){
+	  head->delIndex=i;
+	  ht->bDel=1;
+	  skip=1;
+	  break;
+	  }
+	  }
+	  }
+	  if(!skip){*/
+
+    pthread_mutex_unlock(&head->dMutex);
     head->deleting=0;
     if(first){
-      pthread_mutex_unlock(&head->dMutex);
+      pthread_mutex_unlock(&head->fMutex);
     }
+	  
     first=0;
-      pthread_mutex_lock(&head->fMutex);
+    pthread_mutex_lock(&head->fMutex);
+    //	  }
     if(head->stopResize){
       return NULL;
     }
-    //    printf("RESIZING: %d\n", head->delIndex);
     ht=head->TableArray[head->delIndex];
+    //    printf("RESIZING: %d\n", head->delIndex);
     for(int i =0;i<ht->TableSize;i++){
-      if(ht->InnerTable[i]&&(!isDeleted(ht->InnerTable[i]))){
-	insertTable(head, head->delIndex+1, ht->InnerTable[i], 0);
+      if(ht->InnerTable[i]){
+	volatile entry* temp2=(volatile entry*)getEntPtr(ht->InnerTable[i]);
+	entry* temp3=(entry*)temp2;
+	int temp=(!isDeleted(temp3));	
+	if(temp){
+	  insertTable(head, head->delIndex+1, ht->InnerTable[i], -1);
+	}
       }
     }
-
     ht->bDel=2;
     if(head->TableArray[head->start]->bDel==2){
       head->start++;
@@ -370,16 +478,34 @@ void* delThread(void* targ){
   }
 }
 
+int logofint(int input){
+  int a=0;
+  while(input>>a){
+    a++;
+  }
+  return a-1;
+}
+
 HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds, double lines){
   head=(HashTable*)calloc(1,sizeof(HashTable));
   head->seeds=seeds;
+  if(InitSize<max(((int)((lines)*entPerLine)),entPerLine<<1)){
+
+    //        printf("Changing value for initSize from %d to %d\n", 
+    //	   InitSize, max(((int)((lines)*entPerLine)), entPerLine<<1));
+
+    InitSize=max(((int)((lines)*entPerLine)),entPerLine<<1);
+  }
+  head->readsPerLine=(int)(entPerLine*lines);
+  head->logReadsPerLine=logofint(head->readsPerLine);
+  
   head->hashAttempts=HashAttempts;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
+  
   head->cur=1;
   head->start=0;
   head->stopResize=0;
-  head->deleting=0;
   pthread_mutex_init(&head->fMutex,NULL);
   pthread_mutex_init(&head->dMutex,NULL);
   pthread_mutex_lock(&head->dMutex);

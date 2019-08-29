@@ -5,6 +5,7 @@ typedef struct HashTable HashTable;
 
 typedef struct entry{
   unsigned long val;
+  volatile unsigned long isDeleted;
 }entry;
 
 

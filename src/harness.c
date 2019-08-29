@@ -51,6 +51,8 @@ int showArgs = 0;
 int verbose = 0;
 int level = 0;
 int quiet = 0;
+int testDel =0;
+int testDelIns =0;
 int timeit = 0;
 int randomSeed = 0;
 int nthreads = 1;
@@ -67,6 +69,7 @@ double queryPercentage = 0.0;
 double deletePercentage = 0.0;
 int queryCutoff = 0;
 int deleteCutoff = 0;
+int maxVal=0;
 int checkT = 0;
 int statspertrial = 0;
 int regtemp = 0;
@@ -160,6 +163,7 @@ static ArgOption args[] = {
   { KindOption,   Set, 		"-vt", 		0, &showthreadattr, 	"Turn on verbosity" },
   { KindOption,   Integer, 	"-l", 		0, &level, 		"Level" },
   { KindOption,   Integer, 	"--inserts",	0, &numInsertions,	"total number of insertions" },
+  { KindOption,   Integer, 	"--maxVal",	0, &maxVal,     	"Set a max for the entry keys (if using delete probably necessary)" },
   { KindOption,   Function, 	"--version",	0, (void*)&showVersion,	"show current version" },
   { KindOption,   Set,	 	"--args",	0, &showArgs,		"show all args on stdout" },
   { KindOption,   Integer, 	"--trials", 	0, &trialsToRun,	"Number of trials to run (0 means 1 or use --terror" },
@@ -171,7 +175,9 @@ static ArgOption args[] = {
   { KindOption,   Double,	"--dp",		0, &deletePercentage, 	"Percent of actions that are delete calls" },
   { KindOption,   Double,	"--lines",	0, &cLines,       	"Cache lines to read (as double i.e can say .5 lines or 1.5 lines)" },
   { KindOption,   Function, 	"-r", 		0, (void*)&setRandom,   "Set random seed (otherwise uses time)" },    
-  { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },    
+  { KindOption,   Set	, 	"--check",	0, &checkT, 		"check table is working correctly" },
+  { KindOption,   Set	, 	"--testDel",	0, &testDel, 		"check table is working correctly" },
+  { KindOption,   Set	, 	"--testDelIns",	0, &testDelIns, 	"check table is working correctly" },    
 #if COLLECT_STAT==1
   { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
 #endif
@@ -366,7 +372,6 @@ initSeeds(int HashAttempts){
 
 void
 insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVals) {
-  
   for (int i=0; i<n; i++) {
     unsigned long val = rVals[i];
 
@@ -374,14 +379,22 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
       checkTableQuery(head, val);
     }
     else if((deletePercentage > 0) && (rVals[numInsertions+i] > deleteCutoff)){
+      if(testDel){
+	entry* ent = (entry*)malloc(sizeof(entry));
+	ent->val = val;
+	ent->isDeleted=0;
+	insertTable(head, getStart(head), ent, tid);
+      }
       deleteVal(head, val);
     }
     else{
       entry* ent = (entry*)((char*)entChunk+(i<<4));  
     ent->val = val;
+    ent->isDeleted=0;
     insertTable(head, getStart(head), ent, tid);
     }
   }
+
 
 
   //  free(entChunk);
@@ -393,6 +406,7 @@ checkTable(HashTable* head, int n, int tid) {
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
     ent->val = i;
+    ent->isDeleted=0;
     insertTable(head, getStart(head), ent, tid);
   }
   // see if they are all there
@@ -477,6 +491,9 @@ run(void* arg) {
     for(int i =0;i<numInsertions;i++){
       rVals[i]=random();
       rVals[i]+=!rVals[i];
+      if(maxVal){
+	rVals[i]=rVals[i]%maxVal;
+      }
     }
     for(int i =numInsertions;i<2*numInsertions;i++){
       rVals[i]=random();
@@ -503,8 +520,17 @@ run(void* arg) {
     
     // end timer
     nanoseconds ns = endThreadTimer(tid, trialNumber);
+    
     // record time and see if we are done
     if (tid == 0) {
+      if(testDelIns){
+	for(int i =0;i<(maxVal>>1);i++){
+	entry* ent = (entry*)malloc(sizeof(entry));
+	ent->val = i;
+	ent->isDeleted=0;
+	insertTable(globalHead, getStart(globalHead), ent, tid);
+	}
+      }
       if (verbose) printf("%2d %9llu %d %d\n", trialNumber, ns, tid, threadId);
       if(verbose&&tracktemp){
 	printTempsV(tdp, nthreads);
@@ -521,8 +547,7 @@ run(void* arg) {
       } else if ((trialNumber+1) >= trialsToRun) {
 	notDone = 0;
       }
-
-      tdp->memutils= freeAll(globalHead, !notDone, verbose);
+            tdp->memutils= freeAll(globalHead, !notDone, verbose);
       if (statspertrial) {
 	printStats();
 	clearStats();
@@ -530,11 +555,11 @@ run(void* arg) {
       trialNumber++;
     }
      
-        free(rVals);
+    free(rVals);
     // make sure we start the loop anew at the same basic time
     myBarrier(&endLoopBarrier, tid);
 
-    free(entChunk);
+        free(entChunk);
   } while (notDone);
 
   // when all done, let main thread know
@@ -563,12 +588,15 @@ main(int argc, char**argv)
     return -1;
   }
   deletePercentage+=queryPercentage;
+  InitSize=1<<InitSize;
+
+  
   lineSize=getCacheLineSize();
   if(!lineSize){
     fprintf(stderr,"Error getting cache line size\n");
     return -1;
   }
-  InitSize=1<<InitSize;
+
   entPerLine=lineSize/sizeof(entry);
   logLineSize=log2Int(entPerLine);
   if(tracktemp||regtemp){

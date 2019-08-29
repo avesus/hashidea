@@ -23,17 +23,17 @@ typedef struct SubTable {
   volatile unsigned long bDel; //being deleted
   int tDeleted; //total elements deleted (estimate)
   int TableSize; //size
+  
 } SubTable;
 
 // head of cache: this is the main hahstable
 typedef struct HashTable{
-  volatile unsigned long deleting;
-  volatile int stopResize;
   pthread_mutex_t fMutex;
-  pthread_mutex_t dMutex;
   pthread_t dThread;
+  volatile unsigned long deleting;
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
+  volatile int stopResize;
   int delIndex;
   int hashAttempts;
   int cur; //current max index (max exclusive)
@@ -49,8 +49,8 @@ typedef struct HashTable{
 #define notIn -3 
 #define in -1
 #define unk -2
-#define dUnk -4
 #define deleted 1
+
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 // create a sub table
@@ -65,25 +65,22 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 static int lookup(SubTable* ht, entry* ent, unsigned int s);
 
 
-inline int isDeleted(entry* ptr){
-  return ptr->isDeleted;
-}
-inline int setDelete(entry* ptr){
-  if(!isDeleted(ptr)){
-    unsigned long expec=0;
-    unsigned long newV=1;
-    return __atomic_compare_exchange(&ptr->isDeleted,&expec, &newV, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-  }
-  return 0;
+
+int getBool(entry* ptr){
+  return ((unsigned long)ptr)&deleted;
 }
 
-inline int unDelete(entry* ptr){
-  if(isDeleted(ptr)){
-    unsigned long expec=1;
-    unsigned long newV=0;
-    return __atomic_compare_exchange(&ptr->isDeleted,&expec, &newV, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-  }
-  return 0;
+//gets pointer by anding off the first 4 bits from a ptr
+entry* getPtr(entry* ptr){
+  unsigned long mask=deleted;
+  return (entry*)((((unsigned long)ptr)&(~mask)));
+}
+
+//set count value for a pointer
+int setPtr(entry** ptr){
+  entry* newEnt=(entry*)((unsigned long)(*ptr)|deleted);
+  entry* exEnt= getPtr(*ptr);
+  return __atomic_compare_exchange(ptr,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 }
 
 
@@ -94,8 +91,8 @@ lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
   if(ht->InnerTable[s]==NULL){
     return notIn;
   }
-  else if(val==ht->InnerTable[s]->val){
-    if(isDeleted(ht->InnerTable[s])){
+  else if(val==getPtr(ht->InnerTable[s])->val){
+    if(getBool(ht->InnerTable[s])){
       return notIn;
     }
     return s;
@@ -112,7 +109,7 @@ int checkTableQuery(HashTable* head, unsigned long val){
   for(int j=head->start;j<head->cur;j++){
 
     ht=head->TableArray[j];
-    if(ht->bDel==2){
+        if(ht->bDel==2){
       continue;
     }
     for(int i =0; i<head->hashAttempts; i++) {
@@ -132,7 +129,6 @@ int checkTableQuery(HashTable* head, unsigned long val){
 
 
 double freeAll(HashTable* head, int last, int verbose){
-  //  pthread_mutex_lock(&head->fMutex);
   head->stopResize=1;
   pthread_mutex_unlock(&head->fMutex);
   pthread_join(head->dThread,NULL);
@@ -151,7 +147,7 @@ double freeAll(HashTable* head, int last, int verbose){
     }
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
-      if(ht->InnerTable[j]!=NULL&&!isDeleted(ht->InnerTable[j])){
+      if(ht->InnerTable[j]!=NULL&&!getBool(ht->InnerTable[j])){
 	//free(ht->InnerTable[j]);
 	count++;
 	if(verbose){
@@ -162,16 +158,19 @@ double freeAll(HashTable* head, int last, int verbose){
     if(verbose){
       printf("%d: %d/%d -> %lu[%d]\n",i, items[i], ht->TableSize, ht->bDel, ht->tDeleted);
     }
-     free(ht->InnerTable);
-        free(ht);
+    free(ht->InnerTable);
+    free(ht);
   }
   
-    free(head->TableArray);
+  free(head->TableArray);
 
 
-  if(verbose){
-    free(items);
+  if(verbose||1){
+    if(((int)count)!=1000){
+      printf("Failed\n");
+    }
     printf("Total: %d\n", (int)count);
+    free(items);
   }
 
 
@@ -192,10 +191,10 @@ static int lookup(SubTable* ht, entry* ent, unsigned int s){
   if(ht->InnerTable[s]==NULL){
     return s;
   }
-  else if(ht->InnerTable[s]->val==ent->val){
-    if(isDeleted(ht->InnerTable[s])){
-      return dUnk;
-    }
+  else if(getPtr(ht->InnerTable[s])->val==ent->val){
+    if(getBool(ht->InnerTable[s])){
+      return s;
+      }
     return in;
   }
   return unk;
@@ -250,10 +249,13 @@ int deleteVal(HashTable* head, unsigned long val){
 	return 0;
       }
 
-      int ret=setDelete(ht->InnerTable[res]);
+      int ret=setPtr(&ht->InnerTable[res]);
+      if(ht->bDel==1){
+	printf("Cause2: -> %lu\n", ht->bDel);
+      }
       if(ret&&!ht->bDel){
 	ht->tDeleted++;
-	if(ht->tDeleted>(ht->TableSize>>dClear)&&j!=(head->cur-1)&&!head->deleting&&pthread_mutex_trylock(&head->fMutex)){
+	if(ht->tDeleted>(ht->TableSize>>dClear)&&j!=(head->cur-1)&&!head->deleting){
 	  unsigned long expec=0, newv=1;
 	  int cret=__atomic_compare_exchange(&head->deleting,&expec, &newv, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 	  if(cret){
@@ -275,98 +277,94 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   int LocalCur=head->cur;
   unsigned int buckets[head->hashAttempts];
   for(int i =0;i<head->hashAttempts;i++){
-    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);    
+	buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);    
   }
   while(1){
     for(int j=start;j<head->cur;j++){
-      ht=head->TableArray[j];
-      if(ht->bDel==2){
+    ht=head->TableArray[j];
+    if(ht->bDel==2){
+      continue;
+    }
+    for(int i =0; i<head->hashAttempts; i++) {
+      int res=lookup(ht, ent,buckets[i]%ht->TableSize);
+      if(res==unk){ //unkown if in our not
 	continue;
       }
-      for(int i =0; i<head->hashAttempts; i++) {
-	int res=lookup(ht, ent,buckets[i]%ht->TableSize);
-	if(res==unk){ //unkown if in our not
-	  continue;
-	}
-	if(res==in){ //is in
+      if(res==in){ //is in
+	return 0;
+      }
+      if(ht->bDel){
+	continue;
+      }
+      entry* expected=NULL;
+      if(getBool(ht->InnerTable[res])){
+	expected=ht->InnerTable[res];
+      }
+      int cmp= __atomic_compare_exchange(ht->InnerTable+res,
+					 &expected,
+					 &ent,
+					 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+      if(ht->bDel){
+	printf("Cause found here\n");
+      }
+      if(cmp){
+	return 1;
+      }
+      else{
+	if(getPtr(ht->InnerTable[res])->val==ent->val){
 	  return 0;
 	}
-	entry* expected=NULL;
-	if(res==dUnk){
-	  res=buckets[i]%ht->TableSize;
-	  return unDelete(ht->InnerTable[res]);
-	}
-	else{
-	int cmp= __atomic_compare_exchange(ht->InnerTable+res,
-					   &expected,
-					   &ent,
-					   1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-
-
-	if(cmp){
-	  return 1;
-	}
-	else{
-	  if(ht->InnerTable[res]->val==ent->val){
-	    return 0;
-	  }
-	}
-	}
       }
-      LocalCur=head->cur;
     }
-    SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
-    addDrop(head, new_table, LocalCur, ent);
-    start=LocalCur;
+    LocalCur=head->cur;
+  }
+  SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
+  addDrop(head, new_table, LocalCur, ent);
+  start=LocalCur;
   }
 }
 
 
 int getStart(HashTable* head){
   return head->start;
-  //  return 0;
 }
 
 void* delThread(void* targ){
   HashTable* head=(HashTable*)targ;
-  int first=1;//, skip=0;
+  int first=1, skip=0;
   SubTable* ht=NULL;
   pthread_mutex_lock(&head->fMutex);
   while(1){
-    //    skip=0;
-    /*     if(!first&&!head->stopResize){
-       for(int i =0;i<head->cur;i++){
-	 ht=head->TableArray[i];
-	 if(ht->tDeleted>(ht->TableSize>>dClear)&&i!=(head->cur-1)&&!ht->bDel){
-	   head->delIndex=i;
-	   ht->bDel=1;
-	   skip=1;
-	   break;
-	 }	
-       }
-     }*/
-    //    if(!skip){
-    head->deleting=0;
-    if(first){
-      pthread_mutex_unlock(&head->dMutex);
-    }
-    first=0;
+      skip=0;
+    /*       if(!first&&!head->stopResize){
+      for(int i =0;i<head->cur;i++){
+	ht=head->TableArray[i];
+	if(ht->tDeleted>(ht->TableSize>>dClear)&&i!=(head->cur-1)&&!ht->bDel){
+	  head->delIndex=i;
+	  ht->bDel=1;
+	  skip=1;
+	  break;
+}	
+      }
+      }*/
+    if(!skip){
+      first=0;
+      head->deleting=0;
       pthread_mutex_lock(&head->fMutex);
+    }
     if(head->stopResize){
       return NULL;
     }
-    //    printf("RESIZING: %d\n", head->delIndex);
-    ht=head->TableArray[head->delIndex];
+       ht=head->TableArray[head->delIndex];
     for(int i =0;i<ht->TableSize;i++){
-      if(ht->InnerTable[i]&&(!isDeleted(ht->InnerTable[i]))){
+      if(!getBool(ht->InnerTable[i])&&ht->InnerTable[i]){
 	insertTable(head, head->delIndex+1, ht->InnerTable[i], 0);
       }
-    }
-
+  }
     ht->bDel=2;
-    if(head->TableArray[head->start]->bDel==2){
+    if(head->delIndex==head->start){
       head->start++;
-    }
+      }
   }
 }
 
@@ -379,13 +377,8 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   head->cur=1;
   head->start=0;
   head->stopResize=0;
-  head->deleting=0;
   pthread_mutex_init(&head->fMutex,NULL);
-  pthread_mutex_init(&head->dMutex,NULL);
-  pthread_mutex_lock(&head->dMutex);
-
   pthread_create(&head->dThread,NULL, delThread,(void*)head);
-  pthread_mutex_lock(&head->dMutex);
   return head;
 }
 

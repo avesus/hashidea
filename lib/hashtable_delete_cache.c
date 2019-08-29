@@ -23,7 +23,7 @@ typedef struct SubTable {
   int TableSize; //size
 } SubTable;
 
-// head of cache: this is the main hahstable
+
 typedef struct HashTable{
   SubTable** TableArray; //array of tables
   unsigned int * seeds;
@@ -36,6 +36,7 @@ typedef struct HashTable{
 extern const int lineSize;
 extern const int logLineSize;
 extern const int entPerLine;
+
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
@@ -43,6 +44,8 @@ extern const int entPerLine;
 #define notIn -3 
 #define in -1
 #define unk -2
+#define deleted 1
+
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 #define hashtag(X) genHashTag(X)
@@ -55,13 +58,25 @@ static void freeTable(SubTable* table);
 static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
-static inline int lookup(SubTable* ht, entry* ent, unsigned int s);
+static int lookup(SubTable* ht, entry* ent, unsigned int s);
 
-int deleteVal(HashTable* head, unsigned long val){
-  return 1;
+inline int getBool(entry* ptr){
+  return ((unsigned long)ptr)&deleted;
+}
+
+//gets pointer by anding off the first 4 bits from a ptr
+inline entry* getPtr(entry* ptr){
+  unsigned long mask=deleted;
+  return (entry*)((((unsigned long)ptr)&(~mask)));
 }
 
 
+//set count value for a pointer
+int setPtr(entry** ptr){
+  entry* newEnt=(entry*)((unsigned long)(*ptr)|deleted);
+  entry* exEnt= getPtr(*ptr);
+  return __atomic_compare_exchange(ptr,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+}
 
 
 //returns tag from given entry (highest byte)
@@ -73,7 +88,7 @@ inline char getEntTag(entry* ent){
 //returns the ptr for a given entry (0s out the tag bits)
 inline entry*  getEntPtr(entry* ent){
   entry* ret= (entry*)((((unsigned long)ent)<<8)>>8);
-  return (entry*)((((unsigned long)ent)<<8)>>8);
+  return getPtr((entry*)((((unsigned long)ent)<<8)>>8));
 }
 
 //sets the tag for a given entry as the highest byte in the address
@@ -90,7 +105,12 @@ inline char genHashTag(unsigned long key){
   tag=tag^(tag>>8);
   return (char)(tag&0xff);
 }
-static inline int lookupQuery(SubTable* ht, unsigned long val, unsigned int s, char vTag){
+
+
+
+
+static inline int 
+lookupQuery(SubTable* ht, unsigned long val, unsigned int s, char vTag){
 
   if(ht->InnerTable[s]==NULL){
     return notIn;
@@ -98,54 +118,51 @@ static inline int lookupQuery(SubTable* ht, unsigned long val, unsigned int s, c
   if(vTag!=getEntTag(ht->InnerTable[s])){
     return unk;
   }
-  if(val==getEntPtr(ht->InnerTable[s])->val){
+  else if(val==getEntPtr(ht->InnerTable[s])->val){
+    if(getBool(ht->InnerTable[s])){
+      return notIn;
+    }
     return s;
   }
   return unk;
 }
 
-int 
-checkTableQuery(HashTable* head, unsigned long val)
-{
+int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
+  
   unsigned int buckets[head->hashAttempts];
-  int uBound=head->readsPerLine;
-  int ha=head->hashAttempts;
-    for(int i =0;i<ha;i++){
+    int uBound=head->readsPerLine;
+      int ha=head->hashAttempts;
+      for(int i =0;i<ha;i++){
       buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
     }
     char tag=hashtag(val);
-  for(int j=0;j<head->cur;j++){
+        for(int j=0;j<head->cur;j++){
 
     ht=head->TableArray[j];
     for(int i =0; i<ha; i++) {
       int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
-      
-      //call the new line before time amt of computation just cuz...
       __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
-      //check this line
       for(int c=tag;c<uBound+tag;c++){
-	  __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	__builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
 	int res=lookupQuery(ht, val, s+(c&(uBound-1)), tag);
-	if(res==unk){ //unkown if in our not
-	  continue;
-	}
-	if(res==notIn){ //is in
-	  return 0;
-	}
-	//not in (we got null so it would have been there)
-	return 1;
+      if(res==unk){ //unkown if in our not
+	continue;
       }
+      if(res==notIn){ //is in
+	//	printf("Through this\n");
+	return 0;
+      }
+      //not in (we got null so it would have been there)
+      return 1;
     }
   }
- 
+}
   return 0;
 }
 
 
-double 
-freeAll(HashTable* head, int last, int verbose)
-{
+double freeAll(HashTable* head, int last, int verbose){
   SubTable* ht=NULL;
   double count=0;
   double totalSize=0;
@@ -159,12 +176,12 @@ freeAll(HashTable* head, int last, int verbose)
     ht=head->TableArray[i];
     totalSize+=ht->TableSize;
     for(int j =0;j<ht->TableSize;j++){
-      if(ht->InnerTable[j]!=NULL){
-        //free(ht->InnerTable[j]);
-        count++;
-        if(verbose){
-          items[i]++;
-        }
+      if(ht->InnerTable[j]!=NULL&&!getBool(ht->InnerTable[j])){
+	//free(ht->InnerTable[j]);
+	count++;
+	if(verbose){
+	  items[i]++;
+	}
       }
     }
     if(verbose){
@@ -176,10 +193,9 @@ freeAll(HashTable* head, int last, int verbose)
   
   free(head->TableArray);
 
-
-    if(verbose){
-    free(items);
+  if(verbose){
     printf("Total: %d\n", (int)count);
+    free(items);
   }
 
 
@@ -189,143 +205,156 @@ freeAll(HashTable* head, int last, int verbose)
 
 static void 
 freeTable(SubTable* ht){
-   free(ht->InnerTable);
-   free(ht);
+  free(ht->InnerTable);
+  free(ht);
 }
 
 
 //check if entry for a given hashing vector is in a table
 static inline int lookup(SubTable* ht, entry* ent, unsigned int s){
 
-  //if slot is null just return its empty
   if(ht->InnerTable[s]==NULL){
     return s;
   }
-
-  //if slot is not null first check tags (if no match then return unk)
   if(getEntTag(ht->InnerTable[s])!=getEntTag(ent)){
     return unk;
   }
-
-  //if tags match bring entry value into cache and check
-  if(getEntPtr(ht->InnerTable[s])->val==getEntPtr(ent)->val){
+  else if(getEntPtr(ht->InnerTable[s])->val==getEntPtr(ent)->val){
+    if(getBool(ht->InnerTable[s])){
+      return s;
+    }
     return in;
   }
-
-  //if no match for same tag return unk
   return unk;
 }
 
 
 
-static int 
-addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent)
-{
+static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
   SubTable* expected=NULL;
-  int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, 
-				      __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+  int res = __atomic_compare_exchange(&head->TableArray[AddSlot] ,&expected, &toadd, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
   if(res){
     int newSize=AddSlot+1;
     __atomic_compare_exchange(&head->cur,
-                              &AddSlot,
-                              &newSize,
-                              1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-  } else {
+			      &AddSlot,
+			      &newSize,
+			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
+  }
+  else{
     freeTable(toadd);
     int newSize=AddSlot+1;
     __atomic_compare_exchange(&head->cur,
-                              &AddSlot,
-                              &newSize,
-                              1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+			      &AddSlot,
+			      &newSize,
+			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 
   }
   return 0;
 }
 
+
+
+
+int deleteVal(HashTable* head, unsigned long val){
+  SubTable* ht=NULL;
+  unsigned int buckets[head->hashAttempts];
+    int uBound=head->readsPerLine;
+  int ha=head->hashAttempts;
+    for(int i =0;i<ha;i++){
+      buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
+    }
+    char tag=hashtag(val);
+  for(int j=0;j<head->cur;j++){
+
+    ht=head->TableArray[j];
+    for(int i =0; i<ha; i++) {
+            int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+      
+      //call the new line before time amt of computation just cuz...
+      __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
+      //check this line
+      for(int c=tag;c<uBound+tag;c++){
+	__builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	int res=lookupQuery(ht, val, s+(c&(uBound-1)), tag);
+      if(res==unk){ //unkown if in our not
+	continue;
+      }
+      if(res==notIn){ //is in
+	return 0;
+      }
+
+      
+      return setPtr(&ht->InnerTable[res]);
+    }
+  }
+  }
+  return 0;
+}
 
 
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
-  unsigned int buckets[head->hashAttempts];
 
-  //create the tag for the entry and set it
+  unsigned int buckets[head->hashAttempts];
   char tag=hashtag(ent->val);
   setTag(&ent, tag);
-  //  tag=tag&(head->readsPerLine-1);
+  //  int cc=tag;
+
+
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
   for(int i =0;i<ha;i++){
-        buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
-			      kSize, 
-			      head->seeds[i]);
+    buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
+			  kSize, 
+			  head->seeds[i]);
   }
   SubTable* ht=NULL;
   int LocalCur=head->cur;
-
-
-  //  int numLines=1+((head->readsPerLine-1)>>logLineSize);
   while(1){
-  for(int j=start;j<head->cur;j++){
-    ht=head->TableArray[j];
+    for(int j=start;j<head->cur;j++){
+      ht=head->TableArray[j];
+      for(int i =0; i<ha; i++) {
+	int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+	__builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
+	for(int c=tag;c<uBound+tag;c++){
+	  __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	  int res=lookup(ht, ent,s+(c&(uBound-1)));
+	  if(res==unk){ //unkown if in our not
+	    continue;
+	  }
+	  if(res==in){ //is in
+	    return 0;
+	  }
 
-    for(int i =0; i<ha; i++) {
-      //storing hash values in buckets so dont need to recompute each
-      //loop through j
-      /*      if (!j&&i) {
-        buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
-			      kSize, 
-			      head->seeds[i]);
-			      }*/
-
-      //divide by readsPerLine (dont give lines some value so that
-      //readsPerLine is like 17 or something bad, try
-      //1,2,4,8,16,24,etc.. (basically if less that lineSize/entry
-      //Size keep power of 2, otherwise keep multiple of entry size)
-      //also I assume gcc will turn the divide into >>, if not
-      //probably better to precomputer log and use that
-      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
-
-      //call the new line before time amt of computation just cuz...
-            __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
-        //check this line
-	    for(int c=tag;c<uBound+tag;c++){
-	      __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
-
-	      int res=lookup(ht, ent,s+(c&(uBound-1)));
-          if(res==unk){ //unkown if in our not
-            continue;
-          }
-          if(res==in){ //is in
-        return 0;
-      }
-      entry* expected=NULL;
-      int cmp= __atomic_compare_exchange(&ht->InnerTable[res],
-                                         &expected,
-                                         &ent,
-                                         1, 
-					 __ATOMIC_RELAXED, __ATOMIC_RELAXED);
-      if(cmp){
-        return 1;
-      }
-      else{
-        if(getEntPtr(ht->InnerTable[res])->val==getEntPtr(ent)->val){
-          return 0;
-        }
-      }
+	  entry* expected=NULL;
+	  if(getBool(ht->InnerTable[res])){
+	    expected=ht->InnerTable[res];
+	  }
+	  int cmp= __atomic_compare_exchange(ht->InnerTable+res,
+					     &expected,
+					     &ent,
+					     1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+	  if(cmp){
+	    return 1;
+	  }
+	  else{
+	    if(getEntPtr(ht->InnerTable[res])->val==getEntPtr(ent)->val){
+	      return 0;
+	    }
+	  }
 	}
+      }
+	LocalCur=head->cur;
+      }
+      SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
+      addDrop(head, new_table, LocalCur, ent);
+      start=LocalCur;
     }
-    LocalCur=head->cur;
   }
-  SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
-  addDrop(head, new_table, LocalCur, ent);
-  start=LocalCur;
+
+
+  int getStart(HashTable* head){
+    return 0;
   }
-}
-
-
-int getStart(HashTable* head){
-  return 0;
-}
-
 int logofint(int input){
   int a=0;
   while(input>>a){
@@ -333,11 +362,8 @@ int logofint(int input){
   }
   return a-1;
 }
-HashTable* 
-initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, 
-	  unsigned int* seeds, double lines)
-{
-  head=(HashTable*)calloc(1,sizeof(HashTable));
+  HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, unsigned int* seeds, double lines){
+      head=(HashTable*)calloc(1,sizeof(HashTable));
   head->seeds=seeds;
   if(InitSize<max(((int)((lines)*entPerLine)),entPerLine<<1)){
     printf("Changing value for initSize from %d to %d\n", 
@@ -354,12 +380,12 @@ initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads,
   printf("%d, %d, %d, %d, %lf\n", 
 	 lineSize, logLineSize, entPerLine, head->readsPerLine, lines);
   return head;
-}
+  }
 
-static SubTable* 
-createTable(int tsize){
-  SubTable* ht=(SubTable*)malloc(sizeof(SubTable));
-  ht->TableSize=tsize;
-  ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
-  return ht;
-}
+  static SubTable* 
+    createTable(int tsize){
+    SubTable* ht=(SubTable*)malloc(sizeof(SubTable));
+    ht->TableSize=tsize;
+    ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
+    return ht;
+  }
