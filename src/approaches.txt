@@ -1,0 +1,83 @@
+approach 1)
+
+//this works properly (if i disable thread its all race free)
+deleteval(table, val){
+	h = hash(val)
+	for i < numSubTables
+	    for j < hashAttempts
+	    	lookup(val)
+		if notIn || beenDeleted
+		   return;
+		else if in
+		   CAS(ptr, ptr|0x1)
+		   subtable->totaldeletes++
+		   if(totaldelets>(.5*tablesize)
+			if( cas(table->deleting, 1))
+			    head->subtableToResize=i
+			    subtable->beingdelete=1
+			    unlock deletethread
+		   return;
+		  
+}
+
+insertVal(table, entry){
+	h = hash(entry->val)
+	for i < numSubTables
+	    if subtable->beingdeleted==2
+	       continue
+	    for j < hashAttempts
+	    	lookup(val)
+		if in
+		   return
+		else if notIn
+		   if subtable->beingdeleted==1||==2
+		   	   continue
+		   cas(ptr, entry)
+		else if beenDeleted (as in entry with same value was deleted in this slot)
+                   if subtable->beingdeleted==1||==2
+		   	   continue
+		   cas(ptr, entry)
+}
+
+
+//delete thread sleeps at a mutex until woken up by a call
+//to unlock from inside deleteval
+//table->deleting is used to enforce that only one subtable
+//can be reszed at a time
+//deleteval, before unlocking deletethread will
+//set table->subtableToResize to the appropriate index
+//deletethread will go through all entries and in the subtable
+//and if they are a valid move them up.
+//The issue with this that a call to delete on the value being moved
+//until the delete thread has completed will not be noticed in the new position
+//checking after the insert then updating the new location won't work either
+//for cases of resize->delete->insert 
+deleteThread1(table){
+	lock(table->mutex)
+	while(1)
+		table->deleteing=0
+		lock(table->mutex)
+		subtable = table->subtable[table->subtableToResize]
+		for i < subtable->size
+		    if subtable->entries[i] is !deleted && !Null
+		       insertTable(table, subtable->entries[i]);
+
+
+		subtable->beingdeleted=2
+}
+
+//same as above but pass a ptr to subtable->entries[i] when resizing so
+//if entry is deleted will reflect in other's position
+deleteThread2(table){
+	lock(table->mutex)
+	while(1)
+		table->deleteing=0
+		lock(table->mutex)
+		subtable = table->subtable[table->subtableToResize]
+		for i < subtable->size
+		    if subtable->entries[i] is !deleted && !Null
+		       insertTable(table, subtable->entries[i]);
+
+
+		subtable->beingdeleted=2
+}

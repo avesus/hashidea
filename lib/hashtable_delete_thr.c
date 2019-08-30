@@ -45,6 +45,7 @@ typedef struct HashTable{
 #define max_tables 64 //max tables to create
 #define dClear 2
 //return values for checking table.  Returned by lookupQuery
+#define copy 0x1
 #define kSize 4
 #define notIn -3 
 #define in -1
@@ -64,6 +65,22 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 //lookup function in insertTrial to check a given inner table
 static int lookup(SubTable* ht, entry* ent, unsigned int s);
 
+
+
+inline int getBool(entry* ent){
+  return ((unsigned long)ent)&copy;
+}
+
+inline entry* getPtr(entry* ent){
+  unsigned long mask=copy;
+  return (entry*)(((unsigned long)ent)&(~mask));
+}
+
+inline int setPtr(entry** ent){
+  entry* newEnt=(entry*)((unsigned long)(*ent)|copy);
+  entry* exEnt= (entry*)(((unsigned long)getPtr(*ent)));
+  return __atomic_compare_exchange(ent,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+}
 
 inline int isDeleted(entry* ptr){
   return ptr->isDeleted;
@@ -90,12 +107,17 @@ inline int unDelete(entry* ptr){
 
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int s){
-
-  if(ht->InnerTable[s]==NULL){
+  entry* temp=ht->InnerTable[s];
+  if(temp==NULL){
     return notIn;
   }
-  else if(val==ht->InnerTable[s]->val){
-    if(isDeleted(ht->InnerTable[s])){
+  if(getBool(temp)){
+  if(getPtr(temp)==NULL){
+    return notIn;
+  }
+  }
+  else if(val==getPtr(temp)->val){
+    if(isDeleted(getPtr(temp))){
       return notIn;
     }
     return s;
@@ -159,8 +181,13 @@ double freeAll(HashTable* head, int last, int verbose){
 	}
       }
     }
+
     if(verbose){
-      printf("%d: %d/%d -> %lu[%d]\n",i, items[i], ht->TableSize, ht->bDel, ht->tDeleted);
+      int sumB=0;
+      for(int u=0;u<ht->TableSize;u++){
+	sumB+=getBool(ht->InnerTable[u]);
+      }
+      printf("%d: %d/%d -> %d/%lu[%d]\n",i, items[i], ht->TableSize, sumB,ht->bDel, ht->tDeleted);
     }
      free(ht->InnerTable);
         free(ht);
@@ -188,12 +215,17 @@ freeTable(SubTable* ht){
 
 //check if entry for a given hashing vector is in a table
 static int lookup(SubTable* ht, entry* ent, unsigned int s){
-
-  if(ht->InnerTable[s]==NULL){
+  entry* temp=ht->InnerTable[s];
+  if(temp==NULL){
     return s;
   }
-  else if(ht->InnerTable[s]->val==ent->val){
-    if(isDeleted(ht->InnerTable[s])){
+  if(getBool(temp)){
+  if(getPtr(temp)==NULL){
+    return unk;
+  }
+  }
+  else if(getPtr(temp)->val==ent->val){
+    if(isDeleted(getPtr(temp))){
       return dUnk;
     }
     return in;
@@ -294,7 +326,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	entry* expected=NULL;
 	if(res==dUnk){
 	  res=buckets[i]%ht->TableSize;
-	  return unDelete(ht->InnerTable[res]);
+	  return unDelete(getPtr(ht->InnerTable[res]));
 	}
 	else{
 	int cmp= __atomic_compare_exchange(ht->InnerTable+res,
@@ -307,8 +339,10 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	  return 1;
 	}
 	else{
-	  if(ht->InnerTable[res]->val==ent->val){
+	    if(getPtr(ht->InnerTable[res])){
+	  if(getPtr(ht->InnerTable[res])->val==ent->val){
 	    return 0;
+	  }
 	  }
 	}
 	}
@@ -357,9 +391,13 @@ void* delThread(void* targ){
     }
     //    printf("RESIZING: %d\n", head->delIndex);
     ht=head->TableArray[head->delIndex];
+    printf("Doing Table: %d\n", head->delIndex);
     for(int i =0;i<ht->TableSize;i++){
-      if(ht->InnerTable[i]&&(!isDeleted(ht->InnerTable[i]))){
-	insertTable(head, head->delIndex+1, ht->InnerTable[i], 0);
+      while(!getBool(ht->InnerTable[i])){
+      	setPtr(&ht->InnerTable[i]);
+      }
+      if(getPtr(ht->InnerTable[i])&&(!isDeleted(getPtr(ht->InnerTable[i])))){
+	insertTable(head, head->delIndex+1, getPtr(ht->InnerTable[i]), 0);
       }
     }
 
@@ -367,7 +405,6 @@ void* delThread(void* targ){
     if(head->TableArray[head->start]->bDel==2){
       head->start++;
     }
-    
   }
 }
 

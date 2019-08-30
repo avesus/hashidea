@@ -51,6 +51,7 @@ extern const int entPerLine;
 
 
 #define max_tables 64 //max tables to create
+#define copy 0x1
 #define dClear 2
 //return values for checking table.  Returned by lookupQuery
 #define kSize 4
@@ -75,6 +76,24 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent);
 
 //lookup function in insertTrial to check a given inner table
 static int lookup(SubTable* ht, entry* ent, unsigned int s);
+
+
+
+inline int getBool(entry* ent){
+  return ((unsigned long)ent)&copy;
+}
+
+inline entry* getPtr(entry* ent){
+  unsigned long mask=copy;
+  return (entry*)(((unsigned long)ent)&(~mask));
+}
+
+inline int setPtr(entry** ent){
+  entry* newEnt=(entry*)((unsigned long)(*ent)|copy);
+  entry* exEnt= (entry*)(((unsigned long)getPtr(*ent)));
+  return __atomic_compare_exchange(ent,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
+}
+
 
 inline int isDeleted(entry* ptr){
   return ptr->isDeleted;
@@ -108,7 +127,7 @@ inline char getEntTag(entry* ent){
 //returns the ptr for a given entry (0s out the tag bits)
 inline entry*  getEntPtr(entry* ent){
   entry* ret= (entry*)((((unsigned long)ent)<<8)>>8);
-  return ((entry*)((((unsigned long)ent)<<8)>>8));
+  return getPtr((entry*)((((unsigned long)ent)<<8)>>8));
 }
 
 //sets the tag for a given entry as the highest byte in the address
@@ -130,17 +149,22 @@ inline char genHashTag(unsigned long key){
 
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int s, char vTag){
-
-  if(ht->InnerTable[s]==NULL){
+  entry* temp=ht->InnerTable[s];
+  if(temp==NULL){
     return notIn;
   }
+  if(getBool(temp)){
+  if(getPtr(temp)==NULL){
+    return notIn;
+  }
+  }
 
-  if(vTag!=getEntTag(ht->InnerTable[s])){
+  if(vTag!=getEntTag(temp)){
     return unk;
   }
   
-  else if(val==getEntPtr(ht->InnerTable[s])->val){
-    if(isDeleted(getEntPtr(ht->InnerTable[s]))){
+  else if(val==getEntPtr(temp)->val){
+    if(isDeleted(getEntPtr(temp))){
       return notIn;
     }
     return s;
@@ -246,16 +270,21 @@ freeTable(SubTable* ht){
 
 //check if entry for a given hashing vector is in a table
 static int lookup(SubTable* ht, entry* ent, unsigned int s){
-
-  if(ht->InnerTable[s]==NULL){
+  entry* temp=ht->InnerTable[s];
+  if(temp==NULL){
     return s;
   }
-  if(getEntTag(ht->InnerTable[s])!=getEntTag(ent)){
+  if(getBool(temp)){
+  if(getPtr(temp)==NULL){
+    return unk;
+  }
+  }
+  if(getEntTag(temp)!=getEntTag(ent)){
     return unk;
   }
   
-  else if(getEntPtr(ht->InnerTable[s])->val==getEntPtr(ent)->val){
-    if(isDeleted(getEntPtr(ht->InnerTable[s]))){
+  else if(getEntPtr(temp)->val==getEntPtr(ent)->val){
+    if(isDeleted(getEntPtr(temp))){
       return dUnk;
     }
     return in;
@@ -406,8 +435,10 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	      return 1;
 	    }
 	    else{
+	      if(getPtr(ht->InnerTable[res])){
 	      if(getEntPtr(ht->InnerTable[res])->val==getEntPtr(ent)->val){
 		return 0;
+	      }
 	      }
 	    }
 	  }
@@ -462,12 +493,11 @@ void* delThread(void* targ){
     ht=head->TableArray[head->delIndex];
     //    printf("RESIZING: %d\n", head->delIndex);
     for(int i =0;i<ht->TableSize;i++){
-      if(ht->InnerTable[i]){
-	volatile entry* temp2=(volatile entry*)getEntPtr(ht->InnerTable[i]);
-	entry* temp3=(entry*)temp2;
-	int temp=(!isDeleted(temp3));	
-	if(temp){
-	  insertTable(head, head->delIndex+1, ht->InnerTable[i], -1);
+      while(!getBool(ht->InnerTable[i])){
+	setPtr(&ht->InnerTable[i]);
+      }
+      if(ht->InnerTable[i]&&(!isDeleted(getEntPtr(ht->InnerTable[i])))){
+	insertTable(head, head->delIndex+1, getPtr(ht->InnerTable[i]), -1);
 	}
       }
     }
