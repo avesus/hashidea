@@ -496,16 +496,16 @@ void* delThread(void* targ){
       while(!getBool(ht->InnerTable[i])){
 	setPtr(&ht->InnerTable[i]);
       }
-      if(ht->InnerTable[i]&&(!isDeleted(getEntPtr(ht->InnerTable[i])))){
+      if(getPtr(ht->InnerTable[i])&&(!isDeleted(getEntPtr(ht->InnerTable[i])))){
 	insertTable(head, head->delIndex+1, getPtr(ht->InnerTable[i]), -1);
 	}
-      }
     }
+  
     ht->bDel=2;
     if(head->TableArray[head->start]->bDel==2){
       head->start++;
     }
-  }
+}
 }
 
 int logofint(int input){
@@ -554,3 +554,4 @@ createTable(int tsize){
   ht->tDeleted=0;
   return ht;
 }
+

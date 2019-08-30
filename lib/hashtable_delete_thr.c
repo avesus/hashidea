@@ -326,7 +326,8 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	entry* expected=NULL;
 	if(res==dUnk){
 	  res=buckets[i]%ht->TableSize;
-	  return unDelete(getPtr(ht->InnerTable[res]));
+	  int ret=unDelete(getPtr(ht->InnerTable[res]));
+	  return ret;
 	}
 	else{
 	int cmp= __atomic_compare_exchange(ht->InnerTable+res,

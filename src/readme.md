@@ -28,4 +28,6 @@ Delete_thr: Basically each subtable has an int which stores approximately how ma
 Delete_lazy: Normal lazy resizing but items who have been deleted are not reinserted. If an entry being inserted matches a deleted value, the matching entry will NOT be undeleted if it is in the smallest subtable (subtable currently having all its entries reinserted). 
 
 	
+Cache Variables:
 
+As constats we want: cache line size, log_2(cache line size), entries per line, log_2(entries per line)
