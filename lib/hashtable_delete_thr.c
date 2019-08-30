@@ -367,6 +367,7 @@ void* delThread(void* targ){
     if(head->TableArray[head->start]->bDel==2){
       head->start++;
     }
+    
   }
 }
 
