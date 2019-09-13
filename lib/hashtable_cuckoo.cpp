@@ -12,7 +12,7 @@
 #include "hashtable.h"
 
 
-#include "../other_hash/libcuckoo/libcuckoo/cuckoohash_map.hh"
+#include "../libcuckoo/libcuckoo/cuckoohash_map.hh"
 
 
 const char* tablename = "cuckoo/cpp/remain:V";
