@@ -74,9 +74,6 @@ int checkT = 0;
 int statspertrial = 0;
 int regtemp = 0;
 int tracktemp=0;
-int lineSize=0;
-int logLineSize=0;
-int entPerLine=0;
 double cLines=0;
 double AllowedTempVariance=1.1;
 
