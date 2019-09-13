@@ -26,6 +26,10 @@ int getStart(HashTable* head);
 
 
 int deleteVal(HashTable* head, unsigned long val);
+
+// check that library is compiled correctly for system currently being run on
+int checkCompiledCorrectly(void);
+
 ////////////////////////////////////////////////////////////////
 // used only for testing and timing
 
