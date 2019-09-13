@@ -590,15 +590,10 @@ main(int argc, char**argv)
   deletePercentage+=queryPercentage;
   InitSize=1<<InitSize;
 
-  
-  lineSize=getCacheLineSize();
-  if(!lineSize){
-    fprintf(stderr,"Error getting cache line size\n");
-    return -1;
+  if (checkCompiledCorrectly()) {
+    die("Mismatch between compilation and this machine.");
   }
-
-  entPerLine=lineSize/sizeof(entry);
-  logLineSize=log2Int(entPerLine);
+  
   if(tracktemp||regtemp){
     if(initTemp(trialsToRun, nthreads)){
       printf("Error accessing CPU temp/cores\n");
