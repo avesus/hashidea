@@ -12,7 +12,7 @@
 #include "hashtable.h"
 
 
-#include </home/noah/programs/hashidea/other_hash/libcuckoo/libcuckoo/cuckoohash_map.hh>
+#include "../other_hash/libcuckoo/libcuckoo/cuckoohash_map.hh"
 
 
 const char* tablename = "cuckoo/cpp/remain:V";
