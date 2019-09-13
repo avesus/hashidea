@@ -1,3 +1,4 @@
+REPO = $(shell git rev-parse --show-toplevel)
 CC = g++
 CFLAGS = -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
 LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm -latomic
