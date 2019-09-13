@@ -9,10 +9,11 @@
 #include <pthread.h>
 #include <math.h>
 
+#include "cache-params.h"
 #include "hashtable.h"
 #include "hash.h"
 
-#define VERSION "0.1"
+#define VERSION "0.2"
 const char* tablename = "open/multiprobe/remain:V" VERSION;
 const char* shortname = "OMR:V" VERSION;
 
@@ -33,9 +34,8 @@ typedef struct HashTable{
   int cur; //current max index (max exclusive)
 } HashTable;
 
-extern const int lineSize;
-extern const int logLineSize;
-extern const int entPerLine;
+#include "cache-constants.h"
+
 #define max_tables 64 //max tables to create
 
 //return values for checking table.  Returned by lookupQuery
