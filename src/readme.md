@@ -57,3 +57,14 @@ matching entry will NOT be undeleted if it is in the smallest subtable
 Cache Variables:
 
 As constats we want: cache line size, log_2(cache line size), entries per line, log_2(entries per line)
+- lineSize: cache line size in bytes
+- entPerLine: entries per line
+- logLineSize: log_2(cache line size)
+
+cache constants for a particilar machine are generated with
+`getcacheparms`.  In the library code, e.g., `hashtable_cache.c` you
+get access to the cache constants include the file
+`cache-constants.h`.  It includes the definition of the constants and
+exposes `checkCompiledCorrectly` which should be called from the
+program that uses the hash library.  if it returns 0, everything is
+ok.
