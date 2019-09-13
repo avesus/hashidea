@@ -6,10 +6,13 @@ OBJS = $(patsubst %.c,%.o,$(SRCS))
 
 all:	$(OBJS)
 
-%.o:	%.c hash.h hashstat.h
+%.o:	%.c hash.h hashstat.h cache-constants.h cache-params.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
+cache-params.h:
+	../src/getcacheparms > cache-params.h
+
 clean:
-	/bin/rm -f *.o *~
+	/bin/rm -f *.o *~ cache-params.h
 
 
