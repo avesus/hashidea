@@ -14,9 +14,9 @@ getCacheLineSize(void)
   return atoi(buf);
 }
 
-const int lineSize = L1_Cache_Line_Size;
-const int logLineSize = L1_Log_Cache_Line_size;
-const int entPerLine = L1_Cache_Line_Size/sizeof(entry);
+static const int lineSize = L1_Cache_Line_Size;
+static const int logLineSize = L1_Log_Cache_Line_size;
+static const int entPerLine = L1_Cache_Line_Size/sizeof(entry);
 
 ////////////////////////////////////////////////////////////////
 // return 0 if everything is ok.
