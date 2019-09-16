@@ -23,9 +23,9 @@ fi
 
 # set to true if you want to do a quick test
 if [ 1 == 1 ]; then
-    attempts=(1 2 3 4)
-    threads=(1 2 4)
-    queryp=(0 .5 .9)
+    attempts=(1)
+    threads=(4)
+    queryp=(.5)
     trials=1
     inserts=100000
 fi
@@ -76,7 +76,7 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 			    fi
 			    if [ $doit == 0 ]; then
 				outFile=`date -Iseconds`
-				echo ALREADY ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				echo ALREADY ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials 1 --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
 			    else
 				if [ $onlyshow -ne 1 ]; then
 				    ./waitfortemp -t 600 -n $t $starttemp
@@ -85,15 +85,17 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 				    else
 					outFile=`date -Iseconds`
 					outFile=${newDir}/${outFile}
-					echo FIRST ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
-					sudo modprobe msr
-					./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li --regtemp --args --sc $startCore --ec $endCore
-					echo -e "" >> $outFile
-					echo -e "" >> $outFile
-					echo UNIQUEMARKER ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore >> $outFile
+					for ntrials in $(seq 0 $trials); do
+					    echo FIRST ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials 1 --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+					    sudo modprobe msr
+					    ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials 1 --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li --regtemp --args --sc $startCore --ec $endCore
+					    echo -e "" >> $outFile
+					    echo -e "" >> $outFile
+					    echo UNIQUEMARKER ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials 1 --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore >> $outFile
+					done
 				    fi
 				else
-				    echo ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				    echo ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials 1 --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
 				fi
 			    fi
 			done
