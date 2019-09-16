@@ -1,17 +1,14 @@
 #!/bin/bash
 
-startCore=4
-endCore=7
-pcmCores=""
-for i in $(seq $startCore $endCore); do pcmCores="$pcmCores -yc $i"; done
+
 outFile=""
 starttemp=56
-trials=15
+trials=1
 inserts=16000000
 declare -a threads=(1 2 4 8 16 32 64)
 declare -a queryp=(0 0.5 0.9)
 declare -a attempts=(1 2 3)
-
+declare -a clines=(.25 .5 1 2)
 
 
 onlyshow=0
@@ -26,15 +23,20 @@ fi
 
 # set to true if you want to do a quick test
 if [ 1 == 1 ]; then
-    attempts=(1)
-    threads=(4)
-    queryp=(0)
+    attempts=(1 2 3 4)
+    threads=(1 2 4)
+    queryp=(0 .5 .9)
     trials=1
-    inserts=1000
+    inserts=100000
 fi
-
+iterNum=0
 make clean
-for table in hashtable hashtable_cache hashtable_lazy hashtable_lazy_cache hashtable_locks hashtable_cuckoo; do
+for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hashtable_locks hashtable_cuckoo; do
+    if [$iterNum == 2]; then
+	lines=(1)
+    fi
+    $iterNum=$((iterNum+1))
+    echo IterNu=$iterNum
     /bin/rm -f harness
     newDir=${table}_pcmOut
     if [ -d "$newDir" ]; then
@@ -50,6 +52,10 @@ for table in hashtable hashtable_cache hashtable_lazy hashtable_lazy_cache hasht
     else
 	tablever=`./harness --version | sed -e 's/.*aka //'`
 	for t in ${threads[@]}; do
+	    startCore=4
+	    endCore=$((startCore+t))
+	    pcmCores=""
+	    for i in $(seq $startCore $endCore); do pcmCores="$pcmCores -yc $i"; done
 	    d=`date`
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
@@ -59,33 +65,38 @@ for table in hashtable hashtable_cache hashtable_lazy hashtable_lazy_cache hasht
 		    it=$(echo $it+.5 | bc)
 		    it=${it%.*}
 		    for ha in ${attempts[@]}; do
-			in=$(( inserts / t ))
-			#echo "running with initial table size $it and $in inserts"
-			if [ $# -ne 0 ]; then
-			    ./checklog.py --table ${tablever}  --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
-			    doit=$?
-			else
-			    doit=1
-			fi
-			if [ $doit == 0 ]; then
-			    outFile=`date -Iseconds`
-			    echo ALREADY ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args --sc $startCore --ec $endCore
-			else
-			    if [ $onlyshow -ne 1 ]; then
-				./waitfortemp -t 600 -n $t $starttemp
-				if [ $? == 1 ]; then
-				    echo "Failed to reach $starttemp, not running"
-				else
-				    outFile=`date -Iseconds`
-				    outFile=${newDir}/${outFile}
-				    echo ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args --sc $startCore --ec $endCore
-				    sudo modprobe msr
-				    ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args --sc $startCore --ec $endCore
-				fi
+			for li in ${clines[@]}; do
+			    in=$(( inserts / t ))
+			    #echo "running with initial table size $it and $in inserts"
+			    if [ $# -ne 0 ]; then
+				./checklog.py --table ${tablever}  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li $prevlog
+				doit=$?
 			    else
-				echo ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args --sc $startCore --ec $endCore
+				doit=1
 			    fi
-			fi
+			    if [ $doit == 0 ]; then
+				outFile=`date -Iseconds`
+				echo ALREADY ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+			    else
+				if [ $onlyshow -ne 1 ]; then
+				    ./waitfortemp -t 600 -n $t $starttemp
+				    if [ $? == 1 ]; then
+					echo "Failed to reach $starttemp, not running"
+				    else
+					outFile=`date -Iseconds`
+					outFile=${newDir}/${outFile}
+					echo FIRST ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+					sudo modprobe msr
+					./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li --regtemp --args --sc $startCore --ec $endCore
+					echo -e "" >> $outFile
+					echo -e "" >> $outFile
+					echo UNIQUEMARKER ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore >> $outFile
+				    fi
+				else
+				    echo ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				fi
+			    fi
+			done
 		    done
 		done
 	    done

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
-
+#include "cache-params.h"
 #include "hashtable.h"
 #include "hash.h"
 
@@ -41,6 +41,7 @@ typedef struct HashTable{
   volatile int cur;
 } HashTable;
 
+#include "cache-constants.h"
 
 #define max_tables 64 //max tables to create
 

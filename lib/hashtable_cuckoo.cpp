@@ -8,8 +8,9 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <math.h>
-
+#include "cache-params.h"
 #include "hashtable.h"
+#include "hash.h"
 
 
 #include "../libcuckoo/libcuckoo/cuckoohash_map.hh"
@@ -31,6 +32,7 @@ typedef struct HashTable{
   //int_str_table* tbl;
 } HashTable;
 
+#include "cache-constants.h"
 
 // free hash table when done
 double freeAll(HashTable* head, int last, int verbose){

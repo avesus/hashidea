@@ -9,6 +9,7 @@
 #include <pthread.h>
 #include <math.h>
 #include <assert.h>
+#include "cache-params.h"
 #include "hashtable.h"
 #include "hash.h"
 extern __thread int threadId;		/* internal thread id */
@@ -35,6 +36,8 @@ typedef struct HashTable{
   int numThreads;
 } HashTable;
 
+
+#include "cache-constants.h"
 
 #define max_tables 64 //max tables to create
 

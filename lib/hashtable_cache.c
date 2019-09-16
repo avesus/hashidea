@@ -351,8 +351,8 @@ initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads,
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(InitSize);
   head->cur=1;
-  printf("%d, %d, %d, %d, %lf\n", 
-	 lineSize, logLineSize, entPerLine, head->readsPerLine, lines);
+  //  printf("%d, %d, %d, %d, %lf\n", 
+  //	 lineSize, logLineSize, entPerLine, head->readsPerLine, lines);
   return head;
 }
 

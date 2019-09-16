@@ -19,6 +19,8 @@
 #include "dist.h"
 #include "temp.h"
 
+
+//#define includeDel 0
 #define Version "0.2"
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
@@ -379,15 +381,19 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
       if(testDel){
 	entry* ent = (entry*)malloc(sizeof(entry));
 	ent->val = val;
+#ifdef includeDel
 	ent->isDeleted=0;
+#endif
 	insertTable(head, getStart(head), ent, tid);
       }
       deleteVal(head, val);
     }
     else{
-      entry* ent = (entry*)((char*)entChunk+(i<<4));  
+      entry* ent = (entry*)((char*)entChunk+(i*sizeof(entry)));  
     ent->val = val;
+#ifdef includeDel
     ent->isDeleted=0;
+#endif
     insertTable(head, getStart(head), ent, tid);
     }
   }
@@ -403,7 +409,9 @@ checkTable(HashTable* head, int n, int tid) {
   for (int i=0; i<n; i++) {
     entry* ent=(entry*)malloc(sizeof(entry));
     ent->val = i;
+#ifdef includeDel
     ent->isDeleted=0;
+#endif
     insertTable(head, getStart(head), ent, tid);
   }
   // see if they are all there
@@ -524,7 +532,9 @@ run(void* arg) {
 	for(int i =0;i<(maxVal>>1);i++){
 	entry* ent = (entry*)malloc(sizeof(entry));
 	ent->val = i;
+#ifdef includeDel
 	ent->isDeleted=0;
+#endif
 	insertTable(globalHead, getStart(globalHead), ent, tid);
 	}
       }
@@ -586,7 +596,6 @@ main(int argc, char**argv)
   }
   deletePercentage+=queryPercentage;
   InitSize=1<<InitSize;
-
   if (checkCompiledCorrectly()) {
     die("Mismatch between compilation and this machine.");
   }

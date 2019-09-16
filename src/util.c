@@ -58,7 +58,8 @@ int log2Int(int input){
   }
   return a-1;
 }
-int getCacheLineSize(){
+int
+getCacheLineSize(){
   FILE* fp=fopen("/sys/devices/system/cpu/cpu0/cache/index0/coherency_line_size", "r");
   if(!fp){
     return 0;
@@ -69,6 +70,7 @@ int getCacheLineSize(){
   }
   return atoi(buf);
 }
+
 
 void 
 semWait(sem_t *sem) {

@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 static int 
 getCacheLineSize(void)
 {
