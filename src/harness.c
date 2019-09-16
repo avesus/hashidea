@@ -200,6 +200,45 @@ pthread_mutex_t showinfo_mutex = PTHREAD_MUTEX_INITIALIZER; /* used for showing 
 Barrier endLoopBarrier;
 Barrier loopBarrier;
 
+void*
+setRvals(void* arg){
+    unsigned long* rVals=(unsigned long*)malloc(2*sizeof(unsigned long)*numInsertions);
+    for(int i =0;i<numInsertions;i++){
+      rVals[i]=random();
+      rVals[i]+=!rVals[i];
+      if(maxVal){
+	rVals[i]=rVals[i]%maxVal;
+      }
+    }
+    for(int i =numInsertions;i<2*numInsertions;i++){
+      rVals[i]=random();
+    }
+    return (void*)rVals;
+}
+
+unsigned long*
+setRthread(){
+  pthread_t threadid;
+    pthread_attr_t attr;
+    int result = pthread_attr_init(&attr);
+    if (result) errdie("Can't do attr_init");
+
+    // allocate each thread on its own core
+    cpu_set_t cpuset;
+    CPU_ZERO(&cpuset);
+    CPU_SET(0, &cpuset);
+    result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
+    if (result) die("setaffinitity fails: %d", result);
+    
+    result = pthread_create(&threadid, &attr, setRvals, NULL);
+    if (result) errdie("Can't create threads");
+    pthread_attr_destroy(&attr);
+    void* ret;
+    pthread_join(threadid, &ret);
+    return (unsigned long*)ret;
+}
+
+
 void
 showThreadInfo(void)
 {
@@ -492,18 +531,7 @@ run(void* arg) {
   do {
     setupToCollectTrialStats(tid);
     
-    unsigned long* rVals=(unsigned long*)malloc(2*sizeof(unsigned long)*numInsertions);
-    for(int i =0;i<numInsertions;i++){
-      rVals[i]=random();
-      rVals[i]+=!rVals[i];
-      if(maxVal){
-	rVals[i]=rVals[i]%maxVal;
-      }
-    }
-    for(int i =numInsertions;i<2*numInsertions;i++){
-      rVals[i]=random();
-    }
-    
+    unsigned long* rVals= setRthread();
     void* entChunk=malloc(numInsertions*sizeof(entry)*2+16);
     //start timer
 
