@@ -35,8 +35,7 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
     if [$iterNum == 2]; then
 	lines=(1)
     fi
-    $iterNum=$((iterNum+1))
-    echo IterNu=$iterNum
+    let "iterNum+=1"
     /bin/rm -f harness
     newDir=${table}_pcmOut
     if [ -d "$newDir" ]; then
