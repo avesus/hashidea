@@ -6,11 +6,12 @@ import argparse
 import sys
 # from pprint import pprint
 
-verbose = False
+verbose = False #True
 
 parser = argparse.ArgumentParser(description='read log file to check for good run')
 # ./harness --trials 20 --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3
 parser.add_argument("--table", type=str, help="table we are looking for", required=True)
+parser.add_argument("--lines", type=float, help="the lines argument we are looking for", required=True)
 parser.add_argument("--trials", type=int, help="how many trials we are searching for")
 parser.add_argument("--inserts", type=int, help="how many inserts we are searching for", required=True)
 parser.add_argument("--qp", type=float, help="query percentage we are searching for", required=True)
@@ -23,9 +24,10 @@ check = {
     'SP': flags.table,
     'numInsertions': flags.inserts,
     'queryPercentage': flags.qp,
-    'InitSize': flags.initialsize,
+    'InitSize': 1 << flags.initialsize,
     'HashAttempts': flags.hashattempts,
-    'nthreads': flags.threads
+    'nthreads': flags.threads,
+    'lines': flags.lines
     }
 types = {
     'SP': str,
@@ -35,12 +37,13 @@ types = {
     'InitSize': int,
     'HashAttempts': int,
     'nthreads': int,
+    'lines': float,
     }
 for logfile in flags.logfiles:
     heading = []
     if verbose:
-        print('Is --trials {} --inserts {} -qp {} -t {} -i {} -a {} in {}?'.
-              format(flags.trials, flags.inserts, flags.qp, flags.threads,
+        print('Is --trials {} --lines {} --inserts {} -qp {} -t {} -i {} -a {} in {}?'.
+              format(flags.trials, flags.lines, flags.inserts, flags.qp, flags.threads,
                      flags.initialsize, flags.hashattempts, logfile))
     with open(logfile, "r") as f:
         for line in f:
@@ -48,6 +51,7 @@ for logfile in flags.logfiles:
             if len(heading) == 0 and line.find(',HEADING') > 0:
                 heading = line.strip().split(',')
                 col2idx = {heading[i].strip(): i for i in range(0, len(heading))}
+                # pprint(col2idx)
                 continue
             if line.find(',END') < 0:
                 continue
@@ -55,7 +59,8 @@ for logfile in flags.logfiles:
             data = line.strip().split(',')
             allok = True
             for fld in check:
-                # print('{}={} => {}?{}'.format(fld, col2idx[fld], data[col2idx[fld]].strip(), check[fld]))
+                if verbose:
+                    print('{}={} => {}?{}'.format(fld, col2idx[fld], data[col2idx[fld]].strip(), check[fld]))
                 x = data[col2idx[fld]].strip()
                 if types[fld] != str:
                     if types[fld] == int:
@@ -63,9 +68,13 @@ for logfile in flags.logfiles:
                     elif types[fld] == float:
                         x = float(x)
                 if x != check[fld]:
+                    if verbose:
+                        print("Failed to match on {}".format(fld))
                     allok = False
                     break
             if allok:
+                if verbose:
+                    print("Found run!")
                 sys.exit(0)
 if verbose:
     print('Failed to find run')
