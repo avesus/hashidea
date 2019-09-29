@@ -18,7 +18,7 @@ if [ $# -ne 0 ]; then
 fi
 
 # set to true if you want to do a quick test
-if [ 1 == 1 ]; then
+if [ 0 == 1 ]; then
     attempts=(2 3)
     threads=(1 2)
     lines=(1 .5 2)
@@ -26,9 +26,9 @@ if [ 1 == 1 ]; then
     trials=1
     inserts=128
 fi    
-
+#hashtable hashtable_lazy hashtable_locks hashtable_cuckoo
 make clean
-for table in hashtable_cache hashtable_locks ; do
+for table in hashtable_cache hashtable_lazy_cache ; do
     if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
 	unset lines
 	lines=(.5 1 2)
@@ -73,7 +73,7 @@ for table in hashtable_cache hashtable_locks ; do
 				echo ALREADY ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  --args
 			    else
 				if [ $onlyshow -ne 1 ]; then
-				    #sleep 45
+				    sleep 45
 				    if [ $? == 1 ]; then
 					echo "Failed to reach $starttemp, not running"
 				    else

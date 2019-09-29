@@ -5,9 +5,9 @@ typedef struct HashTable HashTable;
 
 typedef struct entry{
   unsigned long val;
-#ifdef includeDel
+  #ifdef includeDel
   volatile unsigned long isDeleted;
-#endif
+  #endif
 }entry;
 
 

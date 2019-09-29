@@ -6,8 +6,10 @@ endif
 CC = g++
 #LDFLAGS = -pg
 #-pg
-CFLAGS = -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS)
-LDLIBS = -lpthread -lm -lgsl -lgslcblas -lm
+
+CFLAGS = -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=$(WITHSTATS) -I../gsl_lib/include/
+LDFLAGS= -L../gsl_lib/lib
+LDLIBS = -lpthread -lm  -lgsl -lgslcblas -lm
 Hashtable = hashtable.o
 Hashfunction = hash.o 
 

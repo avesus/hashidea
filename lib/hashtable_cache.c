@@ -14,7 +14,7 @@
 #include "hash.h"
 
 #define VERSION "0.2"
-const char* tablename = "open/multiprobe/remain:V" VERSION;
+const char* tablename = "open/cache/remain:V" VERSION;
 const char* shortname = "OMR:V" VERSION;
 
 

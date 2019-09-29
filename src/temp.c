@@ -116,7 +116,12 @@ setPath(void) {
   //reads (so could start at temp50_label) will exist while(1) loop. 
   char checkPath[PATHLEN];
   int max=0;
+  int checks=0;
   while (1) {
+    checks++;
+    if(checks>10000){
+      return -1;
+    }
     sprintf(checkPath,"%stemp%d_label",tempPath,max);
     if (verbose) {
       printf("Checking: %s\n", checkPath);
