@@ -658,12 +658,12 @@ main(int argc, char**argv)
   clearStats();
   
   if (showArgs) {
-    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,HEADING\n");
+    printf("GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING\n");
     // if we are asked to show all args, print them out here one one line
-    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf", 
+    sprintf(desc, "%s,%s,%d,%d,%lf,%lf,%lf,%lf,%lf,%d,%d,%d,%d,%d,%d,%lf,%lf", 
 	    getProgramPrefix(), getProgramShortPrefix(),
 	   numInsertions, trialsToRun, stopError, alpha, beta, 
-	    queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff,regtemp,AllowedTempVariance);
+	    queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,coolOff,regtemp,AllowedTempVariance,cLines);
     printf("%s,START\n", desc);
   } else {
     // just show vital ones
