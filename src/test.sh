@@ -18,25 +18,28 @@ if [ $# -ne 0 ]; then
 fi
 
 # set to true if you want to do a quick test
-if [ 0 == 1 ]; then
-    attempts=(2)
-    threads=(1 2 64)
-    lines=(1)
+if [ 1 == 1 ]; then
+    attempts=(2 3)
+    threads=(1 2)
+    lines=(1 .5 2)
     queryp=(0)
     trials=1
-    inserts=8192
+    inserts=128
 fi    
 
-      iterNum=0
 make clean
-for table in hashtable_locks; do
-    if [ $iterNum == 0 ]; then
+for table in hashtable_cache hashtable_locks ; do
+    if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
+	unset lines
+	lines=(.5 1 2)
+	unset attempts
+	attempts=(1 2)
+    else
 	unset lines
 	lines=(1)
 	unset attempts
 	attempts=(2)
     fi
-    let "iterNum+=1"
     /bin/rm -f harness
     d=`date`
     echo "---- Making with ${table} ---- ($d)"
@@ -60,7 +63,8 @@ for table in hashtable_locks; do
 			    in=$(( inserts / t ))
 			    #echo "running with initial table size $it and $in inserts"
 			    if [ $# -ne 0 ]; then
-				./checklog.py --table ${tablever}  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li $prevlog
+				echo ./checklog.py --table ${tablever} --trials $trials --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li $prevlog
+				./checklog.py --table ${tablever} --trials $trials  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li $prevlog
 				doit=$?
 			    else
 				doit=1
@@ -69,7 +73,7 @@ for table in hashtable_locks; do
 				echo ALREADY ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  --args
 			    else
 				if [ $onlyshow -ne 1 ]; then
-				    sleep 45
+				    #sleep 45
 				    if [ $? == 1 ]; then
 					echo "Failed to reach $starttemp, not running"
 				    else
