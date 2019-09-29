@@ -1,12 +1,12 @@
 #!/bin/bash
 
 starttemp=56
-trials=15
-inserts=16000000
-declare -a threads=(1 2 4 8 16 32)
+trials=10
+inserts=64000000
+declare -a threads=(1 8 16 32 64)
 declare -a queryp=(0 0.5 0.9)
-declare -a attempts=(1 2 3)
-
+declare -a attempts=(1 2)
+declare -a lines=(.5 1 2)
 onlyshow=0
 prevlog=$*
 d=`date -Iseconds`
@@ -19,15 +19,24 @@ fi
 
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
-    attempts=(1)
-    threads=(1)
+    attempts=(2)
+    threads=(1 2 64)
+    lines=(1)
     queryp=(0)
     trials=1
-    inserts=100
+    inserts=8192
 fi    
 
+      iterNum=0
 make clean
 for table in hashtable_locks; do
+    if [ $iterNum == 0 ]; then
+	unset lines
+	lines=(1)
+	unset attempts
+	attempts=(2)
+    fi
+    let "iterNum+=1"
     /bin/rm -f harness
     d=`date`
     echo "---- Making with ${table} ---- ($d)"
@@ -41,34 +50,37 @@ for table in hashtable_locks; do
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
-		for it in $((2*inserts)) $((inserts)) $((inserts/2)) $((inserts/4)); do
+		for it in $((inserts)) $((inserts/4)); do
 		    it=$(echo 'l('$it')/l(2)' | bc -l)
 		    it=$(echo $it+.5 | bc)
 		    it=${it%.*}
-		    for ha in ${attempts[@]}; do
-			in=$(( inserts / t ))
-			#echo "running with initial table size $it and $in inserts"
-			if [ $# -ne 0 ]; then
-			    ./checklog.py --table ${tablever}  --inserts $in --qp $qp -t $t -i $it -a $ha $prevlog
-			    doit=$?
-			else
-			    doit=1
-			fi
-			if [ $doit == 0 ]; then
-			    echo ALREADY ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
-			else
-			    if [ $onlyshow -ne 1 ]; then
-				./waitfortemp -t 600 -n $t $starttemp
-				if [ $? == 1 ]; then
-				    echo "Failed to reach $starttemp, not running"
-				else
-				    echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
-				    ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha  --regtemp --args
-				fi
+		    for li in ${lines[@]}; do
+
+			for ha in ${attempts[@]}; do
+			    in=$(( inserts / t ))
+			    #echo "running with initial table size $it and $in inserts"
+			    if [ $# -ne 0 ]; then
+				./checklog.py --table ${tablever}  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li $prevlog
+				doit=$?
 			    else
-				echo ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha --regtemp --args
+				doit=1
 			    fi
-			fi
+			    if [ $doit == 0 ]; then
+				echo ALREADY ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  --args
+			    else
+				if [ $onlyshow -ne 1 ]; then
+				    sleep 45
+				    if [ $? == 1 ]; then
+					echo "Failed to reach $starttemp, not running"
+				    else
+					echo ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  --args
+					./harness --trials $trials  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li   --args
+				    fi
+				else
+				    echo ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li --args
+				fi
+			    fi
+			done
 		    done
 		done
 	    done
