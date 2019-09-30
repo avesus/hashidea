@@ -28,7 +28,7 @@ if [ 0 == 1 ]; then
 fi    
 #hashtable hashtable_lazy hashtable_locks hashtable_cuckoo
 make clean
-for table in hashtable_cache hashtable_lazy_cache ; do
+for table in hashtable_lazy_cache ; do
     if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
 	unset lines
 	lines=(.5 1 2)
