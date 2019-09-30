@@ -53,8 +53,8 @@ typedef struct HashTable{
 #define notIn -3 
 #define in -1
 #define unk -2
-
-#define getInd(X) (X<<logLineSize)
+const int thrLog = logLineSize-2;
+#define getInd(X) (X<<thrLog)
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 #define hashtag(X) genHashTag(X)
@@ -532,6 +532,6 @@ createTable(HashTable* head, int tsize){
   SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
-  ht->threadCopy=( int*)calloc(head->numThreads,lineSize);
+  ht->threadCopy=( int*)calloc(head->numThreads, lineSize);
   return ht;
 }
