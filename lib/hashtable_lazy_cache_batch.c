@@ -105,7 +105,7 @@ inline short genHashTag(unsigned long key){
 int deleteVal(HashTable* head, unsigned long val){
   return 1;
 }
-int insertTableTag(HashTable* head,  int start, entry* ent, int tid);
+int insertTableTag(HashTable* head,  int start, entry** ents, int tid, int row);
 // create a sub table
 static SubTable* createTable(HashTable* head, int hsize);
 // free a subtable 
@@ -161,7 +161,6 @@ int sumArr(int* arr, int size){
 int checkTableQuery(HashTable* head, unsigned long val){
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
-  int logReadsPerLine=head->logReadsPerLine;
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
     for(int i =0;i<ha;i++){
@@ -173,11 +172,10 @@ int checkTableQuery(HashTable* head, unsigned long val){
   for(int j=head->start;j<head->cur;j++){
     //    IncrStat(checktable_outer);
     ht=head->TableArray[j];
-    int tsizeMask=((ht->TableSize-1)>>logReadsPerLine)<<logReadsPerLine;
     //iterate through hash functions
     
     for(int i =0; i<ha; i++) {
-      int s=(buckets[i]&tsizeMask);
+      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
       
       //call the new line before time amt of computation just cuz...
       __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
@@ -281,14 +279,15 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int
 
   //neither know if value is in or not, first check if this is smallest subtable and 
   //resizing is take place. If so move current item at subtable to next one.
-  if(doCopy&&(!getBool(ent))){
+    int lineStart=(s>>head->logReadsPerLine)<<head->logReadsPerLine;
+    if(doCopy&&(!getBool(ht->InnerTable[lineStart]))){
     unsigned long exCopy=0;
     unsigned long newCopy=1;
     //    IncrStat(lookup_copy);
 
 
     //set the copyBool for the slot to true to indicate the item is being copied
-    int res=    setPtr(&ht->InnerTable[s]);
+    int res=    setPtr(&ht->InnerTable[lineStart]);
 
     //succesfully set by this thread
     if(res){
@@ -296,11 +295,12 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int
       unsigned long newStart=exStart+1;
 
       //add item to next sub table
-      insertTableTag(head, head->start+1, getEntPtr(ht->InnerTable[s]), tid);
+
+      insertTableTag(head, head->start+1, ht->InnerTable+lineStart, tid, lineStart);
 
       //increment thread index
       ht->threadCopy[getInd(tid)]++;
-      if(ht->TableSize==sumArr(ht->threadCopy, head->numThreads)){
+      if((ht->TableSize>>head->logReadsPerLine)==sumArr(ht->threadCopy, head->numThreads)){
 	//if all items have been copied (sum of all threads copy values equals sub table size)
 	//update start field in the hashtable (CAS so it cant be double updated).
 	__atomic_compare_exchange(&head->start,&exStart, &newStart, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
@@ -344,31 +344,32 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
 
 //insert a new entry into the table. Returns 0 if entry is already present, 1 otherwise.
 
-int insertTableTag(HashTable* head,  int start, entry* ent, int tid){
+int insertTableTag(HashTable* head,  int start, entry** ents, int tid, int row){
   //create the tag for the entry and set it
-  unsigned int buckets[head->hashAttempts];
-  short tag = getEntTag(ent);
+
   //  tag=tag&(head->readsPerLine-1);
-  int logReadsPerLine=head->logReadsPerLine;
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
-  for(int i =0;i<ha;i++){
-    buckets[i]=murmur3_32((const uint8_t *)&getEntPtr(ent)->val, 
-			  kSize, 
-			  head->seeds[i]);
-  }
   SubTable* ht=NULL;
   int LocalCur=head->cur;
+  for(int r =0;r<head->logReadsPerLine;r++){
+    entry* ent= ents[r];
+    if(!ent){
+      continue;
+    }
+    short tag = getEntTag(ent);
+    tag=tag<<16;
   while(1){
     //iterate through subtables
+
     for(int j=start;j<head->cur;j++){
       ht=head->TableArray[j];
-      int tsizeMask=((ht->TableSize-1)>>logReadsPerLine)<<logReadsPerLine;
+
       //do copy if there is a new bigger subtable and currently in smallest subtable
       int doCopy=0;//(j==head->start)&&(head->cur-head->start>1);
       //iterate through hash functions
       for(int i =0; i<ha; i++) {
-	int s=(buckets[i]&tsizeMask);
+	int s=(row|tag)%ht->TableSize;
 
 	//call the new line before time amt of computation just cuz...
 	__builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
@@ -383,7 +384,7 @@ int insertTableTag(HashTable* head,  int start, entry* ent, int tid){
 	  }
 	  if(res==in){ //is in
 	    //	free(ent);
-	    return 0;
+	    goto entGood;
 	  }
 
 	  //      IncrStat(inserttable_inserts);
@@ -397,11 +398,11 @@ int insertTableTag(HashTable* head,  int start, entry* ent, int tid){
 					     &ent,
 					     1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 	  if(cmp){
-	    return 1;
+	    goto entGood;
 	  }
 	  else{
 	    if(getEntPtr(ht->InnerTable[res])->val==getEntPtr(ent)->val){
-	      return 0;
+	      goto entGood;
 	    }
 	  }
 	}
@@ -416,6 +417,8 @@ int insertTableTag(HashTable* head,  int start, entry* ent, int tid){
     addDrop(head, new_table, LocalCur, ent, tid, start+1);
     start=LocalCur;
   }
+  entGood:;
+  }
 }
 
 
@@ -424,11 +427,9 @@ int insertTableTag(HashTable* head,  int start, entry* ent, int tid){
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
   //create the tag for the entry and set it
   unsigned int buckets[head->hashAttempts];
-  short tag=hashtag(getEntPtr(ent)->val);
-  setTag(&ent, tag);
+
 
   //  tag=tag&(head->readsPerLine-1);
-  int logReadsPerLine=head->logReadsPerLine;
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
   for(int i =0;i<ha;i++){
@@ -436,18 +437,23 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 			  kSize, 
 			  head->seeds[i]);
   }
+  //  short tag=hashtag(getEntPtr(ent)->val);
+
   SubTable* ht=NULL;
   int LocalCur=head->cur;
+  short tag = buckets[0]&(0xffff<<16);
+  setTag(&ent, tag);
   while(1){
+
     //iterate through subtables
     for(int j=start;j<head->cur;j++){
       ht=head->TableArray[j];
-      int tsizeMask=((ht->TableSize-1)>>logReadsPerLine)<<logReadsPerLine;
+
       //do copy if there is a new bigger subtable and currently in smallest subtable
       int doCopy=(j==head->start)&&(head->cur-head->start>1);
       //iterate through hash functions
       for(int i =0; i<ha; i++) {
-	int s=(buckets[i]&tsizeMask);
+	int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
 
 	//call the new line before time amt of computation just cuz...
 	__builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
@@ -487,7 +493,6 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       }
       LocalCur=head->cur;
     }
-    
 
     //if found no available slot in hashtable create new subtable and add it to hashtable
     //then try insertion again

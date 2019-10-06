@@ -65,30 +65,30 @@ int deleteVal(HashTable* head, unsigned long val){
 
 
 //returns tag from given entry (highest byte)
-inline char getEntTag(entry* ent){
+inline short getEntTag(entry* ent){
 
-  return (char)(((unsigned long)ent)>>56);
+  return (char)(((unsigned long)ent)>>48);
 }
 
 //returns the ptr for a given entry (0s out the tag bits)
 inline entry*  getEntPtr(entry* ent){
-  entry* ret= (entry*)((((unsigned long)ent)<<8)>>8);
-  return (entry*)((((unsigned long)ent)<<8)>>8);
+  entry* ret= (entry*)((((unsigned long)ent)<<16)>>16);
+  return (entry*)((((unsigned long)ent)<<16)>>16);
 }
 
 //sets the tag for a given entry as the highest byte in the address
-inline void setTag(entry** entp, char tag){
+inline void setTag(entry** entp, short tag){
   unsigned long newPtr=tag;
-  newPtr=newPtr<<56;
+  newPtr=newPtr<<48;
   newPtr|=(unsigned long)(*entp);
   *entp=(entry*)newPtr;
 }
 
 //generates a tag (ands top half and bottum half till 1 byte)
-inline char genHashTag(unsigned long key){
+inline short genHashTag(unsigned long key){
   int tag=key^(key>>16);
-  tag=tag^(tag>>8);
-  return (char)(tag&0xff);
+  //  tag=tag^(tag>>8);
+  return (short)(tag&0xffff);
 }
 static inline int lookupQuery(SubTable* ht, unsigned long val, unsigned int s, char vTag){
 
@@ -109,17 +109,20 @@ checkTableQuery(HashTable* head, unsigned long val)
 {
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
+  int logReadsPerLine=head->logReadsPerLine;
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
     for(int i =0;i<ha;i++){
       buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
     }
-    char tag=hashtag(val);
+    //    short tag= buckets[0]&&0xff;
+   short tag=hashtag(val);
   for(int j=0;j<head->cur;j++){
 
     ht=head->TableArray[j];
+    int tsizeMask=((ht->TableSize-1)>>logReadsPerLine)<<logReadsPerLine;
     for(int i =0; i<ha; i++) {
-      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+      int s=(buckets[i]&tsizeMask);//%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
       
       //call the new line before time amt of computation just cuz...
       __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
@@ -248,9 +251,9 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   unsigned int buckets[head->hashAttempts];
 
   //create the tag for the entry and set it
-  char tag=hashtag(ent->val);
-  setTag(&ent, tag);
+
   //  tag=tag&(head->readsPerLine-1);
+  int logReadsPerLine=head->logReadsPerLine;
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
   for(int i =0;i<ha;i++){
@@ -258,14 +261,17 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 			      kSize, 
 			      head->seeds[i]);
   }
-  SubTable* ht=NULL;
+   short tag=hashtag(ent->val);
+  //  short tag=buckets[0]&&0xffff;
+  setTag(&ent, tag);
   int LocalCur=head->cur;
-
+  SubTable* ht;
 
   //  int numLines=1+((head->readsPerLine-1)>>logLineSize);
   while(1){
   for(int j=start;j<head->cur;j++){
     ht=head->TableArray[j];
+    int tsizeMask=((ht->TableSize-1)>>logReadsPerLine)<<logReadsPerLine;
 
     for(int i =0; i<ha; i++) {
       //storing hash values in buckets so dont need to recompute each
@@ -282,7 +288,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       //Size keep power of 2, otherwise keep multiple of entry size)
       //also I assume gcc will turn the divide into >>, if not
       //probably better to precomputer log and use that
-      int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
+      int s=(buckets[i]&tsizeMask);//%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
 
       //call the new line before time amt of computation just cuz...
             __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
