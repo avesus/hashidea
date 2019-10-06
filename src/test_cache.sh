@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#unless there is something I'm missing this is what I want to use
+#sudo perf stat -B -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness -i 10 --inserts 1000000 -t 8 --lines 1 -a 1
+
 
 outFile=""
 starttemp=56

@@ -54,12 +54,13 @@ typedef struct HashTable{
 #define in -1
 #define unk -2
 const int thrLog = logLineSize-2;
+const int thrEnt = lineSize>>2;
 #define getInd(X) (X<<thrLog)
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 #define hashtag(X) genHashTag(X)
 
-int insertTableBatch(HashTable* head,  int start, entry* ent, int tid);
+
 inline int getBool(entry* ent){
   return ((unsigned long)ent)&1;
 }
@@ -104,7 +105,7 @@ inline char genHashTag(unsigned long key){
 int deleteVal(HashTable* head, unsigned long val){
   return 1;
 }
-
+int insertTableTag(HashTable* head,  int start, entry* ent, int tid);
 // create a sub table
 static SubTable* createTable(HashTable* head, int hsize);
 // free a subtable 
@@ -150,8 +151,8 @@ int getStart(HashTable* head){
 //helper function that returns sum of array up to size
 int sumArr(int* arr, int size){
   int sum=0;
-  for(int i =0;i<size;i++){
-    sum+=arr[getInd(i)];
+  for(int i =0;i<size;i+=thrEnt){
+    sum+=arr[i];
   }
   return sum;
 }
@@ -293,7 +294,7 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int
       unsigned long newStart=exStart+1;
 
       //add item to next sub table
-      insertTable(head, head->start+1, getEntPtr(ht->InnerTable[s]), tid);
+      insertTableTag(head, head->start+1, getEntPtr(ht->InnerTable[s]), tid);
 
       //increment thread index
       ht->threadCopy[getInd(tid)]++;
@@ -340,9 +341,12 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
 
 
 //insert a new entry into the table. Returns 0 if entry is already present, 1 otherwise.
-int insertTableBatch(HashTable* head,  int start, entry* ent, int tid){
+
+int insertTableTag(HashTable* head,  int start, entry* ent, int tid){
   //create the tag for the entry and set it
   unsigned int buckets[head->hashAttempts];
+  char tag = getEntTag(ent);
+  //  tag=tag&(head->readsPerLine-1);
   int uBound=head->readsPerLine;
   int ha=head->hashAttempts;
   for(int i =0;i<ha;i++){
@@ -350,7 +354,6 @@ int insertTableBatch(HashTable* head,  int start, entry* ent, int tid){
 			  kSize, 
 			  head->seeds[i]);
   }
-  char tag=getEntTag(ent);
   SubTable* ht=NULL;
   int LocalCur=head->cur;
   while(1){
@@ -359,7 +362,7 @@ int insertTableBatch(HashTable* head,  int start, entry* ent, int tid){
       ht=head->TableArray[j];
 
       //do copy if there is a new bigger subtable and currently in smallest subtable
-      int doCopy=0;
+      int doCopy=0;//(j==head->start)&&(head->cur-head->start>1);
       //iterate through hash functions
       for(int i =0; i<ha; i++) {
 	int s=(buckets[i]%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
@@ -447,9 +450,6 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
         //check this line
 	for(int c=tag;c<uBound+tag;c++){
 	  __builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
-	  if(s+(c&(uBound-1))<s){
-	    printf("TRUE ERROR\n");
-	  }
 
 	  //lookup value in sub table
 	  int res=lookup(head, ht, ent, s+(c&(uBound-1)), doCopy, tid);
@@ -532,6 +532,7 @@ createTable(HashTable* head, int tsize){
   SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
   ht->TableSize=tsize;
   ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
-  ht->threadCopy=( int*)calloc(head->numThreads, lineSize);
+  ht->threadCopy=( int*)aligned_alloc(lineSize,head->numThreads<<logLineSize);
+  memset(ht->threadCopy, 0, head->numThreads<<logLineSize);
   return ht;
 }

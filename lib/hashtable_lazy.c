@@ -277,7 +277,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
 			      &AddSlot,
 			      &newSize,
 			      1,__ATOMIC_RELAXED, __ATOMIC_RELAXED);
-    insertTable(head, start, ent, tid);
+    //    insertTable(head, start, ent, tid);
   }
   else{
     //if failed free subtable then try and update new max then insert item
@@ -289,7 +289,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
 			      &newSize,
 			      1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 
-    insertTable(head, start, ent, tid);
+    //    insertTable(head, start, ent, tid);
   }
   return 0;
 }
@@ -299,7 +299,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent, in
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
 
   SubTable* ht=NULL;
-  int LocalCur=head->cur;
+
 
   unsigned int buckets[head->hashAttempts];
   //  for(int i =0;i<head->hashAttempts;i++){
@@ -307,6 +307,8 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   //  }
 
   //iterate through subtables
+  int LocalCur=head->cur;
+  while(1){
   for(int j=start;j<head->cur;j++){
     
     IncrStat(inserttable_outer);
@@ -359,6 +361,8 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   //then try insertion again
   SubTable* new_table=createTable(head, head->TableArray[LocalCur-1]->TableSize<<1);
   addDrop(head, new_table, LocalCur, ent, tid, start+1);
+  start=LocalCur;
+  }
 }
 
 
