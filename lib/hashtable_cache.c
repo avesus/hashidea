@@ -67,12 +67,11 @@ int deleteVal(HashTable* head, unsigned long val){
 //returns tag from given entry (highest byte)
 inline short getEntTag(entry* ent){
 
-  return (char)(((unsigned long)ent)>>48);
+  return (short)(((unsigned long)ent)>>48);
 }
 
 //returns the ptr for a given entry (0s out the tag bits)
 inline entry*  getEntPtr(entry* ent){
-  entry* ret= (entry*)((((unsigned long)ent)<<16)>>16);
   return (entry*)((((unsigned long)ent)<<16)>>16);
 }
 

@@ -32,9 +32,9 @@ if [ 1 == 1 ]; then
     trials=5
     inserts=100000
 fi
-
+#hashtable_locks?
 make clean
-for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hashtable_locks hashtable_cuckoo; do
+for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hashtable_cuckoo; do
     if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
 	unset lines
 	lines=(.5 1 2)
@@ -47,13 +47,6 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 	attempts=(2)
     fi
     /bin/rm -f harness
-    newDir=${table}_pcmOut
-    if [ -d "$newDir" ]; then
-	rm -f "$newDir"/*
-    else
-	mkdir -p "$newDir"
-    fi
-    d=`date`
     echo "---- Making with ${table} ---- ($d)"
     make Hashtable=${table}.o WITHSTATS=0
     if [ $? != 0 ]; then
@@ -63,9 +56,7 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 	for t in ${threads[@]}; do
 	    startCore=4
 	    endCore=$((startCore+t-1))
-	    pcmCores=""
-	    for i in $(seq $startCore $endCore); do pcmCores="$pcmCores -yc $i"; done
-	    d=`date`
+	    watchCores="$startCore-$endCore"
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
@@ -84,25 +75,17 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 				doit=1
 			    fi
 			    if [ $doit == 0 ]; then
-				outFile=`date -Iseconds`
-				echo ALREADY ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				echo ALREADY sudo perf stat -x, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
 			    else
 				if [ $onlyshow -ne 1 ]; then
-				    sleep 45
-				    outFile=`date -Iseconds`
-				    outFile=${newDir}/${outFile}
-				    echo FIRST ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
-				    sudo modprobe msr
-				    ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li --regtemp --args --sc $startCore --ec $endCore
-				    echo -e "" >> $outFile
-				    echo -e "" >> $outFile
-				    echo UNIQUEMARKER ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore >> $outFile
-				    #					done
+#				    sleep 45
+				    echo FIRST sudo perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				    sudo perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+
+				else
+				    echo sudo perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
 				fi
-			    else
-				echo ./../pcm/pcm.x -csv=$outFile $pcmCores --external_program ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
 			    fi
-			fi
 			done
 		    done
 		done

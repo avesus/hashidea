@@ -20,7 +20,7 @@ infile = args['datafile'][0]
 alpha = {i: 1 for i in ["main", "probe", "move", "version", "SP"]}
 skip = ["version", "stopError", "randomSeed", "numInsertions"]
 selectors = ["main", "probe", "move", "version", "trialsToRun", "stopError",
-             "alpha", "beta", "queryPercentage", "randomSeed", "nthreads", "HashAttempts", "InitSize", "cooloff", "enfTemp", "tempvar"]
+             "alpha", "beta", "queryPercentage", "randomSeed", "nthreads", "HashAttempts", "InitSize", "cooloff", "enfTemp", "tempvar", "lines"]
 sdata = {i: {} for i in selectors}
 sindex = {}
 controllers = []

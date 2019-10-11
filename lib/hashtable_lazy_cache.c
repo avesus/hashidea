@@ -55,6 +55,7 @@ typedef struct HashTable{
 #define unk -2
 const int thrLog = logLineSize-2;
 const int thrEnt = lineSize>>2;
+const unsigned long ptrMask = ~(1UL);
 #define getInd(X) (X<<thrLog)
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
@@ -65,8 +66,7 @@ inline int getBool(entry* ent){
   return ((unsigned long)ent)&1;
 }
 inline entry* getPtr(entry* ent){
-  unsigned long mask=1;
-  return (entry*)(((unsigned long)ent)&(~mask));
+  return (entry*)(((unsigned long)ent)&(~ptrMask));
 }
 
 inline int setPtr(entry** ent){
@@ -83,8 +83,7 @@ inline short getEntTag(entry* ent){
 
 //returns the ptr for a given entry (0s out the tag bits)
 inline entry*  getEntPtr(entry* ent){
-  entry* ret= (entry*)((((unsigned long)ent)<<16)>>16);
-  return getPtr((entry*)((((unsigned long)ent)<<16)>>16));
+  return ((entry*)(((((unsigned long)ent)<<16)>>16)&ptrMask));
 }
 
 //sets the tag for a given entry as the highest byte in the address
