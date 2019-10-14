@@ -1,0 +1,10 @@
+prefix=/home/seth/hashidea/gsl_lib
+exec_prefix=/home/seth/hashidea/gsl_lib
+libdir=/home/seth/hashidea/gsl_lib/lib
+includedir=/home/seth/hashidea/gsl_lib/include
+
+Name: GSL
+Description: GNU Scientific Library
+Version: 1.13
+Libs: -L/home/seth/hashidea/gsl_lib/lib -lgsl -lgslcblas -lm 
+Cflags: -I/home/seth/hashidea/gsl_lib/include

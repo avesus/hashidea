@@ -47,7 +47,7 @@ getProgramShortPrefix(void) {
 
 ////////////////////////////////////////////////////////////////
 // arguments, description, version, etc.
-
+int coreInterval = 1;
 int coolOff = 0;
 int showArgs = 0;
 int verbose = 0;
@@ -181,8 +181,9 @@ static ArgOption args[] = {
   { KindOption,   Set	, 	"--ts",		0, &statspertrial,	"show stats after each trial" },    
 #endif
   { KindOption,   Integer, 	"-t", 		0, &nthreads, 		"Number of threads" },
-  { KindOption,   Integer, 	"--sc", 		0, &startCore, 		"Starting core" },
-  { KindOption,   Integer, 	"--ec", 		0, &endCore, 		"End core" },
+  { KindOption,   Integer, 	"--ci", 	0, &coreInterval,	"Interval between each core set" },
+  { KindOption,   Integer, 	"--sc", 	0, &startCore, 		"Starting core" },
+  { KindOption,   Integer, 	"--ec", 	0, &endCore, 		"End core" },
   { KindHelp,     Help, 	"-h" },
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
   { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table (table size = 1 << -i" },
@@ -715,9 +716,9 @@ main(int argc, char**argv)
     // allocate each thread on its own core
     cpu_set_t cpuset;
     CPU_ZERO(&cpuset);
-    CPU_SET(startCore+i%numcores, &cpuset);
+    CPU_SET(startCore+(i%numcores)*coreInterval, &cpuset);
     if(verbose){
-      printf("Thread[%d]->core[%d]\n", i, startCore+i%numcores);
+      printf("Thread[%d]->core[%d]\n", i, startCore+(i%numcores)*coreInterval);
     }
     result = pthread_attr_setaffinity_np(&attr, sizeof(cpu_set_t), &cpuset);
     if (result) die("setaffinitity fails: %d", result);

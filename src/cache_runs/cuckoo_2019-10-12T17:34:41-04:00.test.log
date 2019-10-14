@@ -1,0 +1,2578 @@
+/bin/rm -f *.o harness *~
+make -C ../lib clean
+make[1]: Entering directory '/usr0/home/seth/hashidea_cuckoo/lib'
+/bin/rm -f *.o *~
+make[1]: Leaving directory '/usr0/home/seth/hashidea_cuckoo/lib'
+---- Making with hashtable_cuckoo ---- (2019-10-12T17:34:41-04:00)
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o harness.o harness.c
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o arg.o arg.c
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o util.o util.c
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o timing.o timing.c
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o dist.o dist.c
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o temp.o temp.c
+g++    -c -o ../lib/hashtable_cuckoo.o ../lib/hashtable_cuckoo.cpp
+make -C ../lib WITHSTATS=0 hash.o
+make[1]: Entering directory '/usr0/home/seth/hashidea_cuckoo/lib'
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -c hash.c -o hash.o
+make[1]: Leaving directory '/usr0/home/seth/hashidea_cuckoo/lib'
+g++ -L../gsl_lib/lib  harness.o arg.o util.o timing.o dist.o temp.o ../lib/hashtable_cuckoo.o ../lib/hash.o  -lpthread -lm  -lgsl -lgslcblas -lm -o harness
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o waitfortemp.o waitfortemp.c
+g++ -L../gsl_lib/lib  waitfortemp.o temp.o arg.o util.o  -lpthread -lm  -lgsl -lgslcblas -lm -o waitfortemp
+g++ -O3 -g -std=c++11 -D_GNU_SOURCE -DCOLLECT_STAT=0 -I../gsl_lib/include/   -c -o getcacheparms.o getcacheparms.c
+g++ -L../gsl_lib/lib  getcacheparms.o util.o timing.o  -lpthread -lm  -lgsl -lgslcblas -lm -o getcacheparms
+WATCHING: 4
+Running for threads 1 on table hashtable_cuckoo (2019-10-12T17:34:41-04:00)
+FIRST perf stat -x=, -A --cpu=4 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 16000000 --qp 0 -t 1 -i 24 -a 2 --lines 1 --args --sc 4 --ec 4
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570916085,1,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570916085,1,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:31420.484408, Max:33483.038353, Range:2062.553945, Avg:31938.962341, Median:31879.926652, SD:459.926906,	TMin:31551.618110, TMax:32164.392752, TRange:612.774642, TAvg:31860.070182, TMedian:31879.926652, TSD:183.782822
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570916085,1,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570916085,1,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570916085,1,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,2518687567=,=,cache-references=,494779247653=,100.00=,=,=,=,
+CPU4=,1290869636=,=,cache-misses=,494779249952=,100.00=,51.252=,of all cache refs
+CPU4=,1549396802908=,=,cycles=,494779247052=,100.00=,=,=,=,
+CPU4=,2055426964607=,=,instructions=,494779243581=,100.00=,1.33=,insn per cycle
+CPU4=,379431961685=,=,branches=,494779239233=,100.00=,=,=,=,
+CPU4=,40907=,=,faults=,494779233115=,100.00=,=,=,=,
+CPU4=,3=,=,migrations=,494779232520=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 16000000 --qp 0 -t 1 -i 22 -a 2 --lines 1 --args --sc 4 --ec 4
+./harness: Killed
+CPU4=,582737475=,=,cache-references=,125915790781=,100.00=,=,=,=,
+CPU4=,243865533=,=,cache-misses=,125915801259=,100.00=,41.848=,of all cache refs
+CPU4=,394821508191=,=,cycles=,125915796399=,100.00=,=,=,=,
+CPU4=,535085500521=,=,instructions=,125915791071=,100.00=,1.36=,insn per cycle
+CPU4=,98393551809=,=,branches=,125915784647=,100.00=,=,=,=,
+CPU4=,19539=,=,faults=,125915776164=,100.00=,=,=,=,
+CPU4=,4=,=,migrations=,125915773319=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 16000000 --qp 0.5 -t 1 -i 24 -a 2 --lines 1 --args --sc 4 --ec 4
+./harness: Killed
+CPU4=,68787062=,=,cache-references=,7752311682=,100.00=,=,=,=,
+CPU4=,37059659=,=,cache-misses=,7752310275=,100.00=,53.876=,of all cache refs
+CPU4=,21378048951=,=,cycles=,7752305884=,100.00=,=,=,=,
+CPU4=,23760874672=,=,instructions=,7752301406=,100.00=,1.11=,insn per cycle
+CPU4=,4045879477=,=,branches=,7752295859=,100.00=,=,=,=,
+CPU4=,4084=,=,faults=,7752288879=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,7752287214=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 16000000 --qp 0.5 -t 1 -i 22 -a 2 --lines 1 --args --sc 4 --ec 4
+./harness: Killed
+CPU4=,247442646=,=,cache-references=,35733179191=,100.00=,=,=,=,
+CPU4=,69658312=,=,cache-misses=,35733182772=,100.00=,28.151=,of all cache refs
+CPU4=,109816444653=,=,cycles=,35733184211=,100.00=,=,=,=,
+CPU4=,150612375034=,=,instructions=,35733199053=,100.00=,1.37=,insn per cycle
+CPU4=,27367836482=,=,branches=,35733198837=,100.00=,=,=,=,
+CPU4=,5266=,=,faults=,35733197370=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,35733198670=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 16000000 --qp 0.9 -t 1 -i 24 -a 2 --lines 1 --args --sc 4 --ec 4
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916749,1,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916749,1,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:11254.463241, Max:16212.024825, Range:4957.561584, Avg:12188.122086, Median:11438.195901, SD:1500.021851,	TMin:11301.747468, TMax:15189.940426, TRange:3888.192958, TAvg:11950.411018, TMedian:11438.195901, TSD:1107.765806
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916749,1,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916749,1,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916749,1,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,2036516502=,=,cache-references=,199223215940=,100.00=,=,=,=,
+CPU4=,1172890628=,=,cache-misses=,199223216976=,100.00=,57.593=,of all cache refs
+CPU4=,579343682879=,=,cycles=,199223215512=,100.00=,=,=,=,
+CPU4=,587542455453=,=,instructions=,199223213200=,100.00=,1.01=,insn per cycle
+CPU4=,101826769778=,=,branches=,199223210673=,100.00=,=,=,=,
+CPU4=,27774=,=,faults=,199223206010=,100.00=,=,=,=,
+CPU4=,15=,=,migrations=,199223206340=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 16000000 --qp 0.9 -t 1 -i 22 -a 2 --lines 1 --args --sc 4 --ec 4
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916949,1,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916949,1,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:9237.544712, Max:13533.572500, Range:4296.027788, Avg:10292.439381, Median:9339.703860, SD:1520.832274,	TMin:9243.282656, TMax:12702.447088, TRange:3459.164432, TAvg:10124.267193, TMedian:9373.661792, TSD:1321.670007
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916949,1,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916949,1,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.000000, Max->Median:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,16000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570916949,1,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,1992589617=,=,cache-references=,167640880818=,100.00=,=,=,=,
+CPU4=,380896918=,=,cache-misses=,167640892143=,100.00=,19.116=,of all cache refs
+CPU4=,489683559219=,=,cycles=,167640889007=,100.00=,=,=,=,
+CPU4=,601658247534=,=,instructions=,167640884626=,100.00=,1.23=,insn per cycle
+CPU4=,103837952674=,=,branches=,167640879717=,100.00=,=,=,=,
+CPU4=,23738=,=,faults=,167640873203=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,167640873042=,100.00=,=,=,=,
+WATCHING: 4,8,12,16,20,24,28,32
+Running for threads 8 on table hashtable_cuckoo (2019-10-12T17:34:41-04:00)
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 2000000 --qp 0 -t 8 -i 24 -a 2 --lines 1 --args --sc 4 --ec 11
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917116,8,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917116,8,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:5548.986199, Max:6445.490184, Range:896.503985, Avg:5771.056151, Median:5709.859149, SD:212.499331,	TMin:5571.907954, TMax:5951.923152, TRange:380.015198, TAvg:5736.258914, TMedian:5709.859149, TSD:110.042697
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917116,8,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917116,8,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999989, Max->Median:0.731972
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917116,8,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,363885028=,=,cache-references=,100812194840=,100.00=,=,=,=,
+CPU8=,293748466=,=,cache-references=,100812193353=,100.00=,=,=,=,
+CPU12=,3608955=,=,cache-references=,100812223859=,100.00=,=,=,=,
+CPU16=,15734288=,=,cache-references=,100812247975=,100.00=,=,=,=,
+CPU20=,2632790=,=,cache-references=,100812247722=,100.00=,=,=,=,
+CPU24=,1067013800=,=,cache-references=,100812244339=,100.00=,=,=,=,
+CPU28=,1468898=,=,cache-references=,100812270700=,100.00=,=,=,=,
+CPU32=,313440=,=,cache-references=,100812297728=,100.00=,=,=,=,
+CPU4=,221020377=,=,cache-misses=,100812297165=,100.00=,60.739=,of all cache refs
+CPU8=,232256774=,=,cache-misses=,100812293340=,100.00=,63.827=,of all cache refs
+CPU12=,210079=,=,cache-misses=,100812290086=,100.00=,0.058=,of all cache refs
+CPU16=,745513=,=,cache-misses=,100812287268=,100.00=,0.205=,of all cache refs
+CPU20=,296631=,=,cache-misses=,100812285241=,100.00=,0.082=,of all cache refs
+CPU24=,29971401=,=,cache-misses=,100812279689=,100.00=,8.237=,of all cache refs
+CPU28=,82797=,=,cache-misses=,100812276540=,100.00=,0.023=,of all cache refs
+CPU32=,37187=,=,cache-misses=,100812273207=,100.00=,0.010=,of all cache refs
+CPU4=,168669255664=,=,cycles=,100812273702=,100.00=,=,=,=,
+CPU8=,175806244361=,=,cycles=,100812269647=,100.00=,=,=,=,
+CPU12=,425799324=,=,cycles=,100812265895=,100.00=,=,=,=,
+CPU16=,843385471=,=,cycles=,100812254604=,100.00=,=,=,=,
+CPU20=,425900028=,=,cycles=,100812252138=,100.00=,=,=,=,
+CPU24=,59892111899=,=,cycles=,100812246874=,100.00=,=,=,=,
+CPU28=,387934092=,=,cycles=,100812242697=,100.00=,=,=,=,
+CPU32=,342180282=,=,cycles=,100812239253=,100.00=,=,=,=,
+CPU4=,197561813542=,=,instructions=,100812237732=,100.00=,1.17=,insn per cycle
+CPU8=,210650991004=,=,instructions=,100812232867=,100.00=,1.25=,insn per cycle
+CPU12=,116519501=,=,instructions=,100812227908=,100.00=,0.00=,insn per cycle
+CPU16=,656603996=,=,instructions=,100812223287=,100.00=,0.00=,insn per cycle
+CPU20=,116549818=,=,instructions=,100812219103=,100.00=,0.00=,insn per cycle
+CPU24=,79761189518=,=,instructions=,100812213213=,100.00=,0.47=,insn per cycle
+CPU28=,89356632=,=,instructions=,100812207488=,100.00=,0.00=,insn per cycle
+CPU32=,80457766=,=,instructions=,100812209388=,100.00=,0.00=,insn per cycle
+CPU4=,36293751198=,=,branches=,100812207468=,100.00=,=,=,=,
+CPU8=,39041936714=,=,branches=,100812202114=,100.00=,=,=,=,
+CPU12=,23615121=,=,branches=,100812195895=,100.00=,=,=,=,
+CPU16=,133893734=,=,branches=,100812190981=,100.00=,=,=,=,
+CPU20=,23508245=,=,branches=,100812185965=,100.00=,=,=,=,
+CPU24=,17879210115=,=,branches=,100812179681=,100.00=,=,=,=,
+CPU28=,18068521=,=,branches=,100812173273=,100.00=,=,=,=,
+CPU32=,16408489=,=,branches=,100812168234=,100.00=,=,=,=,
+CPU4=,15328=,=,faults=,100812164936=,100.00=,=,=,=,
+CPU8=,6402=,=,faults=,100812165864=,100.00=,=,=,=,
+CPU12=,75=,=,faults=,100812166240=,100.00=,=,=,=,
+CPU16=,7954=,=,faults=,100812167458=,100.00=,=,=,=,
+CPU20=,461=,=,faults=,100812168253=,100.00=,=,=,=,
+CPU24=,98735=,=,faults=,100812166988=,100.00=,=,=,=,
+CPU28=,1=,=,faults=,100812166503=,100.00=,=,=,=,
+CPU32=,0=,=,faults=,100812166863=,100.00=,=,=,=,
+CPU4=,11=,=,migrations=,100812167586=,100.00=,=,=,=,
+CPU8=,3=,=,migrations=,100812167528=,100.00=,=,=,=,
+CPU12=,11=,=,migrations=,100812167743=,100.00=,=,=,=,
+CPU16=,10=,=,migrations=,100812168364=,100.00=,=,=,=,
+CPU20=,9=,=,migrations=,100812168879=,100.00=,=,=,=,
+CPU24=,5=,=,migrations=,100812167545=,100.00=,=,=,=,
+CPU28=,3=,=,migrations=,100812167315=,100.00=,=,=,=,
+CPU32=,0=,=,migrations=,100812167355=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 2000000 --qp 0 -t 8 -i 22 -a 2 --lines 1 --args --sc 4 --ec 11
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917217,8,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917217,8,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:8165.843858, Max:13031.930923, Range:4866.087065, Avg:9496.164746, Median:8966.777300, SD:1177.848457,	TMin:8428.743353, TMax:11121.285996, TRange:2692.542643, TAvg:9326.515108, TMedian:9281.564229, TSD:688.608167
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917217,8,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917217,8,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999974, Max->Median:0.891756
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917217,8,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,554476792=,=,cache-references=,155378871378=,100.00=,=,=,=,
+CPU8=,531001017=,=,cache-references=,155378902978=,100.00=,=,=,=,
+CPU12=,173398361=,=,cache-references=,155378904949=,100.00=,=,=,=,
+CPU16=,173205614=,=,cache-references=,155378936339=,100.00=,=,=,=,
+CPU20=,169810537=,=,cache-references=,155378968031=,100.00=,=,=,=,
+CPU24=,203874832=,=,cache-references=,155379002692=,100.00=,=,=,=,
+CPU28=,173408277=,=,cache-references=,155379033337=,100.00=,=,=,=,
+CPU32=,169363381=,=,cache-references=,155379066789=,100.00=,=,=,=,
+CPU4=,367073504=,=,cache-misses=,155379099484=,100.00=,66.202=,of all cache refs
+CPU8=,377087617=,=,cache-misses=,155379135459=,100.00=,68.008=,of all cache refs
+CPU12=,85389213=,=,cache-misses=,155379166743=,100.00=,15.400=,of all cache refs
+CPU16=,84399513=,=,cache-misses=,155379196344=,100.00=,15.221=,of all cache refs
+CPU20=,83299652=,=,cache-misses=,155379227269=,100.00=,15.023=,of all cache refs
+CPU24=,85223083=,=,cache-misses=,155379261405=,100.00=,15.370=,of all cache refs
+CPU28=,84901688=,=,cache-misses=,155379291916=,100.00=,15.312=,of all cache refs
+CPU32=,84291391=,=,cache-misses=,155379332589=,100.00=,15.202=,of all cache refs
+CPU4=,375426591634=,=,cycles=,155379368675=,100.00=,=,=,=,
+CPU8=,377075350596=,=,cycles=,155379399981=,100.00=,=,=,=,
+CPU12=,57830148945=,=,cycles=,155379427327=,100.00=,=,=,=,
+CPU16=,57750045623=,=,cycles=,155379458492=,100.00=,=,=,=,
+CPU20=,57540391910=,=,cycles=,155379488925=,100.00=,=,=,=,
+CPU24=,59220142942=,=,cycles=,155379521259=,100.00=,=,=,=,
+CPU28=,58050312521=,=,cycles=,155379551177=,100.00=,=,=,=,
+CPU32=,57729201016=,=,cycles=,155379580877=,100.00=,=,=,=,
+CPU4=,400722136569=,=,instructions=,155379612422=,100.00=,1.07=,insn per cycle
+CPU8=,400321622686=,=,instructions=,155379640537=,100.00=,1.07=,insn per cycle
+CPU12=,21511491271=,=,instructions=,155379670534=,100.00=,0.06=,insn per cycle
+CPU16=,21381983218=,=,instructions=,155379701457=,100.00=,0.06=,insn per cycle
+CPU20=,20982510877=,=,instructions=,155379731142=,100.00=,0.06=,insn per cycle
+CPU24=,23672196138=,=,instructions=,155379761577=,100.00=,0.06=,insn per cycle
+CPU28=,21468254422=,=,instructions=,155379790250=,100.00=,0.06=,insn per cycle
+CPU32=,21583496972=,=,instructions=,155379819074=,100.00=,0.06=,insn per cycle
+CPU4=,73877816457=,=,branches=,155379845434=,100.00=,=,=,=,
+CPU8=,73934231894=,=,branches=,155379876580=,100.00=,=,=,=,
+CPU12=,3535970941=,=,branches=,155379902164=,100.00=,=,=,=,
+CPU16=,3510204921=,=,branches=,155379928919=,100.00=,=,=,=,
+CPU20=,3446480330=,=,branches=,155379958552=,100.00=,=,=,=,
+CPU24=,4043793492=,=,branches=,155379987576=,100.00=,=,=,=,
+CPU28=,3519213411=,=,branches=,155380016643=,100.00=,=,=,=,
+CPU32=,3550985641=,=,branches=,155380043649=,100.00=,=,=,=,
+CPU4=,11317=,=,faults=,155380059307=,100.00=,=,=,=,
+CPU8=,10057=,=,faults=,155380083223=,100.00=,=,=,=,
+CPU12=,1232=,=,faults=,155380101849=,100.00=,=,=,=,
+CPU16=,830=,=,faults=,155380133319=,100.00=,=,=,=,
+CPU20=,344=,=,faults=,155380165653=,100.00=,=,=,=,
+CPU24=,750=,=,faults=,155380201713=,100.00=,=,=,=,
+CPU28=,753=,=,faults=,155380239259=,100.00=,=,=,=,
+CPU32=,1141=,=,faults=,155380273972=,100.00=,=,=,=,
+CPU4=,49=,=,migrations=,155380295666=,100.00=,=,=,=,
+CPU8=,95=,=,migrations=,155380314528=,100.00=,=,=,=,
+CPU12=,185=,=,migrations=,155380331933=,100.00=,=,=,=,
+CPU16=,144=,=,migrations=,155380372138=,100.00=,=,=,=,
+CPU20=,161=,=,migrations=,155380459961=,100.00=,=,=,=,
+CPU24=,141=,=,migrations=,155380513353=,100.00=,=,=,=,
+CPU28=,180=,=,migrations=,155380545261=,100.00=,=,=,=,
+CPU32=,136=,=,migrations=,155380578128=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 2000000 --qp 0.5 -t 8 -i 24 -a 2 --lines 1 --args --sc 4 --ec 11
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917373,8,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917373,8,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:2320.487564, Max:4418.681287, Range:2098.193723, Avg:3062.097865, Median:3056.397819, SD:550.617038,	TMin:2473.607331, TMax:3615.489086, TRange:1141.881755, TAvg:3014.792240, TMedian:3056.397819, TSD:404.616696
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917373,8,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917373,8,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999970, Max->Median:0.666058
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917373,8,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,402243032=,=,cache-references=,60629272187=,100.00=,=,=,=,
+CPU8=,318592892=,=,cache-references=,60629295890=,100.00=,=,=,=,
+CPU12=,141148600=,=,cache-references=,60629292971=,100.00=,=,=,=,
+CPU16=,137262448=,=,cache-references=,60629324985=,100.00=,=,=,=,
+CPU20=,145490245=,=,cache-references=,60629357206=,100.00=,=,=,=,
+CPU24=,134681943=,=,cache-references=,60629412357=,100.00=,=,=,=,
+CPU28=,134720068=,=,cache-references=,60629440492=,100.00=,=,=,=,
+CPU32=,133708995=,=,cache-references=,60629477077=,100.00=,=,=,=,
+CPU4=,237287656=,=,cache-misses=,60629475991=,100.00=,58.991=,of all cache refs
+CPU8=,236548788=,=,cache-misses=,60629472603=,100.00=,58.807=,of all cache refs
+CPU12=,72606418=,=,cache-misses=,60629467725=,100.00=,18.050=,of all cache refs
+CPU16=,69371806=,=,cache-misses=,60629469647=,100.00=,17.246=,of all cache refs
+CPU20=,68832351=,=,cache-misses=,60629465312=,100.00=,17.112=,of all cache refs
+CPU24=,68646989=,=,cache-misses=,60629460865=,100.00=,17.066=,of all cache refs
+CPU28=,68333681=,=,cache-misses=,60629456763=,100.00=,16.988=,of all cache refs
+CPU32=,67786718=,=,cache-misses=,60629452843=,100.00=,16.852=,of all cache refs
+CPU4=,143944240436=,=,cycles=,60629451833=,100.00=,=,=,=,
+CPU8=,140203067271=,=,cycles=,60629447130=,100.00=,=,=,=,
+CPU12=,87984675417=,=,cycles=,60629441017=,100.00=,=,=,=,
+CPU16=,87935571186=,=,cycles=,60629436766=,100.00=,=,=,=,
+CPU20=,89227361240=,=,cycles=,60629431560=,100.00=,=,=,=,
+CPU24=,87998041799=,=,cycles=,60629426711=,100.00=,=,=,=,
+CPU28=,87802804387=,=,cycles=,60629422030=,100.00=,=,=,=,
+CPU32=,87681730045=,=,cycles=,60629417186=,100.00=,=,=,=,
+CPU4=,111544623574=,=,instructions=,60629413198=,100.00=,0.77=,insn per cycle
+CPU8=,107106122852=,=,instructions=,60629406687=,100.00=,0.74=,insn per cycle
+CPU12=,51627029310=,=,instructions=,60629398849=,100.00=,0.36=,insn per cycle
+CPU16=,51502329121=,=,instructions=,60629392557=,100.00=,0.36=,insn per cycle
+CPU20=,53702983375=,=,instructions=,60629386252=,100.00=,0.37=,insn per cycle
+CPU24=,51530538104=,=,instructions=,60629380515=,100.00=,0.36=,insn per cycle
+CPU28=,51506910261=,=,instructions=,60629373966=,100.00=,0.36=,insn per cycle
+CPU32=,51499443793=,=,instructions=,60629367655=,100.00=,0.36=,insn per cycle
+CPU4=,18662364521=,=,branches=,60629363748=,100.00=,=,=,=,
+CPU8=,17909569138=,=,branches=,60629357446=,100.00=,=,=,=,
+CPU12=,7594405990=,=,branches=,60629350437=,100.00=,=,=,=,
+CPU16=,7601110043=,=,branches=,60629342626=,100.00=,=,=,=,
+CPU20=,8079322011=,=,branches=,60629335188=,100.00=,=,=,=,
+CPU24=,7585252604=,=,branches=,60629328168=,100.00=,=,=,=,
+CPU28=,7565746020=,=,branches=,60629331536=,100.00=,=,=,=,
+CPU32=,7577816357=,=,branches=,60629324415=,100.00=,=,=,=,
+CPU4=,13479=,=,faults=,60629317875=,100.00=,=,=,=,
+CPU8=,6980=,=,faults=,60629317095=,100.00=,=,=,=,
+CPU12=,196=,=,faults=,60629315763=,100.00=,=,=,=,
+CPU16=,221=,=,faults=,60629314582=,100.00=,=,=,=,
+CPU20=,23192=,=,faults=,60629313282=,100.00=,=,=,=,
+CPU24=,269=,=,faults=,60629312355=,100.00=,=,=,=,
+CPU28=,299=,=,faults=,60629311410=,100.00=,=,=,=,
+CPU32=,176=,=,faults=,60629309283=,100.00=,=,=,=,
+CPU4=,147=,=,migrations=,60629309473=,100.00=,=,=,=,
+CPU8=,172=,=,migrations=,60629308562=,100.00=,=,=,=,
+CPU12=,1030=,=,migrations=,60629307356=,100.00=,=,=,=,
+CPU16=,940=,=,migrations=,60629306627=,100.00=,=,=,=,
+CPU20=,983=,=,migrations=,60629304916=,100.00=,=,=,=,
+CPU24=,945=,=,migrations=,60629303647=,100.00=,=,=,=,
+CPU28=,1080=,=,migrations=,60629302370=,100.00=,=,=,=,
+CPU32=,1046=,=,migrations=,60629300703=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 2000000 --qp 0.5 -t 8 -i 22 -a 2 --lines 1 --args --sc 4 --ec 11
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917433,8,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917433,8,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:4695.019019, Max:6732.357748, Range:2037.338729, Avg:5133.408851, Median:4963.807323, SD:495.576945,	TMin:4746.939041, TMax:5440.087471, TRange:693.148430, TAvg:5044.135076, TMedian:4963.807323, TSD:252.908757
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917433,8,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917433,8,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999987, Max->Median:0.909955
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917433,8,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,420989192=,=,cache-references=,90185439989=,100.00=,=,=,=,
+CPU8=,393193073=,=,cache-references=,90185469053=,100.00=,=,=,=,
+CPU12=,14817422=,=,cache-references=,90185493443=,100.00=,=,=,=,
+CPU16=,19404045=,=,cache-references=,90185518025=,100.00=,=,=,=,
+CPU20=,17413570=,=,cache-references=,90185548722=,100.00=,=,=,=,
+CPU24=,13096988=,=,cache-references=,90185574959=,100.00=,=,=,=,
+CPU28=,14844982=,=,cache-references=,90185600222=,100.00=,=,=,=,
+CPU32=,13954354=,=,cache-references=,90185617788=,100.00=,=,=,=,
+CPU4=,227265963=,=,cache-misses=,90185657290=,100.00=,53.984=,of all cache refs
+CPU8=,229696696=,=,cache-misses=,90185698699=,100.00=,54.561=,of all cache refs
+CPU12=,3918282=,=,cache-misses=,90185727563=,100.00=,0.931=,of all cache refs
+CPU16=,4447755=,=,cache-misses=,90185754328=,100.00=,1.057=,of all cache refs
+CPU20=,5121556=,=,cache-misses=,90185781460=,100.00=,1.217=,of all cache refs
+CPU24=,4058984=,=,cache-misses=,90185819187=,100.00=,0.964=,of all cache refs
+CPU28=,4072660=,=,cache-misses=,90185850248=,100.00=,0.967=,of all cache refs
+CPU32=,3770216=,=,cache-misses=,90185869650=,100.00=,0.896=,of all cache refs
+CPU4=,186639464633=,=,cycles=,90185902908=,100.00=,=,=,=,
+CPU8=,187540724977=,=,cycles=,90185933696=,100.00=,=,=,=,
+CPU12=,7048760508=,=,cycles=,90185960609=,100.00=,=,=,=,
+CPU16=,7081727596=,=,cycles=,90185989056=,100.00=,=,=,=,
+CPU20=,7464585783=,=,cycles=,90186016519=,100.00=,=,=,=,
+CPU24=,6793285603=,=,cycles=,90186043655=,100.00=,=,=,=,
+CPU28=,6885483611=,=,cycles=,90186070239=,100.00=,=,=,=,
+CPU32=,6671251051=,=,cycles=,90186104242=,100.00=,=,=,=,
+CPU4=,202427760325=,=,instructions=,90186133933=,100.00=,1.08=,insn per cycle
+CPU8=,204984237825=,=,instructions=,90186161730=,100.00=,1.10=,insn per cycle
+CPU12=,4777968215=,=,instructions=,90186188986=,100.00=,0.03=,insn per cycle
+CPU16=,5120829585=,=,instructions=,90186213575=,100.00=,0.03=,insn per cycle
+CPU20=,4498000706=,=,instructions=,90186215459=,100.00=,0.02=,insn per cycle
+CPU24=,2957813629=,=,instructions=,90186209885=,100.00=,0.02=,insn per cycle
+CPU28=,4881787298=,=,instructions=,90186209668=,100.00=,0.03=,insn per cycle
+CPU32=,3281102669=,=,instructions=,90186203557=,100.00=,0.02=,insn per cycle
+CPU4=,36951077478=,=,branches=,90186201195=,100.00=,=,=,=,
+CPU8=,37424440840=,=,branches=,90186197752=,100.00=,=,=,=,
+CPU12=,634598229=,=,branches=,90186193199=,100.00=,=,=,=,
+CPU16=,682576500=,=,branches=,90186185421=,100.00=,=,=,=,
+CPU20=,655709411=,=,branches=,90186177900=,100.00=,=,=,=,
+CPU24=,431147847=,=,branches=,90186170495=,100.00=,=,=,=,
+CPU28=,645504056=,=,branches=,90186163205=,100.00=,=,=,=,
+CPU32=,457462153=,=,branches=,90186155116=,100.00=,=,=,=,
+CPU4=,9922=,=,faults=,90186149480=,100.00=,=,=,=,
+CPU8=,6247=,=,faults=,90186148515=,100.00=,=,=,=,
+CPU12=,526=,=,faults=,90186147193=,100.00=,=,=,=,
+CPU16=,420=,=,faults=,90186146071=,100.00=,=,=,=,
+CPU20=,1169=,=,faults=,90186145099=,100.00=,=,=,=,
+CPU24=,545=,=,faults=,90186144678=,100.00=,=,=,=,
+CPU28=,485=,=,faults=,90186143850=,100.00=,=,=,=,
+CPU32=,296=,=,faults=,90186142837=,100.00=,=,=,=,
+CPU4=,10=,=,migrations=,90186143769=,100.00=,=,=,=,
+CPU8=,4=,=,migrations=,90186142866=,100.00=,=,=,=,
+CPU12=,195=,=,migrations=,90186141844=,100.00=,=,=,=,
+CPU16=,184=,=,migrations=,90186140872=,100.00=,=,=,=,
+CPU20=,42=,=,migrations=,90186139643=,100.00=,=,=,=,
+CPU24=,18=,=,migrations=,90186138426=,100.00=,=,=,=,
+CPU28=,157=,=,migrations=,90186137765=,100.00=,=,=,=,
+CPU32=,23=,=,migrations=,90186137427=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 2000000 --qp 0.9 -t 8 -i 24 -a 2 --lines 1 --args --sc 4 --ec 11
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917524,8,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917524,8,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:2021.945994, Max:2589.663049, Range:567.717055, Avg:2166.033740, Median:2073.402086, SD:206.733631,	TMin:2027.966102, TMax:2579.568047, TRange:551.601945, TAvg:2144.530543, TMedian:2073.402086, TSD:182.892951
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917524,8,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917524,8,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999940, Max->Median:0.724886
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917524,8,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,331946684=,=,cache-references=,47616735499=,100.00=,=,=,=,
+CPU8=,240219895=,=,cache-references=,47616766815=,100.00=,=,=,=,
+CPU12=,299117=,=,cache-references=,47616794912=,100.00=,=,=,=,
+CPU16=,474363=,=,cache-references=,47616839782=,100.00=,=,=,=,
+CPU20=,605526=,=,cache-references=,47616872521=,100.00=,=,=,=,
+CPU24=,1252791=,=,cache-references=,47616904306=,100.00=,=,=,=,
+CPU28=,1427387=,=,cache-references=,47616935363=,100.00=,=,=,=,
+CPU32=,399161=,=,cache-references=,47616967133=,100.00=,=,=,=,
+CPU4=,190815334=,=,cache-misses=,47616992317=,100.00=,57.484=,of all cache refs
+CPU8=,182505370=,=,cache-misses=,47617017574=,100.00=,54.980=,of all cache refs
+CPU12=,47806=,=,cache-misses=,47617056287=,100.00=,0.014=,of all cache refs
+CPU16=,100164=,=,cache-misses=,47617084642=,100.00=,0.030=,of all cache refs
+CPU20=,137692=,=,cache-misses=,47617116051=,100.00=,0.041=,of all cache refs
+CPU24=,178417=,=,cache-misses=,47617163187=,100.00=,0.054=,of all cache refs
+CPU28=,268387=,=,cache-misses=,47617196454=,100.00=,0.081=,of all cache refs
+CPU32=,69735=,=,cache-misses=,47617233924=,100.00=,0.021=,of all cache refs
+CPU4=,82115030470=,=,cycles=,47617269743=,100.00=,=,=,=,
+CPU8=,75169291703=,=,cycles=,47617310784=,100.00=,=,=,=,
+CPU12=,159277094=,=,cycles=,47617340513=,100.00=,=,=,=,
+CPU16=,189262219=,=,cycles=,47617370579=,100.00=,=,=,=,
+CPU20=,182421706=,=,cycles=,47617399972=,100.00=,=,=,=,
+CPU24=,202684017=,=,cycles=,47617427129=,100.00=,=,=,=,
+CPU28=,222190747=,=,cycles=,47617454873=,100.00=,=,=,=,
+CPU32=,173155850=,=,cycles=,47617482552=,100.00=,=,=,=,
+CPU4=,78634905752=,=,instructions=,47617512996=,100.00=,0.96=,insn per cycle
+CPU8=,71885259068=,=,instructions=,47617548304=,100.00=,0.88=,insn per cycle
+CPU12=,39835641=,=,instructions=,47617586636=,100.00=,0.00=,insn per cycle
+CPU16=,57401337=,=,instructions=,47617613865=,100.00=,0.00=,insn per cycle
+CPU20=,57929192=,=,instructions=,47617641417=,100.00=,0.00=,insn per cycle
+CPU24=,84001859=,=,instructions=,47617669583=,100.00=,0.00=,insn per cycle
+CPU28=,50723573=,=,instructions=,47617696529=,100.00=,0.00=,insn per cycle
+CPU32=,51514295=,=,instructions=,47617723323=,100.00=,0.00=,insn per cycle
+CPU4=,13508166840=,=,branches=,47617761090=,100.00=,=,=,=,
+CPU8=,12411006237=,=,branches=,47617790367=,100.00=,=,=,=,
+CPU12=,8096768=,=,branches=,47617824911=,100.00=,=,=,=,
+CPU16=,12090960=,=,branches=,47617849920=,100.00=,=,=,=,
+CPU20=,11374920=,=,branches=,47617875614=,100.00=,=,=,=,
+CPU24=,16796878=,=,branches=,47617902534=,100.00=,=,=,=,
+CPU28=,10392382=,=,branches=,47617926330=,100.00=,=,=,=,
+CPU32=,11004948=,=,branches=,47617959194=,100.00=,=,=,=,
+CPU4=,11959=,=,faults=,47617975035=,100.00=,=,=,=,
+CPU8=,5744=,=,faults=,47617993688=,100.00=,=,=,=,
+CPU12=,0=,=,faults=,47617996159=,100.00=,=,=,=,
+CPU16=,0=,=,faults=,47617996721=,100.00=,=,=,=,
+CPU20=,712=,=,faults=,47617997903=,100.00=,=,=,=,
+CPU24=,110=,=,faults=,47617998294=,100.00=,=,=,=,
+CPU28=,0=,=,faults=,47617998862=,100.00=,=,=,=,
+CPU32=,4=,=,faults=,47617999581=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,47618000377=,100.00=,=,=,=,
+CPU8=,2=,=,migrations=,47618001190=,100.00=,=,=,=,
+CPU12=,4=,=,migrations=,47618001368=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,47618001566=,100.00=,=,=,=,
+CPU20=,7=,=,migrations=,47618002274=,100.00=,=,=,=,
+CPU24=,11=,=,migrations=,47618002498=,100.00=,=,=,=,
+CPU28=,8=,=,migrations=,47618003306=,100.00=,=,=,=,
+CPU32=,4=,=,migrations=,47618003654=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 2000000 --qp 0.9 -t 8 -i 22 -a 2 --lines 1 --args --sc 4 --ec 11
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917571,8,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917571,8,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:1637.647383, Max:2124.478594, Range:486.831211, Avg:1751.570519, Median:1694.957264, SD:142.911427,	TMin:1673.189909, TMax:2094.300349, TRange:421.110440, TAvg:1731.648601, TMedian:1694.957264, TSD:107.114873
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917571,8,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917571,8,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999793, Max->Median:0.111914
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,2000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917571,8,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,262561788=,=,cache-references=,39055477373=,100.00=,=,=,=,
+CPU8=,241045450=,=,cache-references=,39055504351=,100.00=,=,=,=,
+CPU12=,240656=,=,cache-references=,39055548578=,100.00=,=,=,=,
+CPU16=,392307=,=,cache-references=,39055578900=,100.00=,=,=,=,
+CPU20=,159547=,=,cache-references=,39055611420=,100.00=,=,=,=,
+CPU24=,343995=,=,cache-references=,39055640647=,100.00=,=,=,=,
+CPU28=,891908=,=,cache-references=,39055686718=,100.00=,=,=,=,
+CPU32=,196268=,=,cache-references=,39055740189=,100.00=,=,=,=,
+CPU4=,96470050=,=,cache-misses=,39055763094=,100.00=,36.742=,of all cache refs
+CPU8=,96269497=,=,cache-misses=,39055784914=,100.00=,36.665=,of all cache refs
+CPU12=,37274=,=,cache-misses=,39055822570=,100.00=,0.014=,of all cache refs
+CPU16=,74375=,=,cache-misses=,39055850844=,100.00=,0.028=,of all cache refs
+CPU20=,28845=,=,cache-misses=,39055889300=,100.00=,0.011=,of all cache refs
+CPU24=,56701=,=,cache-misses=,39055916192=,100.00=,0.022=,of all cache refs
+CPU28=,120743=,=,cache-misses=,39055956661=,100.00=,0.046=,of all cache refs
+CPU32=,38482=,=,cache-misses=,39055983682=,100.00=,0.015=,of all cache refs
+CPU4=,69520504063=,=,cycles=,39056003893=,100.00=,=,=,=,
+CPU8=,67313691107=,=,cycles=,39056020026=,100.00=,=,=,=,
+CPU12=,126987554=,=,cycles=,39056069141=,100.00=,=,=,=,
+CPU16=,144973357=,=,cycles=,39056095504=,100.00=,=,=,=,
+CPU20=,124992945=,=,cycles=,39056122105=,100.00=,=,=,=,
+CPU24=,129235142=,=,cycles=,39056152604=,100.00=,=,=,=,
+CPU28=,152364955=,=,cycles=,39056191738=,100.00=,=,=,=,
+CPU32=,125417246=,=,cycles=,39056227426=,100.00=,=,=,=,
+CPU4=,76695517382=,=,instructions=,39056245572=,100.00=,1.10=,insn per cycle
+CPU8=,74959632096=,=,instructions=,39056264222=,100.00=,1.08=,insn per cycle
+CPU12=,30964553=,=,instructions=,39056349838=,100.00=,0.00=,insn per cycle
+CPU16=,40201014=,=,instructions=,39056347910=,100.00=,0.00=,insn per cycle
+CPU20=,30748672=,=,instructions=,39056343076=,100.00=,0.00=,insn per cycle
+CPU24=,32123541=,=,instructions=,39056338859=,100.00=,0.00=,insn per cycle
+CPU28=,35487611=,=,instructions=,39056384524=,100.00=,0.00=,insn per cycle
+CPU32=,31691897=,=,instructions=,39056414542=,100.00=,0.00=,insn per cycle
+CPU4=,13222687608=,=,branches=,39056437869=,100.00=,=,=,=,
+CPU8=,12939770765=,=,branches=,39056462131=,100.00=,=,=,=,
+CPU12=,6288479=,=,branches=,39056459959=,100.00=,=,=,=,
+CPU16=,8355399=,=,branches=,39056452328=,100.00=,=,=,=,
+CPU20=,6264951=,=,branches=,39056444753=,100.00=,=,=,=,
+CPU24=,6534532=,=,branches=,39056438748=,100.00=,=,=,=,
+CPU28=,7213180=,=,branches=,39056433359=,100.00=,=,=,=,
+CPU32=,6459883=,=,branches=,39056426606=,100.00=,=,=,=,
+CPU4=,12371=,=,faults=,39056421844=,100.00=,=,=,=,
+CPU8=,5762=,=,faults=,39056421350=,100.00=,=,=,=,
+CPU12=,0=,=,faults=,39056420448=,100.00=,=,=,=,
+CPU16=,4=,=,faults=,39056420436=,100.00=,=,=,=,
+CPU20=,0=,=,faults=,39056419301=,100.00=,=,=,=,
+CPU24=,2=,=,faults=,39056418968=,100.00=,=,=,=,
+CPU28=,0=,=,faults=,39056418227=,100.00=,=,=,=,
+CPU32=,2=,=,faults=,39056417859=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,39056417287=,100.00=,=,=,=,
+CPU8=,2=,=,migrations=,39056416624=,100.00=,=,=,=,
+CPU12=,2=,=,migrations=,39056415614=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,39056414361=,100.00=,=,=,=,
+CPU20=,1=,=,migrations=,39056413995=,100.00=,=,=,=,
+CPU24=,3=,=,migrations=,39056413251=,100.00=,=,=,=,
+CPU28=,2=,=,migrations=,39056412607=,100.00=,=,=,=,
+CPU32=,3=,=,migrations=,39056411725=,100.00=,=,=,=,
+WATCHING: 4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64
+Running for threads 16 on table hashtable_cuckoo (2019-10-12T17:34:41-04:00)
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 1000000 --qp 0 -t 16 -i 24 -a 2 --lines 1 --args --sc 4 --ec 19
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917610,16,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917610,16,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:2969.241184, Max:3483.852341, Range:514.611157, Avg:3206.019203, Median:3183.619107, SD:165.717300,	TMin:3018.239120, TMax:3449.650200, TRange:431.411080, TAvg:3202.861117, TMedian:3183.619107, TSD:146.379016
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917610,16,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917610,16,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999982, Max->Median:0.891944
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917610,16,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,227075600=,=,cache-references=,62239272388=,100.00=,=,=,=,
+CPU8=,149629106=,=,cache-references=,62239291024=,100.00=,=,=,=,
+CPU12=,150398023=,=,cache-references=,62239288096=,100.00=,=,=,=,
+CPU16=,156267125=,=,cache-references=,62239287579=,100.00=,=,=,=,
+CPU20=,2822860=,=,cache-references=,62239296877=,100.00=,=,=,=,
+CPU24=,1461295=,=,cache-references=,62239326684=,100.00=,=,=,=,
+CPU28=,1590540=,=,cache-references=,62239357093=,100.00=,=,=,=,
+CPU32=,470429=,=,cache-references=,62239387222=,100.00=,=,=,=,
+CPU36=,469362=,=,cache-references=,62239418013=,100.00=,=,=,=,
+CPU40=,286793=,=,cache-references=,62239454111=,100.00=,=,=,=,
+CPU44=,244462=,=,cache-references=,62239487178=,100.00=,=,=,=,
+CPU48=,1162411=,=,cache-references=,62239519126=,100.00=,=,=,=,
+CPU52=,378537=,=,cache-references=,62239549017=,100.00=,=,=,=,
+CPU56=,221913=,=,cache-references=,62239578324=,100.00=,=,=,=,
+CPU60=,257001=,=,cache-references=,62239609267=,100.00=,=,=,=,
+CPU64=,1244603=,=,cache-references=,62239637628=,100.00=,=,=,=,
+CPU4=,112022542=,=,cache-misses=,62239671093=,100.00=,49.333=,of all cache refs
+CPU8=,113458710=,=,cache-misses=,62239703120=,100.00=,49.965=,of all cache refs
+CPU12=,114187736=,=,cache-misses=,62239733133=,100.00=,50.286=,of all cache refs
+CPU16=,118462773=,=,cache-misses=,62239765033=,100.00=,52.169=,of all cache refs
+CPU20=,447047=,=,cache-misses=,62239794479=,100.00=,0.197=,of all cache refs
+CPU24=,175439=,=,cache-misses=,62239822214=,100.00=,0.077=,of all cache refs
+CPU28=,210626=,=,cache-misses=,62239853087=,100.00=,0.093=,of all cache refs
+CPU32=,83673=,=,cache-misses=,62239885992=,100.00=,0.037=,of all cache refs
+CPU36=,82537=,=,cache-misses=,62239917372=,100.00=,0.036=,of all cache refs
+CPU40=,31447=,=,cache-misses=,62239948672=,100.00=,0.014=,of all cache refs
+CPU44=,31351=,=,cache-misses=,62239978379=,100.00=,0.014=,of all cache refs
+CPU48=,199075=,=,cache-misses=,62240007809=,100.00=,0.088=,of all cache refs
+CPU52=,49851=,=,cache-misses=,62240037862=,100.00=,0.022=,of all cache refs
+CPU56=,29424=,=,cache-misses=,62240056492=,100.00=,0.013=,of all cache refs
+CPU60=,40564=,=,cache-misses=,62240087716=,100.00=,0.018=,of all cache refs
+CPU64=,205517=,=,cache-misses=,62240116034=,100.00=,0.091=,of all cache refs
+CPU4=,84615081490=,=,cycles=,62240150578=,100.00=,=,=,=,
+CPU8=,87138885794=,=,cycles=,62240185292=,100.00=,=,=,=,
+CPU12=,86862382654=,=,cycles=,62240214356=,100.00=,=,=,=,
+CPU16=,86897659224=,=,cycles=,62240243649=,100.00=,=,=,=,
+CPU20=,331697998=,=,cycles=,62240290380=,100.00=,=,=,=,
+CPU24=,250526602=,=,cycles=,62240320511=,100.00=,=,=,=,
+CPU28=,266451250=,=,cycles=,62240351310=,100.00=,=,=,=,
+CPU32=,217887710=,=,cycles=,62240383066=,100.00=,=,=,=,
+CPU36=,218363385=,=,cycles=,62240416685=,100.00=,=,=,=,
+CPU40=,210192317=,=,cycles=,62240453060=,100.00=,=,=,=,
+CPU44=,220347663=,=,cycles=,62240494724=,100.00=,=,=,=,
+CPU48=,249311478=,=,cycles=,62240531402=,100.00=,=,=,=,
+CPU52=,225422993=,=,cycles=,62240564302=,100.00=,=,=,=,
+CPU56=,207106507=,=,cycles=,62240594737=,100.00=,=,=,=,
+CPU60=,207820224=,=,cycles=,62240625306=,100.00=,=,=,=,
+CPU64=,253397488=,=,cycles=,62240657742=,100.00=,=,=,=,
+CPU4=,97420030388=,=,instructions=,62240698337=,100.00=,1.15=,insn per cycle
+CPU8=,103762598453=,=,instructions=,62240729466=,100.00=,1.23=,insn per cycle
+CPU12=,103188993928=,=,instructions=,62240759072=,100.00=,1.22=,insn per cycle
+CPU16=,103345107589=,=,instructions=,62240786955=,100.00=,1.22=,insn per cycle
+CPU20=,155812483=,=,instructions=,62240817447=,100.00=,0.00=,insn per cycle
+CPU24=,66910844=,=,instructions=,62240846148=,100.00=,0.00=,insn per cycle
+CPU28=,61585874=,=,instructions=,62240872260=,100.00=,0.00=,insn per cycle
+CPU32=,56275810=,=,instructions=,62240899830=,100.00=,0.00=,insn per cycle
+CPU36=,54679085=,=,instructions=,62240927382=,100.00=,0.00=,insn per cycle
+CPU40=,52867317=,=,instructions=,62240956847=,100.00=,0.00=,insn per cycle
+CPU44=,52354555=,=,instructions=,62240984059=,100.00=,0.00=,insn per cycle
+CPU48=,62506123=,=,instructions=,62241013277=,100.00=,0.00=,insn per cycle
+CPU52=,54126529=,=,instructions=,62241044750=,100.00=,0.00=,insn per cycle
+CPU56=,52584854=,=,instructions=,62241071506=,100.00=,0.00=,insn per cycle
+CPU60=,52350420=,=,instructions=,62241098560=,100.00=,0.00=,insn per cycle
+CPU64=,115719084=,=,instructions=,62241125570=,100.00=,0.00=,insn per cycle
+CPU4=,17755644391=,=,branches=,62241159666=,100.00=,=,=,=,
+CPU8=,19235985675=,=,branches=,62241188980=,100.00=,=,=,=,
+CPU12=,19122501455=,=,branches=,62241221514=,100.00=,=,=,=,
+CPU16=,19156762756=,=,branches=,62241255207=,100.00=,=,=,=,
+CPU20=,34479694=,=,branches=,62241295071=,100.00=,=,=,=,
+CPU24=,13464234=,=,branches=,62241333018=,100.00=,=,=,=,
+CPU28=,12452222=,=,branches=,62241361415=,100.00=,=,=,=,
+CPU32=,11458343=,=,branches=,62241388199=,100.00=,=,=,=,
+CPU36=,11134950=,=,branches=,62241416890=,100.00=,=,=,=,
+CPU40=,10776594=,=,branches=,62241452838=,100.00=,=,=,=,
+CPU44=,10679518=,=,branches=,62241479883=,100.00=,=,=,=,
+CPU48=,12587430=,=,branches=,62241505566=,100.00=,=,=,=,
+CPU52=,11003872=,=,branches=,62241533813=,100.00=,=,=,=,
+CPU56=,10717572=,=,branches=,62241559280=,100.00=,=,=,=,
+CPU60=,10678499=,=,branches=,62241584379=,100.00=,=,=,=,
+CPU64=,19901464=,=,branches=,62241609412=,100.00=,=,=,=,
+CPU4=,17430=,=,faults=,62241637741=,100.00=,=,=,=,
+CPU8=,5671=,=,faults=,62241672909=,100.00=,=,=,=,
+CPU12=,5300=,=,faults=,62241705553=,100.00=,=,=,=,
+CPU16=,5380=,=,faults=,62241739052=,100.00=,=,=,=,
+CPU20=,2=,=,faults=,62241775689=,100.00=,=,=,=,
+CPU24=,103=,=,faults=,62241810655=,100.00=,=,=,=,
+CPU28=,1=,=,faults=,62241843357=,100.00=,=,=,=,
+CPU32=,36=,=,faults=,62241886863=,100.00=,=,=,=,
+CPU36=,35=,=,faults=,62241919360=,100.00=,=,=,=,
+CPU40=,2=,=,faults=,62241956998=,100.00=,=,=,=,
+CPU44=,0=,=,faults=,62241989438=,100.00=,=,=,=,
+CPU48=,201=,=,faults=,62242024735=,100.00=,=,=,=,
+CPU52=,37=,=,faults=,62242057887=,100.00=,=,=,=,
+CPU56=,0=,=,faults=,62242092684=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,62242118618=,100.00=,=,=,=,
+CPU64=,45=,=,faults=,62242150493=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,62242172058=,100.00=,=,=,=,
+CPU8=,3=,=,migrations=,62242189782=,100.00=,=,=,=,
+CPU12=,3=,=,migrations=,62242208110=,100.00=,=,=,=,
+CPU16=,3=,=,migrations=,62242245378=,100.00=,=,=,=,
+CPU20=,27=,=,migrations=,62242272041=,100.00=,=,=,=,
+CPU24=,15=,=,migrations=,62242282476=,100.00=,=,=,=,
+CPU28=,6=,=,migrations=,62242285112=,100.00=,=,=,=,
+CPU32=,4=,=,migrations=,62242317148=,100.00=,=,=,=,
+CPU36=,3=,=,migrations=,62242358869=,100.00=,=,=,=,
+CPU40=,4=,=,migrations=,62242389098=,100.00=,=,=,=,
+CPU44=,0=,=,migrations=,62242394885=,100.00=,=,=,=,
+CPU48=,3=,=,migrations=,62242400659=,100.00=,=,=,=,
+CPU52=,5=,=,migrations=,62242432363=,100.00=,=,=,=,
+CPU56=,2=,=,migrations=,62242464737=,100.00=,=,=,=,
+CPU60=,0=,=,migrations=,62242502864=,100.00=,=,=,=,
+CPU64=,17=,=,migrations=,62242540577=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 1000000 --qp 0 -t 16 -i 22 -a 2 --lines 1 --args --sc 4 --ec 19
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917673,16,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917673,16,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:4993.826467, Max:6399.421055, Range:1405.594588, Avg:5444.012957, Median:5329.571477, SD:350.861008,	TMin:5119.920728, TMax:5826.444412, TRange:706.523684, TAvg:5405.149756, TMedian:5329.571477, TSD:233.936985
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917673,16,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917673,16,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999958, Max->Median:0.926675
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917673,16,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,286018623=,=,cache-references=,95721247049=,100.00=,=,=,=,
+CPU8=,275166186=,=,cache-references=,95721271311=,100.00=,=,=,=,
+CPU12=,278571547=,=,cache-references=,95721293250=,100.00=,=,=,=,
+CPU16=,290118340=,=,cache-references=,95721315998=,100.00=,=,=,=,
+CPU20=,12914520=,=,cache-references=,95721314988=,100.00=,=,=,=,
+CPU24=,6711927=,=,cache-references=,95721342057=,100.00=,=,=,=,
+CPU28=,11599410=,=,cache-references=,95721368978=,100.00=,=,=,=,
+CPU32=,7446702=,=,cache-references=,95721396017=,100.00=,=,=,=,
+CPU36=,6430875=,=,cache-references=,95721396017=,100.00=,=,=,=,
+CPU40=,7339380=,=,cache-references=,95721423472=,100.00=,=,=,=,
+CPU44=,6670037=,=,cache-references=,95721453267=,100.00=,=,=,=,
+CPU48=,6454594=,=,cache-references=,95721480032=,100.00=,=,=,=,
+CPU52=,6880913=,=,cache-references=,95721506403=,100.00=,=,=,=,
+CPU56=,7824941=,=,cache-references=,95721537566=,100.00=,=,=,=,
+CPU60=,6505915=,=,cache-references=,95721567497=,100.00=,=,=,=,
+CPU64=,7824609=,=,cache-references=,95721596633=,100.00=,=,=,=,
+CPU4=,188312295=,=,cache-misses=,95721621120=,100.00=,65.839=,of all cache refs
+CPU8=,196374770=,=,cache-misses=,95721640532=,100.00=,68.658=,of all cache refs
+CPU12=,197783309=,=,cache-misses=,95721667377=,100.00=,69.151=,of all cache refs
+CPU16=,196021134=,=,cache-misses=,95721695511=,100.00=,68.534=,of all cache refs
+CPU20=,3238780=,=,cache-misses=,95721693895=,100.00=,1.132=,of all cache refs
+CPU24=,1791511=,=,cache-misses=,95721719751=,100.00=,0.626=,of all cache refs
+CPU28=,2229434=,=,cache-misses=,95721745576=,100.00=,0.779=,of all cache refs
+CPU32=,1838365=,=,cache-misses=,95721775039=,100.00=,0.643=,of all cache refs
+CPU36=,1777893=,=,cache-misses=,95721775235=,100.00=,0.622=,of all cache refs
+CPU40=,2029414=,=,cache-misses=,95721808418=,100.00=,0.710=,of all cache refs
+CPU44=,2234876=,=,cache-misses=,95721838946=,100.00=,0.781=,of all cache refs
+CPU48=,1775121=,=,cache-misses=,95721875654=,100.00=,0.621=,of all cache refs
+CPU52=,2024723=,=,cache-misses=,95721904513=,100.00=,0.708=,of all cache refs
+CPU56=,2363677=,=,cache-misses=,95721933364=,100.00=,0.826=,of all cache refs
+CPU60=,1771374=,=,cache-misses=,95721959024=,100.00=,0.619=,of all cache refs
+CPU64=,2464348=,=,cache-misses=,95721984722=,100.00=,0.862=,of all cache refs
+CPU4=,196238116848=,=,cycles=,95722013323=,100.00=,=,=,=,
+CPU8=,194763396231=,=,cycles=,95722032506=,100.00=,=,=,=,
+CPU12=,200579648982=,=,cycles=,95722066604=,100.00=,=,=,=,
+CPU16=,195048991287=,=,cycles=,95722087211=,100.00=,=,=,=,
+CPU20=,10521765644=,=,cycles=,95722083856=,100.00=,=,=,=,
+CPU24=,9164959192=,=,cycles=,95722109316=,100.00=,=,=,=,
+CPU28=,9657782030=,=,cycles=,95722134820=,100.00=,=,=,=,
+CPU32=,8317706717=,=,cycles=,95722163886=,100.00=,=,=,=,
+CPU36=,8205875258=,=,cycles=,95722163203=,100.00=,=,=,=,
+CPU40=,9207200459=,=,cycles=,95722186924=,100.00=,=,=,=,
+CPU44=,8005029179=,=,cycles=,95722222060=,100.00=,=,=,=,
+CPU48=,9122162059=,=,cycles=,95722247815=,100.00=,=,=,=,
+CPU52=,8298332303=,=,cycles=,95722279237=,100.00=,=,=,=,
+CPU56=,8853074419=,=,cycles=,95722305698=,100.00=,=,=,=,
+CPU60=,8187203646=,=,cycles=,95722336758=,100.00=,=,=,=,
+CPU64=,8578039066=,=,cycles=,95722363913=,100.00=,=,=,=,
+CPU4=,195533174866=,=,instructions=,95722390199=,100.00=,1.00=,insn per cycle
+CPU8=,198133762286=,=,instructions=,95722416841=,100.00=,1.01=,insn per cycle
+CPU12=,213573161975=,=,instructions=,95722430911=,100.00=,1.09=,insn per cycle
+CPU16=,199403356364=,=,instructions=,95722455863=,100.00=,1.02=,insn per cycle
+CPU20=,8636993660=,=,instructions=,95722450855=,100.00=,0.04=,insn per cycle
+CPU24=,7433842758=,=,instructions=,95722475951=,100.00=,0.04=,insn per cycle
+CPU28=,7660463748=,=,instructions=,95722500970=,100.00=,0.04=,insn per cycle
+CPU32=,6419753848=,=,instructions=,95722526240=,100.00=,0.03=,insn per cycle
+CPU36=,6519671719=,=,instructions=,95722524390=,100.00=,0.03=,insn per cycle
+CPU40=,7446050217=,=,instructions=,95722548777=,100.00=,0.04=,insn per cycle
+CPU44=,3113336509=,=,instructions=,95722577919=,100.00=,0.02=,insn per cycle
+CPU48=,7363878676=,=,instructions=,95722616831=,100.00=,0.04=,insn per cycle
+CPU52=,6508510747=,=,instructions=,95722642743=,100.00=,0.03=,insn per cycle
+CPU56=,1170844585=,=,instructions=,95722667695=,100.00=,0.01=,insn per cycle
+CPU60=,6586315690=,=,instructions=,95722697091=,100.00=,0.03=,insn per cycle
+CPU64=,2747389823=,=,instructions=,95722723841=,100.00=,0.01=,insn per cycle
+CPU4=,36152809678=,=,branches=,95722746748=,100.00=,=,=,=,
+CPU8=,36590989361=,=,branches=,95722778467=,100.00=,=,=,=,
+CPU12=,38999816783=,=,branches=,95722807295=,100.00=,=,=,=,
+CPU16=,36871285190=,=,branches=,95722824403=,100.00=,=,=,=,
+CPU20=,1126354353=,=,branches=,95722818038=,100.00=,=,=,=,
+CPU24=,891307532=,=,branches=,95722855386=,100.00=,=,=,=,
+CPU28=,926229725=,=,branches=,95722879620=,100.00=,=,=,=,
+CPU32=,811974947=,=,branches=,95722906033=,100.00=,=,=,=,
+CPU36=,792805511=,=,branches=,95722901689=,100.00=,=,=,=,
+CPU40=,896440831=,=,branches=,95722940010=,100.00=,=,=,=,
+CPU44=,400321505=,=,branches=,95722961651=,100.00=,=,=,=,
+CPU48=,888453755=,=,branches=,95722985153=,100.00=,=,=,=,
+CPU52=,814837230=,=,branches=,95723008515=,100.00=,=,=,=,
+CPU56=,184248871=,=,branches=,95723034065=,100.00=,=,=,=,
+CPU60=,786818285=,=,branches=,95723047257=,100.00=,=,=,=,
+CPU64=,395372803=,=,branches=,95723067762=,100.00=,=,=,=,
+CPU4=,17003=,=,faults=,95723086571=,100.00=,=,=,=,
+CPU8=,6960=,=,faults=,95723119415=,100.00=,=,=,=,
+CPU12=,7079=,=,faults=,95723150919=,100.00=,=,=,=,
+CPU16=,8304=,=,faults=,95723188504=,100.00=,=,=,=,
+CPU20=,6127=,=,faults=,95723189133=,100.00=,=,=,=,
+CPU24=,199=,=,faults=,95723221637=,100.00=,=,=,=,
+CPU28=,242=,=,faults=,95723255871=,100.00=,=,=,=,
+CPU32=,481=,=,faults=,95723289617=,100.00=,=,=,=,
+CPU36=,375=,=,faults=,95723290579=,100.00=,=,=,=,
+CPU40=,1332=,=,faults=,95723326649=,100.00=,=,=,=,
+CPU44=,167=,=,faults=,95723358427=,100.00=,=,=,=,
+CPU48=,192=,=,faults=,95723388628=,100.00=,=,=,=,
+CPU52=,190=,=,faults=,95723419345=,100.00=,=,=,=,
+CPU56=,579=,=,faults=,95723455404=,100.00=,=,=,=,
+CPU60=,293=,=,faults=,95723490584=,100.00=,=,=,=,
+CPU64=,231=,=,faults=,95723525209=,100.00=,=,=,=,
+CPU4=,27=,=,migrations=,95723554279=,100.00=,=,=,=,
+CPU8=,20=,=,migrations=,95723583985=,100.00=,=,=,=,
+CPU12=,63=,=,migrations=,95723612408=,100.00=,=,=,=,
+CPU16=,9=,=,migrations=,95723641547=,100.00=,=,=,=,
+CPU20=,89=,=,migrations=,95723641560=,100.00=,=,=,=,
+CPU24=,87=,=,migrations=,95723669423=,100.00=,=,=,=,
+CPU28=,102=,=,migrations=,95723700895=,100.00=,=,=,=,
+CPU32=,114=,=,migrations=,95723731213=,100.00=,=,=,=,
+CPU36=,91=,=,migrations=,95723731600=,100.00=,=,=,=,
+CPU40=,108=,=,migrations=,95723760319=,100.00=,=,=,=,
+CPU44=,24=,=,migrations=,95723790674=,100.00=,=,=,=,
+CPU48=,100=,=,migrations=,95723819703=,100.00=,=,=,=,
+CPU52=,129=,=,migrations=,95723855858=,100.00=,=,=,=,
+CPU56=,17=,=,migrations=,95723886120=,100.00=,=,=,=,
+CPU60=,112=,=,migrations=,95723915299=,100.00=,=,=,=,
+CPU64=,42=,=,migrations=,95723943091=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 1000000 --qp 0.5 -t 16 -i 24 -a 2 --lines 1 --args --sc 4 --ec 19
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917768,16,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917768,16,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:1272.674604, Max:1579.460378, Range:306.785774, Avg:1372.496478, Median:1326.894714, SD:101.848600,	TMin:1290.127425, TMax:1567.944292, TRange:277.816867, TAvg:1364.254783, TMedian:1326.894714, TSD:88.541848
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917768,16,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917768,16,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999900, Max->Median:0.942311
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917768,16,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,213016278=,=,cache-references=,34748031306=,100.00=,=,=,=,
+CPU8=,127408155=,=,cache-references=,34748055686=,100.00=,=,=,=,
+CPU12=,132611355=,=,cache-references=,34748084451=,100.00=,=,=,=,
+CPU16=,130987747=,=,cache-references=,34748117862=,100.00=,=,=,=,
+CPU20=,3142681=,=,cache-references=,34748129333=,100.00=,=,=,=,
+CPU24=,695299=,=,cache-references=,34748125326=,100.00=,=,=,=,
+CPU28=,127100=,=,cache-references=,34748153262=,100.00=,=,=,=,
+CPU32=,616161=,=,cache-references=,34748183385=,100.00=,=,=,=,
+CPU36=,436327=,=,cache-references=,34748216223=,100.00=,=,=,=,
+CPU40=,983217=,=,cache-references=,34748252308=,100.00=,=,=,=,
+CPU44=,220267=,=,cache-references=,34748282646=,100.00=,=,=,=,
+CPU48=,145467=,=,cache-references=,34748315433=,100.00=,=,=,=,
+CPU52=,635936=,=,cache-references=,34748344431=,100.00=,=,=,=,
+CPU56=,1082306=,=,cache-references=,34748373455=,100.00=,=,=,=,
+CPU60=,219834=,=,cache-references=,34748402981=,100.00=,=,=,=,
+CPU64=,476797=,=,cache-references=,34748432297=,100.00=,=,=,=,
+CPU4=,101749952=,=,cache-misses=,34748469544=,100.00=,47.766=,of all cache refs
+CPU8=,97091859=,=,cache-misses=,34748498265=,100.00=,45.580=,of all cache refs
+CPU12=,100803383=,=,cache-misses=,34748518327=,100.00=,47.322=,of all cache refs
+CPU16=,99288146=,=,cache-misses=,34748541257=,100.00=,46.611=,of all cache refs
+CPU20=,1733682=,=,cache-misses=,34748571332=,100.00=,0.814=,of all cache refs
+CPU24=,138588=,=,cache-misses=,34748567417=,100.00=,0.065=,of all cache refs
+CPU28=,16583=,=,cache-misses=,34748595225=,100.00=,0.008=,of all cache refs
+CPU32=,113622=,=,cache-misses=,34748623527=,100.00=,0.053=,of all cache refs
+CPU36=,60403=,=,cache-misses=,34748652616=,100.00=,0.028=,of all cache refs
+CPU40=,312628=,=,cache-misses=,34748684020=,100.00=,0.147=,of all cache refs
+CPU44=,26381=,=,cache-misses=,34748712561=,100.00=,0.012=,of all cache refs
+CPU48=,27301=,=,cache-misses=,34748741298=,100.00=,0.013=,of all cache refs
+CPU52=,170850=,=,cache-misses=,34748773194=,100.00=,0.080=,of all cache refs
+CPU56=,204803=,=,cache-misses=,34748806353=,100.00=,0.096=,of all cache refs
+CPU60=,31017=,=,cache-misses=,34748861005=,100.00=,0.015=,of all cache refs
+CPU64=,64941=,=,cache-misses=,34748893696=,100.00=,0.030=,of all cache refs
+CPU4=,52829537336=,=,cycles=,34748931873=,100.00=,=,=,=,
+CPU8=,46302812012=,=,cycles=,34748961998=,100.00=,=,=,=,
+CPU12=,46157305683=,=,cycles=,34748996276=,100.00=,=,=,=,
+CPU16=,46035068311=,=,cycles=,34749027132=,100.00=,=,=,=,
+CPU20=,480466362=,=,cycles=,34749055267=,100.00=,=,=,=,
+CPU24=,131302651=,=,cycles=,34749051393=,100.00=,=,=,=,
+CPU28=,115847513=,=,cycles=,34749081228=,100.00=,=,=,=,
+CPU32=,130427557=,=,cycles=,34749113366=,100.00=,=,=,=,
+CPU36=,118162730=,=,cycles=,34749143850=,100.00=,=,=,=,
+CPU40=,143222296=,=,cycles=,34749172740=,100.00=,=,=,=,
+CPU44=,112436953=,=,cycles=,34749200790=,100.00=,=,=,=,
+CPU48=,109326680=,=,cycles=,34749233925=,100.00=,=,=,=,
+CPU52=,148241201=,=,cycles=,34749263645=,100.00=,=,=,=,
+CPU56=,169032462=,=,cycles=,34749291541=,100.00=,=,=,=,
+CPU60=,109920684=,=,cycles=,34749325354=,100.00=,=,=,=,
+CPU64=,120353770=,=,cycles=,34749358118=,100.00=,=,=,=,
+CPU4=,52409588861=,=,instructions=,34749386933=,100.00=,0.99=,insn per cycle
+CPU8=,45968222753=,=,instructions=,34749415488=,100.00=,0.87=,insn per cycle
+CPU12=,45841355524=,=,instructions=,34749444528=,100.00=,0.87=,insn per cycle
+CPU16=,45885628312=,=,instructions=,34749476127=,100.00=,0.87=,insn per cycle
+CPU20=,400491953=,=,instructions=,34749504578=,100.00=,0.01=,insn per cycle
+CPU24=,32147093=,=,instructions=,34749499470=,100.00=,0.00=,insn per cycle
+CPU28=,27363803=,=,instructions=,34749538441=,100.00=,0.00=,insn per cycle
+CPU32=,46994816=,=,instructions=,34749569299=,100.00=,0.00=,insn per cycle
+CPU36=,32114845=,=,instructions=,34749603216=,100.00=,0.00=,insn per cycle
+CPU40=,46886290=,=,instructions=,34749635746=,100.00=,0.00=,insn per cycle
+CPU44=,28415805=,=,instructions=,34749664240=,100.00=,0.00=,insn per cycle
+CPU48=,27409120=,=,instructions=,34749696086=,100.00=,0.00=,insn per cycle
+CPU52=,118768519=,=,instructions=,34749731536=,100.00=,0.00=,insn per cycle
+CPU56=,75221164=,=,instructions=,34749757915=,100.00=,0.00=,insn per cycle
+CPU60=,28015923=,=,instructions=,34749784362=,100.00=,0.00=,insn per cycle
+CPU64=,39865352=,=,instructions=,34749811104=,100.00=,0.00=,insn per cycle
+CPU4=,8899431733=,=,branches=,34749844534=,100.00=,=,=,=,
+CPU8=,7865540261=,=,branches=,34749876028=,100.00=,=,=,=,
+CPU12=,7837948637=,=,branches=,34749904618=,100.00=,=,=,=,
+CPU16=,7846628452=,=,branches=,34749945614=,100.00=,=,=,=,
+CPU20=,81606576=,=,branches=,34749975956=,100.00=,=,=,=,
+CPU24=,6560707=,=,branches=,34749969874=,100.00=,=,=,=,
+CPU28=,5580661=,=,branches=,34749993245=,100.00=,=,=,=,
+CPU32=,9364520=,=,branches=,34750018148=,100.00=,=,=,=,
+CPU36=,6519937=,=,branches=,34750044521=,100.00=,=,=,=,
+CPU40=,9340071=,=,branches=,34750071588=,100.00=,=,=,=,
+CPU44=,5768528=,=,branches=,34750099688=,100.00=,=,=,=,
+CPU48=,5588466=,=,branches=,34750129502=,100.00=,=,=,=,
+CPU52=,16856414=,=,branches=,34750156001=,100.00=,=,=,=,
+CPU56=,14521243=,=,branches=,34750188979=,100.00=,=,=,=,
+CPU60=,5708828=,=,branches=,34750217313=,100.00=,=,=,=,
+CPU64=,7979255=,=,branches=,34750243213=,100.00=,=,=,=,
+CPU4=,20662=,=,faults=,34750273713=,100.00=,=,=,=,
+CPU8=,9294=,=,faults=,34750310983=,100.00=,=,=,=,
+CPU12=,10058=,=,faults=,34750352195=,100.00=,=,=,=,
+CPU16=,9445=,=,faults=,34750381368=,100.00=,=,=,=,
+CPU20=,18=,=,faults=,34750430990=,100.00=,=,=,=,
+CPU24=,0=,=,faults=,34750430086=,100.00=,=,=,=,
+CPU28=,0=,=,faults=,34750460540=,100.00=,=,=,=,
+CPU32=,422=,=,faults=,34750490697=,100.00=,=,=,=,
+CPU36=,11=,=,faults=,34750521151=,100.00=,=,=,=,
+CPU40=,20=,=,faults=,34750554965=,100.00=,=,=,=,
+CPU44=,0=,=,faults=,34750593158=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,34750623014=,100.00=,=,=,=,
+CPU52=,89=,=,faults=,34750657445=,100.00=,=,=,=,
+CPU56=,872=,=,faults=,34750690162=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,34750719883=,100.00=,=,=,=,
+CPU64=,0=,=,faults=,34750749219=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,34750780894=,100.00=,=,=,=,
+CPU8=,5=,=,migrations=,34750812595=,100.00=,=,=,=,
+CPU12=,1=,=,migrations=,34750843823=,100.00=,=,=,=,
+CPU16=,4=,=,migrations=,34750873479=,100.00=,=,=,=,
+CPU20=,5=,=,migrations=,34750905274=,100.00=,=,=,=,
+CPU24=,2=,=,migrations=,34750904162=,100.00=,=,=,=,
+CPU28=,1=,=,migrations=,34750933933=,100.00=,=,=,=,
+CPU32=,6=,=,migrations=,34750968171=,100.00=,=,=,=,
+CPU36=,7=,=,migrations=,34751001710=,100.00=,=,=,=,
+CPU40=,3=,=,migrations=,34751032596=,100.00=,=,=,=,
+CPU44=,1=,=,migrations=,34751061912=,100.00=,=,=,=,
+CPU48=,0=,=,migrations=,34751091512=,100.00=,=,=,=,
+CPU52=,8=,=,migrations=,34751121794=,100.00=,=,=,=,
+CPU56=,4=,=,migrations=,34751152670=,100.00=,=,=,=,
+CPU60=,4=,=,migrations=,34751201319=,100.00=,=,=,=,
+CPU64=,6=,=,migrations=,34751233141=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 1000000 --qp 0.5 -t 16 -i 22 -a 2 --lines 1 --args --sc 4 --ec 19
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917803,16,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917803,16,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:2669.240141, Max:3110.438272, Range:441.198131, Avg:2852.287052, Median:2817.907297, SD:140.543217,	TMin:2683.173496, TMax:3080.156907, TRange:396.983411, TAvg:2846.509797, TMedian:2817.907297, TSD:122.695313
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917803,16,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917803,16,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.907438, Max->Median:0.782517
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570917803,16,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,205904016=,=,cache-references=,55503800423=,100.00=,=,=,=,
+CPU8=,188921017=,=,cache-references=,55503832279=,100.00=,=,=,=,
+CPU12=,191306811=,=,cache-references=,55503858906=,100.00=,=,=,=,
+CPU16=,192034324=,=,cache-references=,55503880830=,100.00=,=,=,=,
+CPU20=,272255=,=,cache-references=,55503907264=,100.00=,=,=,=,
+CPU24=,1155476=,=,cache-references=,55503936056=,100.00=,=,=,=,
+CPU28=,203038=,=,cache-references=,55503963846=,100.00=,=,=,=,
+CPU32=,166437=,=,cache-references=,55503991455=,100.00=,=,=,=,
+CPU36=,235275=,=,cache-references=,55504043911=,100.00=,=,=,=,
+CPU40=,1045697=,=,cache-references=,55504065188=,100.00=,=,=,=,
+CPU44=,204821=,=,cache-references=,55504094461=,100.00=,=,=,=,
+CPU48=,227991=,=,cache-references=,55504127864=,100.00=,=,=,=,
+CPU52=,753110=,=,cache-references=,55504163214=,100.00=,=,=,=,
+CPU56=,244797=,=,cache-references=,55504198016=,100.00=,=,=,=,
+CPU60=,546340=,=,cache-references=,55504226182=,100.00=,=,=,=,
+CPU64=,477408=,=,cache-references=,55504260113=,100.00=,=,=,=,
+CPU4=,106529534=,=,cache-misses=,55504289871=,100.00=,51.737=,of all cache refs
+CPU8=,112010539=,=,cache-misses=,55504314905=,100.00=,54.399=,of all cache refs
+CPU12=,116268479=,=,cache-misses=,55504367723=,100.00=,56.467=,of all cache refs
+CPU16=,111027033=,=,cache-misses=,55504391005=,100.00=,53.922=,of all cache refs
+CPU20=,46797=,=,cache-misses=,55504420385=,100.00=,0.023=,of all cache refs
+CPU24=,144370=,=,cache-misses=,55504450114=,100.00=,0.070=,of all cache refs
+CPU28=,25616=,=,cache-misses=,55504476442=,100.00=,0.012=,of all cache refs
+CPU32=,28251=,=,cache-misses=,55504509521=,100.00=,0.014=,of all cache refs
+CPU36=,43954=,=,cache-misses=,55504571984=,100.00=,0.021=,of all cache refs
+CPU40=,368376=,=,cache-misses=,55504608511=,100.00=,0.179=,of all cache refs
+CPU44=,29690=,=,cache-misses=,55504638139=,100.00=,0.014=,of all cache refs
+CPU48=,36484=,=,cache-misses=,55504669850=,100.00=,0.018=,of all cache refs
+CPU52=,120864=,=,cache-misses=,55504699260=,100.00=,0.059=,of all cache refs
+CPU56=,37166=,=,cache-misses=,55504727536=,100.00=,0.018=,of all cache refs
+CPU60=,169688=,=,cache-misses=,55504758105=,100.00=,0.082=,of all cache refs
+CPU64=,71560=,=,cache-misses=,55504787125=,100.00=,0.035=,of all cache refs
+CPU4=,98732611570=,=,cycles=,55504817063=,100.00=,=,=,=,
+CPU8=,97919006542=,=,cycles=,55504848334=,100.00=,=,=,=,
+CPU12=,97519792387=,=,cycles=,55504880310=,100.00=,=,=,=,
+CPU16=,98589154821=,=,cycles=,55504925120=,100.00=,=,=,=,
+CPU20=,188493325=,=,cycles=,55504953330=,100.00=,=,=,=,
+CPU24=,212406882=,=,cycles=,55504982940=,100.00=,=,=,=,
+CPU28=,191887801=,=,cycles=,55505011422=,100.00=,=,=,=,
+CPU32=,179755671=,=,cycles=,55505039372=,100.00=,=,=,=,
+CPU36=,183855289=,=,cycles=,55505067972=,100.00=,=,=,=,
+CPU40=,208961184=,=,cycles=,55505103403=,100.00=,=,=,=,
+CPU44=,186869928=,=,cycles=,55505135924=,100.00=,=,=,=,
+CPU48=,182449909=,=,cycles=,55505165169=,100.00=,=,=,=,
+CPU52=,208100633=,=,cycles=,55505195233=,100.00=,=,=,=,
+CPU56=,181228308=,=,cycles=,55505225154=,100.00=,=,=,=,
+CPU60=,189642475=,=,cycles=,55505256535=,100.00=,=,=,=,
+CPU64=,190036519=,=,cycles=,55505284826=,100.00=,=,=,=,
+CPU4=,105608170329=,=,instructions=,55505312268=,100.00=,1.07=,insn per cycle
+CPU8=,106308554000=,=,instructions=,55505340943=,100.00=,1.08=,insn per cycle
+CPU12=,104195461679=,=,instructions=,55505373062=,100.00=,1.06=,insn per cycle
+CPU16=,106382984492=,=,instructions=,55505395586=,100.00=,1.08=,insn per cycle
+CPU20=,46766518=,=,instructions=,55505437707=,100.00=,0.00=,insn per cycle
+CPU24=,53136670=,=,instructions=,55505468160=,100.00=,0.00=,insn per cycle
+CPU28=,45388708=,=,instructions=,55505497221=,100.00=,0.00=,insn per cycle
+CPU32=,45531204=,=,instructions=,55505523658=,100.00=,0.00=,insn per cycle
+CPU36=,48117376=,=,instructions=,55505549903=,100.00=,0.00=,insn per cycle
+CPU40=,50708139=,=,instructions=,55505602681=,100.00=,0.00=,insn per cycle
+CPU44=,45406668=,=,instructions=,55505631540=,100.00=,0.00=,insn per cycle
+CPU48=,45451534=,=,instructions=,55505660255=,100.00=,0.00=,insn per cycle
+CPU52=,70796612=,=,instructions=,55505691608=,100.00=,0.00=,insn per cycle
+CPU56=,46265903=,=,instructions=,55505727049=,100.00=,0.00=,insn per cycle
+CPU60=,50721628=,=,instructions=,55505755951=,100.00=,0.00=,insn per cycle
+CPU64=,57567279=,=,instructions=,55505783012=,100.00=,0.00=,insn per cycle
+CPU4=,19274679326=,=,branches=,55505821853=,100.00=,=,=,=,
+CPU8=,19460851685=,=,branches=,55505851240=,100.00=,=,=,=,
+CPU12=,19083762063=,=,branches=,55505881093=,100.00=,=,=,=,
+CPU16=,19453540054=,=,branches=,55505910263=,100.00=,=,=,=,
+CPU20=,9538071=,=,branches=,55505937878=,100.00=,=,=,=,
+CPU24=,10688655=,=,branches=,55505964240=,100.00=,=,=,=,
+CPU28=,9257034=,=,branches=,55505990285=,100.00=,=,=,=,
+CPU32=,9287026=,=,branches=,55506020217=,100.00=,=,=,=,
+CPU36=,9786743=,=,branches=,55506046131=,100.00=,=,=,=,
+CPU40=,10295625=,=,branches=,55506071277=,100.00=,=,=,=,
+CPU44=,9243305=,=,branches=,55506100443=,100.00=,=,=,=,
+CPU48=,9250550=,=,branches=,55506126327=,100.00=,=,=,=,
+CPU52=,13283182=,=,branches=,55506154805=,100.00=,=,=,=,
+CPU56=,9407129=,=,branches=,55506180205=,100.00=,=,=,=,
+CPU60=,10450323=,=,branches=,55506206645=,100.00=,=,=,=,
+CPU64=,11592926=,=,branches=,55506235366=,100.00=,=,=,=,
+CPU4=,10864=,=,faults=,55506260170=,100.00=,=,=,=,
+CPU8=,7359=,=,faults=,55506289204=,100.00=,=,=,=,
+CPU12=,6386=,=,faults=,55506316536=,100.00=,=,=,=,
+CPU16=,7267=,=,faults=,55506336758=,100.00=,=,=,=,
+CPU20=,0=,=,faults=,55506368996=,100.00=,=,=,=,
+CPU24=,0=,=,faults=,55506401122=,100.00=,=,=,=,
+CPU28=,0=,=,faults=,55506431674=,100.00=,=,=,=,
+CPU32=,0=,=,faults=,55506528968=,100.00=,=,=,=,
+CPU36=,42=,=,faults=,55506559570=,100.00=,=,=,=,
+CPU40=,30=,=,faults=,55506592004=,100.00=,=,=,=,
+CPU44=,0=,=,faults=,55506623655=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,55506655323=,100.00=,=,=,=,
+CPU52=,153=,=,faults=,55506693293=,100.00=,=,=,=,
+CPU56=,2=,=,faults=,55506724550=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,55506755026=,100.00=,=,=,=,
+CPU64=,6=,=,faults=,55506794831=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,55506830479=,100.00=,=,=,=,
+CPU8=,1=,=,migrations=,55506864589=,100.00=,=,=,=,
+CPU12=,1=,=,migrations=,55506897103=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,55506927950=,100.00=,=,=,=,
+CPU20=,0=,=,migrations=,55506962565=,100.00=,=,=,=,
+CPU24=,6=,=,migrations=,55506995712=,100.00=,=,=,=,
+CPU28=,0=,=,migrations=,55507029807=,100.00=,=,=,=,
+CPU32=,0=,=,migrations=,55507064429=,100.00=,=,=,=,
+CPU36=,2=,=,migrations=,55507095609=,100.00=,=,=,=,
+CPU40=,0=,=,migrations=,55507127138=,100.00=,=,=,=,
+CPU44=,0=,=,migrations=,55507160841=,100.00=,=,=,=,
+CPU48=,0=,=,migrations=,55507196772=,100.00=,=,=,=,
+CPU52=,8=,=,migrations=,55507231444=,100.00=,=,=,=,
+CPU56=,5=,=,migrations=,55507263182=,100.00=,=,=,=,
+CPU60=,7=,=,migrations=,55507299930=,100.00=,=,=,=,
+CPU64=,3=,=,migrations=,55507337275=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 1000000 --qp 0.9 -t 16 -i 24 -a 2 --lines 1 --args --sc 4 --ec 19
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917859,16,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917859,16,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:1085.555927, Max:1342.113924, Range:256.557997, Avg:1163.241804, Median:1136.247749, SD:80.427714,	TMin:1086.007020, TMax:1308.076514, TRange:222.069494, TAvg:1155.458247, TMedian:1136.247749, TSD:66.916330
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917859,16,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917859,16,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999917, Max->Median:0.466389
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917859,16,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,203907258=,=,cache-references=,31764846663=,100.00=,=,=,=,
+CPU8=,118614937=,=,cache-references=,31764870022=,100.00=,=,=,=,
+CPU12=,125675652=,=,cache-references=,31764900990=,100.00=,=,=,=,
+CPU16=,120444837=,=,cache-references=,31764927955=,100.00=,=,=,=,
+CPU20=,484158=,=,cache-references=,31764958795=,100.00=,=,=,=,
+CPU24=,648605=,=,cache-references=,31764992578=,100.00=,=,=,=,
+CPU28=,111393=,=,cache-references=,31765022802=,100.00=,=,=,=,
+CPU32=,87718=,=,cache-references=,31765074743=,100.00=,=,=,=,
+CPU36=,211585=,=,cache-references=,31765102642=,100.00=,=,=,=,
+CPU40=,581704=,=,cache-references=,31765129089=,100.00=,=,=,=,
+CPU44=,122705=,=,cache-references=,31765158186=,100.00=,=,=,=,
+CPU48=,127593=,=,cache-references=,31765198701=,100.00=,=,=,=,
+CPU52=,33167954=,=,cache-references=,31765229012=,100.00=,=,=,=,
+CPU56=,2585391=,=,cache-references=,31765257421=,100.00=,=,=,=,
+CPU60=,6402594=,=,cache-references=,31765286830=,100.00=,=,=,=,
+CPU64=,815275=,=,cache-references=,31765317330=,100.00=,=,=,=,
+CPU4=,94381013=,=,cache-misses=,31765320068=,100.00=,46.286=,of all cache refs
+CPU8=,90194755=,=,cache-misses=,31765344169=,100.00=,44.233=,of all cache refs
+CPU12=,95707116=,=,cache-misses=,31765376559=,100.00=,46.937=,of all cache refs
+CPU16=,91496798=,=,cache-misses=,31765415223=,100.00=,44.872=,of all cache refs
+CPU20=,27828=,=,cache-misses=,31765446001=,100.00=,0.014=,of all cache refs
+CPU24=,136255=,=,cache-misses=,31765475157=,100.00=,0.067=,of all cache refs
+CPU28=,13520=,=,cache-misses=,31765502456=,100.00=,0.007=,of all cache refs
+CPU32=,15463=,=,cache-misses=,31765538725=,100.00=,0.008=,of all cache refs
+CPU36=,34559=,=,cache-misses=,31765567957=,100.00=,0.017=,of all cache refs
+CPU40=,241445=,=,cache-misses=,31765596802=,100.00=,0.118=,of all cache refs
+CPU44=,19907=,=,cache-misses=,31765627931=,100.00=,0.010=,of all cache refs
+CPU48=,21981=,=,cache-misses=,31765660828=,100.00=,0.011=,of all cache refs
+CPU52=,9152090=,=,cache-misses=,31765694591=,100.00=,4.488=,of all cache refs
+CPU56=,613218=,=,cache-misses=,31765725787=,100.00=,0.301=,of all cache refs
+CPU60=,2205536=,=,cache-misses=,31765755502=,100.00=,1.082=,of all cache refs
+CPU64=,107185=,=,cache-misses=,31765789964=,100.00=,0.053=,of all cache refs
+CPU4=,44079500027=,=,cycles=,31765793101=,100.00=,=,=,=,
+CPU8=,36978125279=,=,cycles=,31765814702=,100.00=,=,=,=,
+CPU12=,37084877307=,=,cycles=,31765846667=,100.00=,=,=,=,
+CPU16=,36978285793=,=,cycles=,31765878770=,100.00=,=,=,=,
+CPU20=,184702924=,=,cycles=,31765917468=,100.00=,=,=,=,
+CPU24=,118364879=,=,cycles=,31765947245=,100.00=,=,=,=,
+CPU28=,105873022=,=,cycles=,31765980906=,100.00=,=,=,=,
+CPU32=,98271849=,=,cycles=,31766011965=,100.00=,=,=,=,
+CPU36=,103660407=,=,cycles=,31766045645=,100.00=,=,=,=,
+CPU40=,115725578=,=,cycles=,31766075456=,100.00=,=,=,=,
+CPU44=,103081037=,=,cycles=,31766105078=,100.00=,=,=,=,
+CPU48=,100826113=,=,cycles=,31766135970=,100.00=,=,=,=,
+CPU52=,5970861609=,=,cycles=,31766164634=,100.00=,=,=,=,
+CPU56=,452671056=,=,cycles=,31766195106=,100.00=,=,=,=,
+CPU60=,1310296647=,=,cycles=,31766225378=,100.00=,=,=,=,
+CPU64=,124355641=,=,cycles=,31766260693=,100.00=,=,=,=,
+CPU4=,42763079225=,=,instructions=,31766262409=,100.00=,0.97=,insn per cycle
+CPU8=,35973151059=,=,instructions=,31766287771=,100.00=,0.82=,insn per cycle
+CPU12=,35980826789=,=,instructions=,31766312172=,100.00=,0.82=,insn per cycle
+CPU16=,35973507564=,=,instructions=,31766343079=,100.00=,0.82=,insn per cycle
+CPU20=,25490563=,=,instructions=,31766371245=,100.00=,0.00=,insn per cycle
+CPU24=,29280165=,=,instructions=,31766399104=,100.00=,0.00=,insn per cycle
+CPU28=,24722235=,=,instructions=,31766425565=,100.00=,0.00=,insn per cycle
+CPU32=,24710870=,=,instructions=,31766452659=,100.00=,0.00=,insn per cycle
+CPU36=,27649214=,=,instructions=,31766479666=,100.00=,0.00=,insn per cycle
+CPU40=,27736561=,=,instructions=,31766506991=,100.00=,0.00=,insn per cycle
+CPU44=,24881432=,=,instructions=,31766542604=,100.00=,0.00=,insn per cycle
+CPU48=,24725366=,=,instructions=,31766569305=,100.00=,0.00=,insn per cycle
+CPU52=,7473462896=,=,instructions=,31766602912=,100.00=,0.17=,insn per cycle
+CPU56=,470987592=,=,instructions=,31766636768=,100.00=,0.01=,insn per cycle
+CPU60=,1666871400=,=,instructions=,31766664570=,100.00=,0.04=,insn per cycle
+CPU64=,47377828=,=,instructions=,31766695162=,100.00=,0.00=,insn per cycle
+CPU4=,7315971949=,=,branches=,31766695426=,100.00=,=,=,=,
+CPU8=,6211573276=,=,branches=,31766714382=,100.00=,=,=,=,
+CPU12=,6212940342=,=,branches=,31766742154=,100.00=,=,=,=,
+CPU16=,6211611223=,=,branches=,31766774509=,100.00=,=,=,=,
+CPU20=,5181192=,=,branches=,31766808568=,100.00=,=,=,=,
+CPU24=,5890770=,=,branches=,31766838365=,100.00=,=,=,=,
+CPU28=,5045081=,=,branches=,31766867872=,100.00=,=,=,=,
+CPU32=,5028240=,=,branches=,31766898287=,100.00=,=,=,=,
+CPU36=,5602474=,=,branches=,31766929391=,100.00=,=,=,=,
+CPU40=,5639893=,=,branches=,31766953334=,100.00=,=,=,=,
+CPU44=,5074017=,=,branches=,31766981464=,100.00=,=,=,=,
+CPU48=,5031242=,=,branches=,31767006968=,100.00=,=,=,=,
+CPU52=,1368010243=,=,branches=,31767032852=,100.00=,=,=,=,
+CPU56=,87549905=,=,branches=,31767059245=,100.00=,=,=,=,
+CPU60=,306762760=,=,branches=,31767088989=,100.00=,=,=,=,
+CPU64=,9377639=,=,branches=,31767121139=,100.00=,=,=,=,
+CPU4=,19793=,=,faults=,31767120813=,100.00=,=,=,=,
+CPU8=,6992=,=,faults=,31767156013=,100.00=,=,=,=,
+CPU12=,6730=,=,faults=,31767182757=,100.00=,=,=,=,
+CPU16=,7061=,=,faults=,31767218905=,100.00=,=,=,=,
+CPU20=,0=,=,faults=,31767252844=,100.00=,=,=,=,
+CPU24=,0=,=,faults=,31767285133=,100.00=,=,=,=,
+CPU28=,0=,=,faults=,31767318509=,100.00=,=,=,=,
+CPU32=,0=,=,faults=,31767356522=,100.00=,=,=,=,
+CPU36=,49=,=,faults=,31767392582=,100.00=,=,=,=,
+CPU40=,17=,=,faults=,31767423400=,100.00=,=,=,=,
+CPU44=,0=,=,faults=,31767454186=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,31767487137=,100.00=,=,=,=,
+CPU52=,19762=,=,faults=,31767519855=,100.00=,=,=,=,
+CPU56=,3190=,=,faults=,31767551316=,100.00=,=,=,=,
+CPU60=,4384=,=,faults=,31767586620=,100.00=,=,=,=,
+CPU64=,4=,=,faults=,31767616300=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,31767617295=,100.00=,=,=,=,
+CPU8=,1=,=,migrations=,31767644285=,100.00=,=,=,=,
+CPU12=,1=,=,migrations=,31767671480=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,31767698356=,100.00=,=,=,=,
+CPU20=,0=,=,migrations=,31767730685=,100.00=,=,=,=,
+CPU24=,0=,=,migrations=,31767763890=,100.00=,=,=,=,
+CPU28=,0=,=,migrations=,31767796537=,100.00=,=,=,=,
+CPU32=,0=,=,migrations=,31767829762=,100.00=,=,=,=,
+CPU36=,0=,=,migrations=,31767860843=,100.00=,=,=,=,
+CPU40=,1=,=,migrations=,31767892758=,100.00=,=,=,=,
+CPU44=,1=,=,migrations=,31767926077=,100.00=,=,=,=,
+CPU48=,0=,=,migrations=,31767963085=,100.00=,=,=,=,
+CPU52=,13=,=,migrations=,31767994516=,100.00=,=,=,=,
+CPU56=,7=,=,migrations=,31768026056=,100.00=,=,=,=,
+CPU60=,4=,=,migrations=,31768055307=,100.00=,=,=,=,
+CPU64=,4=,=,migrations=,31768084810=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 1000000 --qp 0.9 -t 16 -i 22 -a 2 --lines 1 --args --sc 4 --ec 19
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917891,16,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917891,16,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:929.858956, Max:1179.100496, Range:249.241540, Avg:1012.527739, Median:980.846394, SD:71.978219,	TMin:948.925492, TMax:1150.391267, TRange:201.465775, TAvg:1006.073587, TMedian:980.846394, TSD:57.238247
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917891,16,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917891,16,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999931, Max->Median:0.915385
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,1000000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570917891,16,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,145560142=,=,cache-references=,26393546475=,100.00=,=,=,=,
+CPU8=,115765163=,=,cache-references=,26393572888=,100.00=,=,=,=,
+CPU12=,126578084=,=,cache-references=,26393596628=,100.00=,=,=,=,
+CPU16=,129385560=,=,cache-references=,26393592786=,100.00=,=,=,=,
+CPU20=,6934045=,=,cache-references=,26393585718=,100.00=,=,=,=,
+CPU24=,15163438=,=,cache-references=,26393616844=,100.00=,=,=,=,
+CPU28=,6886821=,=,cache-references=,26393644294=,100.00=,=,=,=,
+CPU32=,5758685=,=,cache-references=,26393671731=,100.00=,=,=,=,
+CPU36=,486361=,=,cache-references=,26393698461=,100.00=,=,=,=,
+CPU40=,3885841=,=,cache-references=,26393726176=,100.00=,=,=,=,
+CPU44=,127469=,=,cache-references=,26393755279=,100.00=,=,=,=,
+CPU48=,125878=,=,cache-references=,26393799359=,100.00=,=,=,=,
+CPU52=,5384937=,=,cache-references=,26393826206=,100.00=,=,=,=,
+CPU56=,11071296=,=,cache-references=,26393854268=,100.00=,=,=,=,
+CPU60=,4397346=,=,cache-references=,26393881432=,100.00=,=,=,=,
+CPU64=,3934814=,=,cache-references=,26393906835=,100.00=,=,=,=,
+CPU4=,58266718=,=,cache-misses=,26393930451=,100.00=,40.029=,of all cache refs
+CPU8=,53723184=,=,cache-misses=,26393953377=,100.00=,36.908=,of all cache refs
+CPU12=,57264794=,=,cache-misses=,26393979419=,100.00=,39.341=,of all cache refs
+CPU16=,57911279=,=,cache-misses=,26393975712=,100.00=,39.785=,of all cache refs
+CPU20=,2610794=,=,cache-misses=,26393968324=,100.00=,1.794=,of all cache refs
+CPU24=,6984300=,=,cache-misses=,26393996253=,100.00=,4.798=,of all cache refs
+CPU28=,3216511=,=,cache-misses=,26394024271=,100.00=,2.210=,of all cache refs
+CPU32=,2517505=,=,cache-misses=,26394053354=,100.00=,1.730=,of all cache refs
+CPU36=,91929=,=,cache-misses=,26394084107=,100.00=,0.063=,of all cache refs
+CPU40=,1741522=,=,cache-misses=,26394118922=,100.00=,1.196=,of all cache refs
+CPU44=,31453=,=,cache-misses=,26394149766=,100.00=,0.022=,of all cache refs
+CPU48=,24285=,=,cache-misses=,26394188323=,100.00=,0.017=,of all cache refs
+CPU52=,2554657=,=,cache-misses=,26394216633=,100.00=,1.755=,of all cache refs
+CPU56=,5186448=,=,cache-misses=,26394245176=,100.00=,3.563=,of all cache refs
+CPU60=,2097213=,=,cache-misses=,26394272367=,100.00=,1.441=,of all cache refs
+CPU64=,1695173=,=,cache-misses=,26394298705=,100.00=,1.165=,of all cache refs
+CPU4=,38219348686=,=,cycles=,26394322998=,100.00=,=,=,=,
+CPU8=,34160132164=,=,cycles=,26394348876=,100.00=,=,=,=,
+CPU12=,34088311185=,=,cycles=,26394368055=,100.00=,=,=,=,
+CPU16=,38110016239=,=,cycles=,26394363222=,100.00=,=,=,=,
+CPU20=,1811651803=,=,cycles=,26394355992=,100.00=,=,=,=,
+CPU24=,4334322473=,=,cycles=,26394380893=,100.00=,=,=,=,
+CPU28=,1848046523=,=,cycles=,26394406670=,100.00=,=,=,=,
+CPU32=,1624311084=,=,cycles=,26394428255=,100.00=,=,=,=,
+CPU36=,92052114=,=,cycles=,26394454504=,100.00=,=,=,=,
+CPU40=,1100716524=,=,cycles=,26394481614=,100.00=,=,=,=,
+CPU44=,82353521=,=,cycles=,26394513050=,100.00=,=,=,=,
+CPU48=,78033683=,=,cycles=,26394540283=,100.00=,=,=,=,
+CPU52=,1493858849=,=,cycles=,26394566649=,100.00=,=,=,=,
+CPU56=,2914557091=,=,cycles=,26394597984=,100.00=,=,=,=,
+CPU60=,935329460=,=,cycles=,26394627571=,100.00=,=,=,=,
+CPU64=,1066490842=,=,cycles=,26394656543=,100.00=,=,=,=,
+CPU4=,42109977118=,=,instructions=,26394680069=,100.00=,1.10=,insn per cycle
+CPU8=,37487644112=,=,instructions=,26394709275=,100.00=,0.98=,insn per cycle
+CPU12=,37497673957=,=,instructions=,26394742875=,100.00=,0.98=,insn per cycle
+CPU16=,37480277814=,=,instructions=,26394741028=,100.00=,0.98=,insn per cycle
+CPU20=,2203155925=,=,instructions=,26394735827=,100.00=,0.06=,insn per cycle
+CPU24=,6320276388=,=,instructions=,26394761725=,100.00=,0.17=,insn per cycle
+CPU28=,2683123423=,=,instructions=,26394786409=,100.00=,0.07=,insn per cycle
+CPU32=,2307015210=,=,instructions=,26394811312=,100.00=,0.06=,insn per cycle
+CPU36=,25149087=,=,instructions=,26394839272=,100.00=,0.00=,insn per cycle
+CPU40=,1553071785=,=,instructions=,26394870873=,100.00=,0.04=,insn per cycle
+CPU44=,20318382=,=,instructions=,26394898379=,100.00=,0.00=,insn per cycle
+CPU48=,19563675=,=,instructions=,26394924106=,100.00=,0.00=,insn per cycle
+CPU52=,2157886636=,=,instructions=,26394952439=,100.00=,0.06=,insn per cycle
+CPU56=,4272916250=,=,instructions=,26394979440=,100.00=,0.11=,insn per cycle
+CPU60=,1309068072=,=,instructions=,26395004086=,100.00=,0.03=,insn per cycle
+CPU64=,1509743132=,=,instructions=,26395030612=,100.00=,0.04=,insn per cycle
+CPU4=,7296698005=,=,branches=,26395081695=,100.00=,=,=,=,
+CPU8=,6471986673=,=,branches=,26395075917=,100.00=,=,=,=,
+CPU12=,6473802358=,=,branches=,26395073470=,100.00=,=,=,=,
+CPU16=,6470908449=,=,branches=,26395070236=,100.00=,=,=,=,
+CPU20=,413265445=,=,branches=,26395065111=,100.00=,=,=,=,
+CPU24=,1184196960=,=,branches=,26395090173=,100.00=,=,=,=,
+CPU28=,503718354=,=,branches=,26395114136=,100.00=,=,=,=,
+CPU32=,432782817=,=,branches=,26395150950=,100.00=,=,=,=,
+CPU36=,5086135=,=,branches=,26395178916=,100.00=,=,=,=,
+CPU40=,291258107=,=,branches=,26395212886=,100.00=,=,=,=,
+CPU44=,4139185=,=,branches=,26395235279=,100.00=,=,=,=,
+CPU48=,3974641=,=,branches=,26395268848=,100.00=,=,=,=,
+CPU52=,404734978=,=,branches=,26395294078=,100.00=,=,=,=,
+CPU56=,801359995=,=,branches=,26395317427=,100.00=,=,=,=,
+CPU60=,246180447=,=,branches=,26395339289=,100.00=,=,=,=,
+CPU64=,283325406=,=,branches=,26395361408=,100.00=,=,=,=,
+CPU4=,30490=,=,faults=,26395387466=,100.00=,=,=,=,
+CPU8=,4414=,=,faults=,26395425669=,100.00=,=,=,=,
+CPU12=,6051=,=,faults=,26395456968=,100.00=,=,=,=,
+CPU16=,5657=,=,faults=,26395458139=,100.00=,=,=,=,
+CPU20=,11230=,=,faults=,26395456745=,100.00=,=,=,=,
+CPU24=,32404=,=,faults=,26395486521=,100.00=,=,=,=,
+CPU28=,13682=,=,faults=,26395521267=,100.00=,=,=,=,
+CPU32=,11732=,=,faults=,26395556897=,100.00=,=,=,=,
+CPU36=,76=,=,faults=,26395588877=,100.00=,=,=,=,
+CPU40=,7880=,=,faults=,26395660365=,100.00=,=,=,=,
+CPU44=,1=,=,faults=,26395690179=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,26395719589=,100.00=,=,=,=,
+CPU52=,10985=,=,faults=,26395750930=,100.00=,=,=,=,
+CPU56=,21803=,=,faults=,26395787847=,100.00=,=,=,=,
+CPU60=,6503=,=,faults=,26395822580=,100.00=,=,=,=,
+CPU64=,7509=,=,faults=,26395852711=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,26395875576=,100.00=,=,=,=,
+CPU8=,1=,=,migrations=,26395905836=,100.00=,=,=,=,
+CPU12=,2=,=,migrations=,26395936859=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,26395937261=,100.00=,=,=,=,
+CPU20=,5=,=,migrations=,26395935572=,100.00=,=,=,=,
+CPU24=,3=,=,migrations=,26395968669=,100.00=,=,=,=,
+CPU28=,3=,=,migrations=,26396003358=,100.00=,=,=,=,
+CPU32=,4=,=,migrations=,26396039570=,100.00=,=,=,=,
+CPU36=,1=,=,migrations=,26396076718=,100.00=,=,=,=,
+CPU40=,3=,=,migrations=,26396113371=,100.00=,=,=,=,
+CPU44=,1=,=,migrations=,26396143443=,100.00=,=,=,=,
+CPU48=,0=,=,migrations=,26396173724=,100.00=,=,=,=,
+CPU52=,1=,=,migrations=,26396203655=,100.00=,=,=,=,
+CPU56=,1=,=,migrations=,26396235548=,100.00=,=,=,=,
+CPU60=,4=,=,migrations=,26396267814=,100.00=,=,=,=,
+CPU64=,6=,=,migrations=,26396297812=,100.00=,=,=,=,
+WATCHING: 4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128
+Running for threads 32 on table hashtable_cuckoo (2019-10-12T17:34:41-04:00)
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 500000 --qp 0 -t 32 -i 24 -a 2 --lines 1 --args --sc 4 --ec 35
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917917,32,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917917,32,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:1611.441721, Max:1889.694930, Range:278.253209, Avg:1715.904873, Median:1682.431755, SD:91.508362,	TMin:1626.492925, TMax:1875.019893, TRange:248.526968, TAvg:1710.572034, TMedian:1682.431755, TSD:80.441790
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917917,32,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917917,32,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999923, Max->Median:0.783976
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917917,32,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,153656644=,=,cache-references=,39548463209=,100.00=,=,=,=,
+CPU8=,75241022=,=,cache-references=,39548491388=,100.00=,=,=,=,
+CPU12=,78069360=,=,cache-references=,39548515989=,100.00=,=,=,=,
+CPU16=,77128775=,=,cache-references=,39548546774=,100.00=,=,=,=,
+CPU20=,80696276=,=,cache-references=,39548571532=,100.00=,=,=,=,
+CPU24=,75731610=,=,cache-references=,39548565674=,100.00=,=,=,=,
+CPU28=,79173959=,=,cache-references=,39548558754=,100.00=,=,=,=,
+CPU32=,76452955=,=,cache-references=,39548551261=,100.00=,=,=,=,
+CPU36=,9491808=,=,cache-references=,39548569634=,100.00=,=,=,=,
+CPU40=,699085=,=,cache-references=,39548600921=,100.00=,=,=,=,
+CPU44=,801735=,=,cache-references=,39548632861=,100.00=,=,=,=,
+CPU48=,197044=,=,cache-references=,39548663374=,100.00=,=,=,=,
+CPU52=,5202253=,=,cache-references=,39548693946=,100.00=,=,=,=,
+CPU56=,166940=,=,cache-references=,39548722938=,100.00=,=,=,=,
+CPU60=,165376=,=,cache-references=,39548753353=,100.00=,=,=,=,
+CPU64=,7651907=,=,cache-references=,39548782972=,100.00=,=,=,=,
+CPU68=,554095=,=,cache-references=,39548813402=,100.00=,=,=,=,
+CPU72=,983124=,=,cache-references=,39548848550=,100.00=,=,=,=,
+CPU76=,70455=,=,cache-references=,39548881407=,100.00=,=,=,=,
+CPU80=,82710=,=,cache-references=,39548917410=,100.00=,=,=,=,
+CPU84=,641406=,=,cache-references=,39548961957=,100.00=,=,=,=,
+CPU88=,91600549=,=,cache-references=,39548995279=,100.00=,=,=,=,
+CPU92=,8831579=,=,cache-references=,39549022671=,100.00=,=,=,=,
+CPU96=,474344=,=,cache-references=,39549049237=,100.00=,=,=,=,
+CPU100=,905490=,=,cache-references=,39549071989=,100.00=,=,=,=,
+CPU104=,375283=,=,cache-references=,39549095597=,100.00=,=,=,=,
+CPU108=,643253=,=,cache-references=,39549126051=,100.00=,=,=,=,
+CPU112=,170519=,=,cache-references=,39549159986=,100.00=,=,=,=,
+CPU116=,125943=,=,cache-references=,39549194407=,100.00=,=,=,=,
+CPU120=,133995=,=,cache-references=,39549226025=,100.00=,=,=,=,
+CPU124=,887535=,=,cache-references=,39549256976=,100.00=,=,=,=,
+CPU128=,351368=,=,cache-references=,39549291002=,100.00=,=,=,=,
+CPU4=,56327982=,=,cache-misses=,39549320532=,100.00=,36.658=,of all cache refs
+CPU8=,56642961=,=,cache-misses=,39549347769=,100.00=,36.863=,of all cache refs
+CPU12=,58951634=,=,cache-misses=,39549372584=,100.00=,38.366=,of all cache refs
+CPU16=,57318723=,=,cache-misses=,39549403265=,100.00=,37.303=,of all cache refs
+CPU20=,59702138=,=,cache-misses=,39549429592=,100.00=,38.854=,of all cache refs
+CPU24=,56971903=,=,cache-misses=,39549454069=,100.00=,37.077=,of all cache refs
+CPU28=,59625717=,=,cache-misses=,39549507553=,100.00=,38.805=,of all cache refs
+CPU32=,57615388=,=,cache-misses=,39549540459=,100.00=,37.496=,of all cache refs
+CPU36=,4344934=,=,cache-misses=,39549574209=,100.00=,2.828=,of all cache refs
+CPU40=,106999=,=,cache-misses=,39549605719=,100.00=,0.070=,of all cache refs
+CPU44=,319474=,=,cache-misses=,39549640247=,100.00=,0.208=,of all cache refs
+CPU48=,36619=,=,cache-misses=,39549670255=,100.00=,0.024=,of all cache refs
+CPU52=,2391278=,=,cache-misses=,39549701979=,100.00=,1.556=,of all cache refs
+CPU56=,26794=,=,cache-misses=,39549729592=,100.00=,0.017=,of all cache refs
+CPU60=,20913=,=,cache-misses=,39549758740=,100.00=,0.014=,of all cache refs
+CPU64=,3617904=,=,cache-misses=,39549787100=,100.00=,2.355=,of all cache refs
+CPU68=,175753=,=,cache-misses=,39549816326=,100.00=,0.114=,of all cache refs
+CPU72=,98250=,=,cache-misses=,39549852325=,100.00=,0.064=,of all cache refs
+CPU76=,14548=,=,cache-misses=,39549885995=,100.00=,0.009=,of all cache refs
+CPU80=,16781=,=,cache-misses=,39549911783=,100.00=,0.011=,of all cache refs
+CPU84=,109086=,=,cache-misses=,39549945296=,100.00=,0.071=,of all cache refs
+CPU88=,33129065=,=,cache-misses=,39549983859=,100.00=,21.560=,of all cache refs
+CPU92=,114371=,=,cache-misses=,39550010824=,100.00=,0.074=,of all cache refs
+CPU96=,150962=,=,cache-misses=,39550039096=,100.00=,0.098=,of all cache refs
+CPU100=,204553=,=,cache-misses=,39550087417=,100.00=,0.133=,of all cache refs
+CPU104=,84724=,=,cache-misses=,39550115477=,100.00=,0.055=,of all cache refs
+CPU108=,214928=,=,cache-misses=,39550147847=,100.00=,0.140=,of all cache refs
+CPU112=,32930=,=,cache-misses=,39550181116=,100.00=,0.021=,of all cache refs
+CPU116=,34527=,=,cache-misses=,39550213519=,100.00=,0.022=,of all cache refs
+CPU120=,39283=,=,cache-misses=,39550250441=,100.00=,0.026=,of all cache refs
+CPU124=,168874=,=,cache-misses=,39550317797=,100.00=,0.110=,of all cache refs
+CPU128=,62667=,=,cache-misses=,39550350524=,100.00=,0.041=,of all cache refs
+CPU4=,45526407947=,=,cycles=,39550382015=,100.00=,=,=,=,
+CPU8=,44778674458=,=,cycles=,39550409233=,100.00=,=,=,=,
+CPU12=,44471224281=,=,cycles=,39550436691=,100.00=,=,=,=,
+CPU16=,44494432508=,=,cycles=,39550488190=,100.00=,=,=,=,
+CPU20=,45640376070=,=,cycles=,39550515422=,100.00=,=,=,=,
+CPU24=,44719303750=,=,cycles=,39550537156=,100.00=,=,=,=,
+CPU28=,45017111678=,=,cycles=,39550566798=,100.00=,=,=,=,
+CPU32=,44680081044=,=,cycles=,39550594007=,100.00=,=,=,=,
+CPU36=,2603316456=,=,cycles=,39550620396=,100.00=,=,=,=,
+CPU40=,138878384=,=,cycles=,39550655940=,100.00=,=,=,=,
+CPU44=,143658129=,=,cycles=,39550684495=,100.00=,=,=,=,
+CPU48=,121532876=,=,cycles=,39550718776=,100.00=,=,=,=,
+CPU52=,1431355525=,=,cycles=,39550750508=,100.00=,=,=,=,
+CPU56=,122199050=,=,cycles=,39550792959=,100.00=,=,=,=,
+CPU60=,134407375=,=,cycles=,39550794255=,100.00=,=,=,=,
+CPU64=,2110538810=,=,cycles=,39550822034=,100.00=,=,=,=,
+CPU68=,162754196=,=,cycles=,39550857865=,100.00=,=,=,=,
+CPU72=,276613341=,=,cycles=,39550892855=,100.00=,=,=,=,
+CPU76=,212600169=,=,cycles=,39550896609=,100.00=,=,=,=,
+CPU80=,214982716=,=,cycles=,39550900419=,100.00=,=,=,=,
+CPU84=,238793101=,=,cycles=,39550905551=,100.00=,=,=,=,
+CPU88=,22143434596=,=,cycles=,39550908212=,100.00=,=,=,=,
+CPU92=,475780921=,=,cycles=,39550914636=,100.00=,=,=,=,
+CPU96=,232843346=,=,cycles=,39550921162=,100.00=,=,=,=,
+CPU100=,252015692=,=,cycles=,39550959025=,100.00=,=,=,=,
+CPU104=,226942426=,=,cycles=,39551002237=,100.00=,=,=,=,
+CPU108=,142037662=,=,cycles=,39551033675=,100.00=,=,=,=,
+CPU112=,121888071=,=,cycles=,39551064632=,100.00=,=,=,=,
+CPU116=,120618247=,=,cycles=,39551095017=,100.00=,=,=,=,
+CPU120=,119691893=,=,cycles=,39551166490=,100.00=,=,=,=,
+CPU124=,144007382=,=,cycles=,39551200737=,100.00=,=,=,=,
+CPU128=,125151833=,=,cycles=,39551233721=,100.00=,=,=,=,
+CPU4=,53827881595=,=,instructions=,39551262952=,100.00=,1.18=,insn per cycle
+CPU8=,54816596370=,=,instructions=,39551294338=,100.00=,1.20=,insn per cycle
+CPU12=,54299512964=,=,instructions=,39551320598=,100.00=,1.19=,insn per cycle
+CPU16=,52123511848=,=,instructions=,39551354267=,100.00=,1.14=,insn per cycle
+CPU20=,55518638885=,=,instructions=,39551387809=,100.00=,1.22=,insn per cycle
+CPU24=,54770897739=,=,instructions=,39551410770=,100.00=,1.20=,insn per cycle
+CPU28=,55050424769=,=,instructions=,39551430993=,100.00=,1.21=,insn per cycle
+CPU32=,54704456737=,=,instructions=,39551451757=,100.00=,1.20=,insn per cycle
+CPU36=,3827639071=,=,instructions=,39551482751=,100.00=,0.08=,insn per cycle
+CPU40=,34533591=,=,instructions=,39551511933=,100.00=,0.00=,insn per cycle
+CPU44=,35317344=,=,instructions=,39551548466=,100.00=,0.00=,insn per cycle
+CPU48=,31006370=,=,instructions=,39551579337=,100.00=,0.00=,insn per cycle
+CPU52=,2034315693=,=,instructions=,39551611861=,100.00=,0.04=,insn per cycle
+CPU56=,30630901=,=,instructions=,39551638464=,100.00=,0.00=,insn per cycle
+CPU60=,30738629=,=,instructions=,39551665408=,100.00=,0.00=,insn per cycle
+CPU64=,3110200613=,=,instructions=,39551691733=,100.00=,0.07=,insn per cycle
+CPU68=,72810371=,=,instructions=,39551721002=,100.00=,0.00=,insn per cycle
+CPU72=,51925792=,=,instructions=,39551751742=,100.00=,0.00=,insn per cycle
+CPU76=,56379322=,=,instructions=,39551783370=,100.00=,0.00=,insn per cycle
+CPU80=,57401588=,=,instructions=,39551810481=,100.00=,0.00=,insn per cycle
+CPU84=,62037359=,=,instructions=,39551842138=,100.00=,0.00=,insn per cycle
+CPU88=,29581080177=,=,instructions=,39551887096=,100.00=,0.65=,insn per cycle
+CPU92=,113820488=,=,instructions=,39551919795=,100.00=,0.00=,insn per cycle
+CPU96=,60383136=,=,instructions=,39551944252=,100.00=,0.00=,insn per cycle
+CPU100=,63377634=,=,instructions=,39551966409=,100.00=,0.00=,insn per cycle
+CPU104=,60383026=,=,instructions=,39551991269=,100.00=,0.00=,insn per cycle
+CPU108=,35888644=,=,instructions=,39552020518=,100.00=,0.00=,insn per cycle
+CPU112=,30880414=,=,instructions=,39552076305=,100.00=,0.00=,insn per cycle
+CPU116=,31327197=,=,instructions=,39552105602=,100.00=,0.00=,insn per cycle
+CPU120=,30622582=,=,instructions=,39552133930=,100.00=,0.00=,insn per cycle
+CPU124=,36163430=,=,instructions=,39552168616=,100.00=,0.00=,insn per cycle
+CPU128=,32447003=,=,instructions=,39552196882=,100.00=,0.00=,insn per cycle
+CPU4=,9741447086=,=,branches=,39552226137=,100.00=,=,=,=,
+CPU8=,10156153512=,=,branches=,39552250857=,100.00=,=,=,=,
+CPU12=,10055688435=,=,branches=,39552275062=,100.00=,=,=,=,
+CPU16=,9617374039=,=,branches=,39552306240=,100.00=,=,=,=,
+CPU20=,10282848456=,=,branches=,39552331717=,100.00=,=,=,=,
+CPU24=,10142187378=,=,branches=,39552353569=,100.00=,=,=,=,
+CPU28=,10190849707=,=,branches=,39552372320=,100.00=,=,=,=,
+CPU32=,10136962362=,=,branches=,39552406298=,100.00=,=,=,=,
+CPU36=,717798517=,=,branches=,39552424735=,100.00=,=,=,=,
+CPU40=,6976417=,=,branches=,39552452484=,100.00=,=,=,=,
+CPU44=,7148457=,=,branches=,39552482683=,100.00=,=,=,=,
+CPU48=,6309116=,=,branches=,39552516416=,100.00=,=,=,=,
+CPU52=,381704760=,=,branches=,39552542531=,100.00=,=,=,=,
+CPU56=,6237677=,=,branches=,39552571773=,100.00=,=,=,=,
+CPU60=,6270002=,=,branches=,39552605430=,100.00=,=,=,=,
+CPU64=,583415575=,=,branches=,39552630886=,100.00=,=,=,=,
+CPU68=,16096629=,=,branches=,39552656517=,100.00=,=,=,=,
+CPU72=,10510908=,=,branches=,39552686281=,100.00=,=,=,=,
+CPU76=,11466417=,=,branches=,39552715474=,100.00=,=,=,=,
+CPU80=,11677830=,=,branches=,39552753209=,100.00=,=,=,=,
+CPU84=,12578833=,=,branches=,39552789595=,100.00=,=,=,=,
+CPU88=,5525611914=,=,branches=,39552821009=,100.00=,=,=,=,
+CPU92=,22845377=,=,branches=,39552845206=,100.00=,=,=,=,
+CPU96=,12259975=,=,branches=,39552867381=,100.00=,=,=,=,
+CPU100=,12822855=,=,branches=,39552891583=,100.00=,=,=,=,
+CPU104=,12248545=,=,branches=,39552947172=,100.00=,=,=,=,
+CPU108=,7269279=,=,branches=,39552974443=,100.00=,=,=,=,
+CPU112=,6283293=,=,branches=,39553005546=,100.00=,=,=,=,
+CPU116=,6392493=,=,branches=,39553034150=,100.00=,=,=,=,
+CPU120=,6233895=,=,branches=,39553065164=,100.00=,=,=,=,
+CPU124=,7295983=,=,branches=,39553094040=,100.00=,=,=,=,
+CPU128=,6581236=,=,branches=,39553127121=,100.00=,=,=,=,
+CPU4=,16521=,=,faults=,39553159202=,100.00=,=,=,=,
+CPU8=,3894=,=,faults=,39553185420=,100.00=,=,=,=,
+CPU12=,3888=,=,faults=,39553214131=,100.00=,=,=,=,
+CPU16=,3894=,=,faults=,39553266811=,100.00=,=,=,=,
+CPU20=,7754=,=,faults=,39553305541=,100.00=,=,=,=,
+CPU24=,3894=,=,faults=,39553333871=,100.00=,=,=,=,
+CPU28=,3768=,=,faults=,39553360745=,100.00=,=,=,=,
+CPU32=,3849=,=,faults=,39553395247=,100.00=,=,=,=,
+CPU36=,19501=,=,faults=,39553435392=,100.00=,=,=,=,
+CPU40=,0=,=,faults=,39553471581=,100.00=,=,=,=,
+CPU44=,26=,=,faults=,39553505908=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,39553539000=,100.00=,=,=,=,
+CPU52=,10288=,=,faults=,39553569455=,100.00=,=,=,=,
+CPU56=,0=,=,faults=,39553602232=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,39553632732=,100.00=,=,=,=,
+CPU64=,15820=,=,faults=,39553663535=,100.00=,=,=,=,
+CPU68=,0=,=,faults=,39553704134=,100.00=,=,=,=,
+CPU72=,0=,=,faults=,39553744100=,100.00=,=,=,=,
+CPU76=,0=,=,faults=,39553766763=,100.00=,=,=,=,
+CPU80=,0=,=,faults=,39553785443=,100.00=,=,=,=,
+CPU84=,0=,=,faults=,39553805266=,100.00=,=,=,=,
+CPU88=,147141=,=,faults=,39553845401=,100.00=,=,=,=,
+CPU92=,2=,=,faults=,39553849516=,100.00=,=,=,=,
+CPU96=,5=,=,faults=,39553853619=,100.00=,=,=,=,
+CPU100=,0=,=,faults=,39553858409=,100.00=,=,=,=,
+CPU104=,0=,=,faults=,39553861403=,100.00=,=,=,=,
+CPU108=,10=,=,faults=,39553903138=,100.00=,=,=,=,
+CPU112=,0=,=,faults=,39553955094=,100.00=,=,=,=,
+CPU116=,0=,=,faults=,39553989299=,100.00=,=,=,=,
+CPU120=,0=,=,faults=,39554023082=,100.00=,=,=,=,
+CPU124=,0=,=,faults=,39554070662=,100.00=,=,=,=,
+CPU128=,0=,=,faults=,39554101822=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,39554136962=,100.00=,=,=,=,
+CPU8=,1=,=,migrations=,39554169704=,100.00=,=,=,=,
+CPU12=,1=,=,migrations=,39554196624=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,39554229243=,100.00=,=,=,=,
+CPU20=,1=,=,migrations=,39554261173=,100.00=,=,=,=,
+CPU24=,1=,=,migrations=,39554298922=,100.00=,=,=,=,
+CPU28=,1=,=,migrations=,39554346852=,100.00=,=,=,=,
+CPU32=,3=,=,migrations=,39554392272=,100.00=,=,=,=,
+CPU36=,4=,=,migrations=,39554427937=,100.00=,=,=,=,
+CPU40=,2=,=,migrations=,39554470220=,100.00=,=,=,=,
+CPU44=,0=,=,migrations=,39554503657=,100.00=,=,=,=,
+CPU48=,2=,=,migrations=,39554535332=,100.00=,=,=,=,
+CPU52=,2=,=,migrations=,39554571517=,100.00=,=,=,=,
+CPU56=,0=,=,migrations=,39554608080=,100.00=,=,=,=,
+CPU60=,0=,=,migrations=,39554639719=,100.00=,=,=,=,
+CPU64=,3=,=,migrations=,39554669506=,100.00=,=,=,=,
+CPU68=,2=,=,migrations=,39554700844=,100.00=,=,=,=,
+CPU72=,0=,=,migrations=,39554738043=,100.00=,=,=,=,
+CPU76=,0=,=,migrations=,39554770731=,100.00=,=,=,=,
+CPU80=,0=,=,migrations=,39554799033=,100.00=,=,=,=,
+CPU84=,0=,=,migrations=,39554826290=,100.00=,=,=,=,
+CPU88=,28=,=,migrations=,39554859692=,100.00=,=,=,=,
+CPU92=,10=,=,migrations=,39554885693=,100.00=,=,=,=,
+CPU96=,3=,=,migrations=,39554914390=,100.00=,=,=,=,
+CPU100=,0=,=,migrations=,39554963835=,100.00=,=,=,=,
+CPU104=,0=,=,migrations=,39554989153=,100.00=,=,=,=,
+CPU108=,6=,=,migrations=,39555023120=,100.00=,=,=,=,
+CPU112=,1=,=,migrations=,39555057370=,100.00=,=,=,=,
+CPU116=,0=,=,migrations=,39555089858=,100.00=,=,=,=,
+CPU120=,0=,=,migrations=,39555128008=,100.00=,=,=,=,
+CPU124=,0=,=,migrations=,39555192171=,100.00=,=,=,=,
+CPU128=,1=,=,migrations=,39555242496=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 500000 --qp 0 -t 32 -i 22 -a 2 --lines 1 --args --sc 4 --ec 35
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917957,32,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917957,32,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:3252.998755, Max:3526.898478, Range:273.899723, Avg:3363.124932, Median:3323.774739, SD:98.959718,	TMin:3265.130549, TMax:3526.534033, TRange:261.403484, TAvg:3358.998211, TMedian:3323.774739, TSD:91.030194
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917957,32,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917957,32,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999852, Max->Median:0.713279
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.000000,0.000000,1570917957,32,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,181966973=,=,cache-references=,63352987083=,100.00=,=,=,=,
+CPU8=,170544035=,=,cache-references=,63353021501=,100.00=,=,=,=,
+CPU12=,152165995=,=,cache-references=,63353019895=,100.00=,=,=,=,
+CPU16=,159314909=,=,cache-references=,63353039369=,100.00=,=,=,=,
+CPU20=,162917789=,=,cache-references=,63353062005=,100.00=,=,=,=,
+CPU24=,157909133=,=,cache-references=,63353084015=,100.00=,=,=,=,
+CPU28=,157439407=,=,cache-references=,63353105850=,100.00=,=,=,=,
+CPU32=,167171878=,=,cache-references=,63353128595=,100.00=,=,=,=,
+CPU36=,2398741=,=,cache-references=,63353151932=,100.00=,=,=,=,
+CPU40=,1523233=,=,cache-references=,63353147106=,100.00=,=,=,=,
+CPU44=,1369589=,=,cache-references=,63353141989=,100.00=,=,=,=,
+CPU48=,440075=,=,cache-references=,63353178375=,100.00=,=,=,=,
+CPU52=,519152=,=,cache-references=,63353205641=,100.00=,=,=,=,
+CPU56=,584469=,=,cache-references=,63353233415=,100.00=,=,=,=,
+CPU60=,1574845=,=,cache-references=,63353265614=,100.00=,=,=,=,
+CPU64=,1353372=,=,cache-references=,63353292971=,100.00=,=,=,=,
+CPU68=,1338583=,=,cache-references=,63353325577=,100.00=,=,=,=,
+CPU72=,1965134=,=,cache-references=,63353353556=,100.00=,=,=,=,
+CPU76=,170529=,=,cache-references=,63353356513=,100.00=,=,=,=,
+CPU80=,100622=,=,cache-references=,63353380763=,100.00=,=,=,=,
+CPU84=,766211=,=,cache-references=,63353404502=,100.00=,=,=,=,
+CPU88=,2130714=,=,cache-references=,63353426407=,100.00=,=,=,=,
+CPU92=,350423=,=,cache-references=,63353456651=,100.00=,=,=,=,
+CPU96=,532021=,=,cache-references=,63353489281=,100.00=,=,=,=,
+CPU100=,1090397=,=,cache-references=,63353517952=,100.00=,=,=,=,
+CPU104=,542834=,=,cache-references=,63353546399=,100.00=,=,=,=,
+CPU108=,1873203=,=,cache-references=,63353572875=,100.00=,=,=,=,
+CPU112=,620856=,=,cache-references=,63353602294=,100.00=,=,=,=,
+CPU116=,208735=,=,cache-references=,63353630418=,100.00=,=,=,=,
+CPU120=,203059=,=,cache-references=,63353662460=,100.00=,=,=,=,
+CPU124=,1449923=,=,cache-references=,63353693317=,100.00=,=,=,=,
+CPU128=,525573=,=,cache-references=,63353723265=,100.00=,=,=,=,
+CPU4=,114620031=,=,cache-misses=,63353726230=,100.00=,62.989=,of all cache refs
+CPU8=,105986260=,=,cache-misses=,63353753376=,100.00=,58.245=,of all cache refs
+CPU12=,110267111=,=,cache-misses=,63353780308=,100.00=,60.597=,of all cache refs
+CPU16=,117181186=,=,cache-misses=,63353814423=,100.00=,64.397=,of all cache refs
+CPU20=,109773222=,=,cache-misses=,63353852686=,100.00=,60.326=,of all cache refs
+CPU24=,109646911=,=,cache-misses=,63353884720=,100.00=,60.256=,of all cache refs
+CPU28=,112176938=,=,cache-misses=,63353908978=,100.00=,61.647=,of all cache refs
+CPU32=,110935797=,=,cache-misses=,63353936611=,100.00=,60.965=,of all cache refs
+CPU36=,399118=,=,cache-misses=,63353963386=,100.00=,0.219=,of all cache refs
+CPU40=,220757=,=,cache-misses=,63353990679=,100.00=,0.121=,of all cache refs
+CPU44=,491564=,=,cache-misses=,63354017735=,100.00=,0.270=,of all cache refs
+CPU48=,56669=,=,cache-misses=,63354047262=,100.00=,0.031=,of all cache refs
+CPU52=,85822=,=,cache-misses=,63354073944=,100.00=,0.047=,of all cache refs
+CPU56=,94751=,=,cache-misses=,63354100719=,100.00=,0.052=,of all cache refs
+CPU60=,292601=,=,cache-misses=,63354127535=,100.00=,0.161=,of all cache refs
+CPU64=,230907=,=,cache-misses=,63354157569=,100.00=,0.127=,of all cache refs
+CPU68=,296794=,=,cache-misses=,63354184635=,100.00=,0.163=,of all cache refs
+CPU72=,168894=,=,cache-misses=,63354212476=,100.00=,0.093=,of all cache refs
+CPU76=,29966=,=,cache-misses=,63354215419=,100.00=,0.016=,of all cache refs
+CPU80=,21155=,=,cache-misses=,63354257746=,100.00=,0.012=,of all cache refs
+CPU84=,127102=,=,cache-misses=,63354282284=,100.00=,0.070=,of all cache refs
+CPU88=,386898=,=,cache-misses=,63354304716=,100.00=,0.213=,of all cache refs
+CPU92=,59981=,=,cache-misses=,63354337410=,100.00=,0.033=,of all cache refs
+CPU96=,192836=,=,cache-misses=,63354367699=,100.00=,0.106=,of all cache refs
+CPU100=,262851=,=,cache-misses=,63354392285=,100.00=,0.144=,of all cache refs
+CPU104=,134611=,=,cache-misses=,63354421757=,100.00=,0.074=,of all cache refs
+CPU108=,306649=,=,cache-misses=,63354452470=,100.00=,0.169=,of all cache refs
+CPU112=,152136=,=,cache-misses=,63354481599=,100.00=,0.084=,of all cache refs
+CPU116=,54047=,=,cache-misses=,63354512784=,100.00=,0.030=,of all cache refs
+CPU120=,56985=,=,cache-misses=,63354546008=,100.00=,0.031=,of all cache refs
+CPU124=,197711=,=,cache-misses=,63354577570=,100.00=,0.109=,of all cache refs
+CPU128=,73044=,=,cache-misses=,63354607398=,100.00=,0.040=,of all cache refs
+CPU4=,109073609639=,=,cycles=,63354610450=,100.00=,=,=,=,
+CPU8=,111844111464=,=,cycles=,63354633518=,100.00=,=,=,=,
+CPU12=,112384964866=,=,cycles=,63354657073=,100.00=,=,=,=,
+CPU16=,112008438669=,=,cycles=,63354676792=,100.00=,=,=,=,
+CPU20=,112514630577=,=,cycles=,63354709345=,100.00=,=,=,=,
+CPU24=,111847149282=,=,cycles=,63354751442=,100.00=,=,=,=,
+CPU28=,113254608939=,=,cycles=,63354773834=,100.00=,=,=,=,
+CPU32=,113143328616=,=,cycles=,63354799025=,100.00=,=,=,=,
+CPU36=,279616379=,=,cycles=,63354831799=,100.00=,=,=,=,
+CPU40=,243685486=,=,cycles=,63354863256=,100.00=,=,=,=,
+CPU44=,240985996=,=,cycles=,63354892095=,100.00=,=,=,=,
+CPU48=,206666995=,=,cycles=,63354921708=,100.00=,=,=,=,
+CPU52=,230166812=,=,cycles=,63354950783=,100.00=,=,=,=,
+CPU56=,220499370=,=,cycles=,63354982486=,100.00=,=,=,=,
+CPU60=,273851477=,=,cycles=,63355008223=,100.00=,=,=,=,
+CPU64=,265914274=,=,cycles=,63355046545=,100.00=,=,=,=,
+CPU68=,301899230=,=,cycles=,63355072685=,100.00=,=,=,=,
+CPU72=,425364521=,=,cycles=,63355104195=,100.00=,=,=,=,
+CPU76=,405338301=,=,cycles=,63355105271=,100.00=,=,=,=,
+CPU80=,402293999=,=,cycles=,63355141676=,100.00=,=,=,=,
+CPU84=,437288415=,=,cycles=,63355167815=,100.00=,=,=,=,
+CPU88=,606456932=,=,cycles=,63355194204=,100.00=,=,=,=,
+CPU92=,411817635=,=,cycles=,63355218665=,100.00=,=,=,=,
+CPU96=,426739691=,=,cycles=,63355243357=,100.00=,=,=,=,
+CPU100=,456475413=,=,cycles=,63355266487=,100.00=,=,=,=,
+CPU104=,424983827=,=,cycles=,63355299820=,100.00=,=,=,=,
+CPU108=,241259720=,=,cycles=,63355329015=,100.00=,=,=,=,
+CPU112=,215901036=,=,cycles=,63355359351=,100.00=,=,=,=,
+CPU116=,202400757=,=,cycles=,63355387161=,100.00=,=,=,=,
+CPU120=,200169548=,=,cycles=,63355415059=,100.00=,=,=,=,
+CPU124=,232954108=,=,cycles=,63355442505=,100.00=,=,=,=,
+CPU128=,208173268=,=,cycles=,63355475032=,100.00=,=,=,=,
+CPU4=,94489670046=,=,instructions=,63355476531=,100.00=,0.87=,insn per cycle
+CPU8=,100612896250=,=,instructions=,63355508466=,100.00=,0.92=,insn per cycle
+CPU12=,97887279453=,=,instructions=,63355538544=,100.00=,0.90=,insn per cycle
+CPU16=,97055817067=,=,instructions=,63355565298=,100.00=,0.89=,insn per cycle
+CPU20=,98695289990=,=,instructions=,63355605738=,100.00=,0.90=,insn per cycle
+CPU24=,97644719478=,=,instructions=,63355629781=,100.00=,0.90=,insn per cycle
+CPU28=,98898419627=,=,instructions=,63355659243=,100.00=,0.91=,insn per cycle
+CPU32=,103023667530=,=,instructions=,63355682078=,100.00=,0.94=,insn per cycle
+CPU36=,89568654=,=,instructions=,63355708912=,100.00=,0.00=,insn per cycle
+CPU40=,61163376=,=,instructions=,63355751218=,100.00=,0.00=,insn per cycle
+CPU44=,60322880=,=,instructions=,63355776572=,100.00=,0.00=,insn per cycle
+CPU48=,54256770=,=,instructions=,63355803068=,100.00=,0.00=,insn per cycle
+CPU52=,98317144=,=,instructions=,63355828909=,100.00=,0.00=,insn per cycle
+CPU56=,67632762=,=,instructions=,63355855085=,100.00=,0.00=,insn per cycle
+CPU60=,101440996=,=,instructions=,63355880886=,100.00=,0.00=,insn per cycle
+CPU64=,159403488=,=,instructions=,63355907413=,100.00=,0.00=,insn per cycle
+CPU68=,164851609=,=,instructions=,63355945733=,100.00=,0.00=,insn per cycle
+CPU72=,75448510=,=,instructions=,63355971491=,100.00=,0.00=,insn per cycle
+CPU76=,109478624=,=,instructions=,63355970790=,100.00=,0.00=,insn per cycle
+CPU80=,107469438=,=,instructions=,63356010748=,100.00=,0.00=,insn per cycle
+CPU84=,114069062=,=,instructions=,63356037150=,100.00=,0.00=,insn per cycle
+CPU88=,222193351=,=,instructions=,63356070398=,100.00=,0.00=,insn per cycle
+CPU92=,109773820=,=,instructions=,63356100115=,100.00=,0.00=,insn per cycle
+CPU96=,109821912=,=,instructions=,63356133972=,100.00=,0.00=,insn per cycle
+CPU100=,116759222=,=,instructions=,63356164892=,100.00=,0.00=,insn per cycle
+CPU104=,113583957=,=,instructions=,63356201424=,100.00=,0.00=,insn per cycle
+CPU108=,61647215=,=,instructions=,63356233302=,100.00=,0.00=,insn per cycle
+CPU112=,55837387=,=,instructions=,63356260171=,100.00=,0.00=,insn per cycle
+CPU116=,52739930=,=,instructions=,63356287479=,100.00=,0.00=,insn per cycle
+CPU120=,51871317=,=,instructions=,63356319367=,100.00=,0.00=,insn per cycle
+CPU124=,60175147=,=,instructions=,63356347698=,100.00=,0.00=,insn per cycle
+CPU128=,54160227=,=,instructions=,63356376877=,100.00=,0.00=,insn per cycle
+CPU4=,17523279397=,=,branches=,63356377474=,100.00=,=,=,=,
+CPU8=,18723445051=,=,branches=,63356412955=,100.00=,=,=,=,
+CPU12=,18266960635=,=,branches=,63356437318=,100.00=,=,=,=,
+CPU16=,18091894470=,=,branches=,63356463109=,100.00=,=,=,=,
+CPU20=,18391490507=,=,branches=,63356482826=,100.00=,=,=,=,
+CPU24=,18205751683=,=,branches=,63356504386=,100.00=,=,=,=,
+CPU28=,18420804933=,=,branches=,63356528090=,100.00=,=,=,=,
+CPU32=,19115901772=,=,branches=,63356554169=,100.00=,=,=,=,
+CPU36=,17573452=,=,branches=,63356588114=,100.00=,=,=,=,
+CPU40=,12348863=,=,branches=,63356583590=,100.00=,=,=,=,
+CPU44=,12228549=,=,branches=,63356607108=,100.00=,=,=,=,
+CPU48=,11035756=,=,branches=,63356638075=,100.00=,=,=,=,
+CPU52=,16394432=,=,branches=,63356662041=,100.00=,=,=,=,
+CPU56=,13620571=,=,branches=,63356695685=,100.00=,=,=,=,
+CPU60=,20280591=,=,branches=,63356720019=,100.00=,=,=,=,
+CPU64=,25003905=,=,branches=,63356744403=,100.00=,=,=,=,
+CPU68=,34899962=,=,branches=,63356769953=,100.00=,=,=,=,
+CPU72=,15258854=,=,branches=,63356804717=,100.00=,=,=,=,
+CPU76=,22562320=,=,branches=,63356801325=,100.00=,=,=,=,
+CPU80=,21924012=,=,branches=,63356823480=,100.00=,=,=,=,
+CPU84=,23187013=,=,branches=,63356844354=,100.00=,=,=,=,
+CPU88=,42244797=,=,branches=,63356866850=,100.00=,=,=,=,
+CPU92=,22360008=,=,branches=,63356895766=,100.00=,=,=,=,
+CPU96=,22376065=,=,branches=,63356921129=,100.00=,=,=,=,
+CPU100=,23691727=,=,branches=,63356948255=,100.00=,=,=,=,
+CPU104=,23070812=,=,branches=,63356982998=,100.00=,=,=,=,
+CPU108=,12846979=,=,branches=,63357013848=,100.00=,=,=,=,
+CPU112=,11329797=,=,branches=,63357047374=,100.00=,=,=,=,
+CPU116=,10764322=,=,branches=,63357082658=,100.00=,=,=,=,
+CPU120=,10574178=,=,branches=,63357108329=,100.00=,=,=,=,
+CPU124=,12145119=,=,branches=,63357135552=,100.00=,=,=,=,
+CPU128=,11003749=,=,branches=,63357159971=,100.00=,=,=,=,
+CPU4=,15456=,=,faults=,63357158401=,100.00=,=,=,=,
+CPU8=,6093=,=,faults=,63357182595=,100.00=,=,=,=,
+CPU12=,5010=,=,faults=,63357220434=,100.00=,=,=,=,
+CPU16=,5467=,=,faults=,63357246318=,100.00=,=,=,=,
+CPU20=,5183=,=,faults=,63357270428=,100.00=,=,=,=,
+CPU24=,5765=,=,faults=,63357295956=,100.00=,=,=,=,
+CPU28=,5237=,=,faults=,63357327086=,100.00=,=,=,=,
+CPU32=,6902=,=,faults=,63357352948=,100.00=,=,=,=,
+CPU36=,889=,=,faults=,63357383807=,100.00=,=,=,=,
+CPU40=,172=,=,faults=,63357424657=,100.00=,=,=,=,
+CPU44=,128=,=,faults=,63357456847=,100.00=,=,=,=,
+CPU48=,11=,=,faults=,63357485835=,100.00=,=,=,=,
+CPU52=,48=,=,faults=,63357515645=,100.00=,=,=,=,
+CPU56=,229=,=,faults=,63357547414=,100.00=,=,=,=,
+CPU60=,726=,=,faults=,63357578906=,100.00=,=,=,=,
+CPU64=,110=,=,faults=,63357614551=,100.00=,=,=,=,
+CPU68=,780=,=,faults=,63357645793=,100.00=,=,=,=,
+CPU72=,98=,=,faults=,63357673526=,100.00=,=,=,=,
+CPU76=,4=,=,faults=,63357674649=,100.00=,=,=,=,
+CPU80=,0=,=,faults=,63357703771=,100.00=,=,=,=,
+CPU84=,0=,=,faults=,63357735346=,100.00=,=,=,=,
+CPU88=,350=,=,faults=,63357762920=,100.00=,=,=,=,
+CPU92=,0=,=,faults=,63357797071=,100.00=,=,=,=,
+CPU96=,8=,=,faults=,63357822829=,100.00=,=,=,=,
+CPU100=,0=,=,faults=,63357850228=,100.00=,=,=,=,
+CPU104=,96=,=,faults=,63357876262=,100.00=,=,=,=,
+CPU108=,13=,=,faults=,63357907109=,100.00=,=,=,=,
+CPU112=,121=,=,faults=,63357941898=,100.00=,=,=,=,
+CPU116=,0=,=,faults=,63357972842=,100.00=,=,=,=,
+CPU120=,0=,=,faults=,63358005733=,100.00=,=,=,=,
+CPU124=,0=,=,faults=,63358034826=,100.00=,=,=,=,
+CPU128=,0=,=,faults=,63358072681=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,63358075245=,100.00=,=,=,=,
+CPU8=,2=,=,migrations=,63358106354=,100.00=,=,=,=,
+CPU12=,2=,=,migrations=,63358134117=,100.00=,=,=,=,
+CPU16=,1=,=,migrations=,63358156601=,100.00=,=,=,=,
+CPU20=,1=,=,migrations=,63358189329=,100.00=,=,=,=,
+CPU24=,1=,=,migrations=,63358217860=,100.00=,=,=,=,
+CPU28=,2=,=,migrations=,63358245224=,100.00=,=,=,=,
+CPU32=,1=,=,migrations=,63358278088=,100.00=,=,=,=,
+CPU36=,2=,=,migrations=,63358313598=,100.00=,=,=,=,
+CPU40=,5=,=,migrations=,63358351538=,100.00=,=,=,=,
+CPU44=,3=,=,migrations=,63358382565=,100.00=,=,=,=,
+CPU48=,4=,=,migrations=,63358416930=,100.00=,=,=,=,
+CPU52=,5=,=,migrations=,63358447622=,100.00=,=,=,=,
+CPU56=,3=,=,migrations=,63358481282=,100.00=,=,=,=,
+CPU60=,13=,=,migrations=,63358513087=,100.00=,=,=,=,
+CPU64=,19=,=,migrations=,63358544697=,100.00=,=,=,=,
+CPU68=,5=,=,migrations=,63358573223=,100.00=,=,=,=,
+CPU72=,4=,=,migrations=,63358602121=,100.00=,=,=,=,
+CPU76=,2=,=,migrations=,63358602852=,100.00=,=,=,=,
+CPU80=,0=,=,migrations=,63358631569=,100.00=,=,=,=,
+CPU84=,0=,=,migrations=,63358672324=,100.00=,=,=,=,
+CPU88=,43=,=,migrations=,63358700206=,100.00=,=,=,=,
+CPU92=,3=,=,migrations=,63358731265=,100.00=,=,=,=,
+CPU96=,0=,=,migrations=,63358760962=,100.00=,=,=,=,
+CPU100=,3=,=,migrations=,63358791048=,100.00=,=,=,=,
+CPU104=,1=,=,migrations=,63358826184=,100.00=,=,=,=,
+CPU108=,16=,=,migrations=,63358862685=,100.00=,=,=,=,
+CPU112=,1=,=,migrations=,63358895242=,100.00=,=,=,=,
+CPU116=,0=,=,migrations=,63358939805=,100.00=,=,=,=,
+CPU120=,0=,=,migrations=,63358970293=,100.00=,=,=,=,
+CPU124=,0=,=,migrations=,63359002136=,100.00=,=,=,=,
+CPU128=,0=,=,migrations=,63359033179=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 500000 --qp 0.5 -t 32 -i 24 -a 2 --lines 1 --args --sc 4 --ec 35
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918020,32,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918020,32,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:711.970054, Max:839.903821, Range:127.933767, Avg:759.210003, Median:732.455473, SD:44.530198,	TMin:713.023229, TMax:829.974887, TRange:116.951658, TAvg:756.636628, TMedian:732.455473, TSD:40.110313
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918020,32,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918020,32,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999785, Max->Median:0.875962
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918020,32,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,147424609=,=,cache-references=,23898239213=,100.00=,=,=,=,
+CPU8=,62747876=,=,cache-references=,23898270002=,100.00=,=,=,=,
+CPU12=,67100999=,=,cache-references=,23898297264=,100.00=,=,=,=,
+CPU16=,65114392=,=,cache-references=,23898325417=,100.00=,=,=,=,
+CPU20=,64258887=,=,cache-references=,23898360742=,100.00=,=,=,=,
+CPU24=,65137057=,=,cache-references=,23898385412=,100.00=,=,=,=,
+CPU28=,67696871=,=,cache-references=,23898415242=,100.00=,=,=,=,
+CPU32=,64870327=,=,cache-references=,23898445927=,100.00=,=,=,=,
+CPU36=,750537=,=,cache-references=,23898474741=,100.00=,=,=,=,
+CPU40=,819351=,=,cache-references=,23898502660=,100.00=,=,=,=,
+CPU44=,836369=,=,cache-references=,23898534432=,100.00=,=,=,=,
+CPU48=,155815=,=,cache-references=,23898533271=,100.00=,=,=,=,
+CPU52=,80677=,=,cache-references=,23898562012=,100.00=,=,=,=,
+CPU56=,100465=,=,cache-references=,23898590866=,100.00=,=,=,=,
+CPU60=,455294=,=,cache-references=,23898618817=,100.00=,=,=,=,
+CPU64=,248486=,=,cache-references=,23898644998=,100.00=,=,=,=,
+CPU68=,172033=,=,cache-references=,23898673741=,100.00=,=,=,=,
+CPU72=,500827=,=,cache-references=,23898700510=,100.00=,=,=,=,
+CPU76=,54121=,=,cache-references=,23898732563=,100.00=,=,=,=,
+CPU80=,54412=,=,cache-references=,23898763631=,100.00=,=,=,=,
+CPU84=,424464=,=,cache-references=,23898788054=,100.00=,=,=,=,
+CPU88=,1234730=,=,cache-references=,23898824911=,100.00=,=,=,=,
+CPU92=,161467=,=,cache-references=,23898855241=,100.00=,=,=,=,
+CPU96=,271045=,=,cache-references=,23898879196=,100.00=,=,=,=,
+CPU100=,535029=,=,cache-references=,23898905273=,100.00=,=,=,=,
+CPU104=,270839=,=,cache-references=,23898933656=,100.00=,=,=,=,
+CPU108=,117383=,=,cache-references=,23898964378=,100.00=,=,=,=,
+CPU112=,385321=,=,cache-references=,23899020222=,100.00=,=,=,=,
+CPU116=,88766=,=,cache-references=,23899067440=,100.00=,=,=,=,
+CPU120=,142573=,=,cache-references=,23899103796=,100.00=,=,=,=,
+CPU124=,548449=,=,cache-references=,23899139665=,100.00=,=,=,=,
+CPU128=,218875=,=,cache-references=,23899175727=,100.00=,=,=,=,
+CPU4=,51569907=,=,cache-misses=,23899204953=,100.00=,34.981=,of all cache refs
+CPU8=,47283392=,=,cache-misses=,23899234599=,100.00=,32.073=,of all cache refs
+CPU12=,49867229=,=,cache-misses=,23899256697=,100.00=,33.826=,of all cache refs
+CPU16=,48985842=,=,cache-misses=,23899282298=,100.00=,33.228=,of all cache refs
+CPU20=,48301505=,=,cache-misses=,23899307194=,100.00=,32.764=,of all cache refs
+CPU24=,48589582=,=,cache-misses=,23899326772=,100.00=,32.959=,of all cache refs
+CPU28=,50419357=,=,cache-misses=,23899360082=,100.00=,34.200=,of all cache refs
+CPU32=,48919474=,=,cache-misses=,23899386218=,100.00=,33.183=,of all cache refs
+CPU36=,101350=,=,cache-misses=,23899414466=,100.00=,0.069=,of all cache refs
+CPU40=,180232=,=,cache-misses=,23899443027=,100.00=,0.122=,of all cache refs
+CPU44=,271950=,=,cache-misses=,23899472072=,100.00=,0.184=,of all cache refs
+CPU48=,25198=,=,cache-misses=,23899528227=,100.00=,0.017=,of all cache refs
+CPU52=,11899=,=,cache-misses=,23899559433=,100.00=,0.008=,of all cache refs
+CPU56=,17320=,=,cache-misses=,23899589310=,100.00=,0.012=,of all cache refs
+CPU60=,152980=,=,cache-misses=,23899617499=,100.00=,0.104=,of all cache refs
+CPU64=,38571=,=,cache-misses=,23899645647=,100.00=,0.026=,of all cache refs
+CPU68=,53688=,=,cache-misses=,23899676906=,100.00=,0.036=,of all cache refs
+CPU72=,65469=,=,cache-misses=,23899707416=,100.00=,0.044=,of all cache refs
+CPU76=,9771=,=,cache-misses=,23899730686=,100.00=,0.007=,of all cache refs
+CPU80=,10312=,=,cache-misses=,23899751358=,100.00=,0.007=,of all cache refs
+CPU84=,95909=,=,cache-misses=,23899779818=,100.00=,0.065=,of all cache refs
+CPU88=,173668=,=,cache-misses=,23899811094=,100.00=,0.118=,of all cache refs
+CPU92=,28689=,=,cache-misses=,23899857794=,100.00=,0.019=,of all cache refs
+CPU96=,98248=,=,cache-misses=,23899916227=,100.00=,0.067=,of all cache refs
+CPU100=,159952=,=,cache-misses=,23899944240=,100.00=,0.108=,of all cache refs
+CPU104=,66420=,=,cache-misses=,23899974170=,100.00=,0.045=,of all cache refs
+CPU108=,26057=,=,cache-misses=,23900014136=,100.00=,0.018=,of all cache refs
+CPU112=,151215=,=,cache-misses=,23900043103=,100.00=,0.103=,of all cache refs
+CPU116=,21483=,=,cache-misses=,23900075216=,100.00=,0.015=,of all cache refs
+CPU120=,42998=,=,cache-misses=,23900114219=,100.00=,0.029=,of all cache refs
+CPU124=,136434=,=,cache-misses=,23900144794=,100.00=,0.093=,of all cache refs
+CPU128=,39927=,=,cache-misses=,23900174932=,100.00=,0.027=,of all cache refs
+CPU4=,29259321033=,=,cycles=,23900200684=,100.00=,=,=,=,
+CPU8=,23143815794=,=,cycles=,23900225168=,100.00=,=,=,=,
+CPU12=,23136658647=,=,cycles=,23900258120=,100.00=,=,=,=,
+CPU16=,23091666714=,=,cycles=,23900290581=,100.00=,=,=,=,
+CPU20=,23252906290=,=,cycles=,23900314703=,100.00=,=,=,=,
+CPU24=,23071240688=,=,cycles=,23900336333=,100.00=,=,=,=,
+CPU28=,23027858100=,=,cycles=,23900363768=,100.00=,=,=,=,
+CPU32=,23028114088=,=,cycles=,23900392819=,100.00=,=,=,=,
+CPU36=,89739425=,=,cycles=,23900425603=,100.00=,=,=,=,
+CPU40=,95251809=,=,cycles=,23900467816=,100.00=,=,=,=,
+CPU44=,95204946=,=,cycles=,23900495622=,100.00=,=,=,=,
+CPU48=,71274723=,=,cycles=,23900523199=,100.00=,=,=,=,
+CPU52=,71820892=,=,cycles=,23900553169=,100.00=,=,=,=,
+CPU56=,70430732=,=,cycles=,23900583112=,100.00=,=,=,=,
+CPU60=,83149959=,=,cycles=,23900613460=,100.00=,=,=,=,
+CPU64=,74998166=,=,cycles=,23900660372=,100.00=,=,=,=,
+CPU68=,88791115=,=,cycles=,23900688153=,100.00=,=,=,=,
+CPU72=,181690964=,=,cycles=,23900725761=,100.00=,=,=,=,
+CPU76=,125943842=,=,cycles=,23900748364=,100.00=,=,=,=,
+CPU80=,118566033=,=,cycles=,23900780340=,100.00=,=,=,=,
+CPU84=,136950498=,=,cycles=,23900822757=,100.00=,=,=,=,
+CPU88=,157580470=,=,cycles=,23900855016=,100.00=,=,=,=,
+CPU92=,122397172=,=,cycles=,23900879563=,100.00=,=,=,=,
+CPU96=,128561493=,=,cycles=,23900912789=,100.00=,=,=,=,
+CPU100=,138416171=,=,cycles=,23900946913=,100.00=,=,=,=,
+CPU104=,126375457=,=,cycles=,23900979512=,100.00=,=,=,=,
+CPU108=,71503874=,=,cycles=,23901009499=,100.00=,=,=,=,
+CPU112=,80564828=,=,cycles=,23901050779=,100.00=,=,=,=,
+CPU116=,70461634=,=,cycles=,23901080761=,100.00=,=,=,=,
+CPU120=,71661912=,=,cycles=,23901109285=,100.00=,=,=,=,
+CPU124=,83702469=,=,cycles=,23901138423=,100.00=,=,=,=,
+CPU128=,72455822=,=,cycles=,23901165741=,100.00=,=,=,=,
+CPU4=,29569664524=,=,instructions=,23901190141=,100.00=,1.01=,insn per cycle
+CPU8=,22916903726=,=,instructions=,23901236883=,100.00=,0.78=,insn per cycle
+CPU12=,22953578633=,=,instructions=,23901267297=,100.00=,0.78=,insn per cycle
+CPU16=,22913756392=,=,instructions=,23901301651=,100.00=,0.78=,insn per cycle
+CPU20=,22939243147=,=,instructions=,23901334335=,100.00=,0.78=,insn per cycle
+CPU24=,22934490071=,=,instructions=,23901362977=,100.00=,0.78=,insn per cycle
+CPU28=,22956780216=,=,instructions=,23901396488=,100.00=,0.78=,insn per cycle
+CPU32=,22932306766=,=,instructions=,23901428239=,100.00=,0.78=,insn per cycle
+CPU36=,24764495=,=,instructions=,23901457977=,100.00=,0.00=,insn per cycle
+CPU40=,23347286=,=,instructions=,23901487467=,100.00=,0.00=,insn per cycle
+CPU44=,23397210=,=,instructions=,23901515376=,100.00=,0.00=,insn per cycle
+CPU48=,18052926=,=,instructions=,23901552243=,100.00=,0.00=,insn per cycle
+CPU52=,17368049=,=,instructions=,23901579405=,100.00=,0.00=,insn per cycle
+CPU56=,17697304=,=,instructions=,23901614601=,100.00=,0.00=,insn per cycle
+CPU60=,32144170=,=,instructions=,23901643185=,100.00=,0.00=,insn per cycle
+CPU64=,19090904=,=,instructions=,23901668505=,100.00=,0.00=,insn per cycle
+CPU68=,43057505=,=,instructions=,23901694556=,100.00=,0.00=,insn per cycle
+CPU72=,36185105=,=,instructions=,23901719439=,100.00=,0.00=,insn per cycle
+CPU76=,32801623=,=,instructions=,23901730001=,100.00=,0.00=,insn per cycle
+CPU80=,31284730=,=,instructions=,23901773178=,100.00=,0.00=,insn per cycle
+CPU84=,34134931=,=,instructions=,23901804405=,100.00=,0.00=,insn per cycle
+CPU88=,43904719=,=,instructions=,23901834240=,100.00=,0.00=,insn per cycle
+CPU92=,31890716=,=,instructions=,23901863728=,100.00=,0.00=,insn per cycle
+CPU96=,32248997=,=,instructions=,23901885350=,100.00=,0.00=,insn per cycle
+CPU100=,33893894=,=,instructions=,23901914606=,100.00=,0.00=,insn per cycle
+CPU104=,32785933=,=,instructions=,23901959682=,100.00=,0.00=,insn per cycle
+CPU108=,18001879=,=,instructions=,23901988597=,100.00=,0.00=,insn per cycle
+CPU112=,19193421=,=,instructions=,23902016095=,100.00=,0.00=,insn per cycle
+CPU116=,17814694=,=,instructions=,23902043454=,100.00=,0.00=,insn per cycle
+CPU120=,18707475=,=,instructions=,23902069444=,100.00=,0.00=,insn per cycle
+CPU124=,20633100=,=,instructions=,23902097220=,100.00=,0.00=,insn per cycle
+CPU128=,18752972=,=,instructions=,23902127482=,100.00=,0.00=,insn per cycle
+CPU4=,4997163631=,=,branches=,23902153086=,100.00=,=,=,=,
+CPU8=,3919059209=,=,branches=,23902172712=,100.00=,=,=,=,
+CPU12=,3926417757=,=,branches=,23902196268=,100.00=,=,=,=,
+CPU16=,3918563245=,=,branches=,23902224635=,100.00=,=,=,=,
+CPU20=,3923666993=,=,branches=,23902254864=,100.00=,=,=,=,
+CPU24=,3922524195=,=,branches=,23902284757=,100.00=,=,=,=,
+CPU28=,3926848076=,=,branches=,23902315945=,100.00=,=,=,=,
+CPU32=,3922301278=,=,branches=,23902370439=,100.00=,=,=,=,
+CPU36=,4942701=,=,branches=,23902404882=,100.00=,=,=,=,
+CPU40=,4665965=,=,branches=,23902437202=,100.00=,=,=,=,
+CPU44=,4678654=,=,branches=,23902463511=,100.00=,=,=,=,
+CPU48=,3658413=,=,branches=,23902489379=,100.00=,=,=,=,
+CPU52=,3538909=,=,branches=,23902524920=,100.00=,=,=,=,
+CPU56=,3599918=,=,branches=,23902549314=,100.00=,=,=,=,
+CPU60=,6532824=,=,branches=,23902573170=,100.00=,=,=,=,
+CPU64=,3860024=,=,branches=,23902596653=,100.00=,=,=,=,
+CPU68=,9577755=,=,branches=,23902624886=,100.00=,=,=,=,
+CPU72=,7328971=,=,branches=,23902650458=,100.00=,=,=,=,
+CPU76=,6665156=,=,branches=,23902679786=,100.00=,=,=,=,
+CPU80=,6352226=,=,branches=,23902707418=,100.00=,=,=,=,
+CPU84=,6897025=,=,branches=,23902739523=,100.00=,=,=,=,
+CPU88=,8674115=,=,branches=,23902769137=,100.00=,=,=,=,
+CPU92=,6466854=,=,branches=,23902797994=,100.00=,=,=,=,
+CPU96=,6536791=,=,branches=,23902844638=,100.00=,=,=,=,
+CPU100=,6842237=,=,branches=,23902870102=,100.00=,=,=,=,
+CPU104=,6621083=,=,branches=,23902896432=,100.00=,=,=,=,
+CPU108=,3657496=,=,branches=,23902928529=,100.00=,=,=,=,
+CPU112=,3887699=,=,branches=,23902955793=,100.00=,=,=,=,
+CPU116=,3627759=,=,branches=,23902982376=,100.00=,=,=,=,
+CPU120=,3799160=,=,branches=,23903028315=,100.00=,=,=,=,
+CPU124=,4159564=,=,branches=,23903075560=,100.00=,=,=,=,
+CPU128=,3806070=,=,branches=,23903101344=,100.00=,=,=,=,
+CPU4=,21028=,=,faults=,23903129275=,100.00=,=,=,=,
+CPU8=,5866=,=,faults=,23903162860=,100.00=,=,=,=,
+CPU12=,6985=,=,faults=,23903203792=,100.00=,=,=,=,
+CPU16=,7582=,=,faults=,23903230486=,100.00=,=,=,=,
+CPU20=,8553=,=,faults=,23903257980=,100.00=,=,=,=,
+CPU24=,6608=,=,faults=,23903283116=,100.00=,=,=,=,
+CPU28=,7072=,=,faults=,23903309909=,100.00=,=,=,=,
+CPU32=,7155=,=,faults=,23903339430=,100.00=,=,=,=,
+CPU36=,24=,=,faults=,23903372218=,100.00=,=,=,=,
+CPU40=,0=,=,faults=,23903411382=,100.00=,=,=,=,
+CPU44=,13=,=,faults=,23903440871=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,23903470778=,100.00=,=,=,=,
+CPU52=,0=,=,faults=,23903501762=,100.00=,=,=,=,
+CPU56=,0=,=,faults=,23903539027=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,23903575322=,100.00=,=,=,=,
+CPU64=,0=,=,faults=,23903627035=,100.00=,=,=,=,
+CPU68=,0=,=,faults=,23903657534=,100.00=,=,=,=,
+CPU72=,0=,=,faults=,23903685110=,100.00=,=,=,=,
+CPU76=,0=,=,faults=,23903688564=,100.00=,=,=,=,
+CPU80=,0=,=,faults=,23903693211=,100.00=,=,=,=,
+CPU84=,0=,=,faults=,23903696182=,100.00=,=,=,=,
+CPU88=,0=,=,faults=,23903698727=,100.00=,=,=,=,
+CPU92=,0=,=,faults=,23903701851=,100.00=,=,=,=,
+CPU96=,3=,=,faults=,23903703788=,100.00=,=,=,=,
+CPU100=,0=,=,faults=,23903706501=,100.00=,=,=,=,
+CPU104=,0=,=,faults=,23903709528=,100.00=,=,=,=,
+CPU108=,0=,=,faults=,23903741836=,100.00=,=,=,=,
+CPU112=,6=,=,faults=,23903793606=,100.00=,=,=,=,
+CPU116=,0=,=,faults=,23903827921=,100.00=,=,=,=,
+CPU120=,83=,=,faults=,23903858921=,100.00=,=,=,=,
+CPU124=,0=,=,faults=,23903891903=,100.00=,=,=,=,
+CPU128=,0=,=,faults=,23903946061=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,23903977165=,100.00=,=,=,=,
+CPU8=,2=,=,migrations=,23904002085=,100.00=,=,=,=,
+CPU12=,2=,=,migrations=,23904030675=,100.00=,=,=,=,
+CPU16=,1=,=,migrations=,23904063601=,100.00=,=,=,=,
+CPU20=,1=,=,migrations=,23904094145=,100.00=,=,=,=,
+CPU24=,1=,=,migrations=,23904124460=,100.00=,=,=,=,
+CPU28=,1=,=,migrations=,23904149126=,100.00=,=,=,=,
+CPU32=,1=,=,migrations=,23904202205=,100.00=,=,=,=,
+CPU36=,3=,=,migrations=,23904239542=,100.00=,=,=,=,
+CPU40=,1=,=,migrations=,23904270128=,100.00=,=,=,=,
+CPU44=,2=,=,migrations=,23904301422=,100.00=,=,=,=,
+CPU48=,0=,=,migrations=,23904331506=,100.00=,=,=,=,
+CPU52=,0=,=,migrations=,23904362146=,100.00=,=,=,=,
+CPU56=,0=,=,migrations=,23904395171=,100.00=,=,=,=,
+CPU60=,2=,=,migrations=,23904432021=,100.00=,=,=,=,
+CPU64=,2=,=,migrations=,23904461906=,100.00=,=,=,=,
+CPU68=,0=,=,migrations=,23904490987=,100.00=,=,=,=,
+CPU72=,2=,=,migrations=,23904522516=,100.00=,=,=,=,
+CPU76=,0=,=,migrations=,23904553615=,100.00=,=,=,=,
+CPU80=,0=,=,migrations=,23904593530=,100.00=,=,=,=,
+CPU84=,0=,=,migrations=,23904645141=,100.00=,=,=,=,
+CPU88=,12=,=,migrations=,23904672087=,100.00=,=,=,=,
+CPU92=,2=,=,migrations=,23904700235=,100.00=,=,=,=,
+CPU96=,0=,=,migrations=,23904729489=,100.00=,=,=,=,
+CPU100=,2=,=,migrations=,23904763284=,100.00=,=,=,=,
+CPU104=,0=,=,migrations=,23904795587=,100.00=,=,=,=,
+CPU108=,0=,=,migrations=,23904837798=,100.00=,=,=,=,
+CPU112=,0=,=,migrations=,23904869530=,100.00=,=,=,=,
+CPU116=,0=,=,migrations=,23904908843=,100.00=,=,=,=,
+CPU120=,1=,=,migrations=,23904940224=,100.00=,=,=,=,
+CPU124=,0=,=,migrations=,23904971174=,100.00=,=,=,=,
+CPU128=,0=,=,migrations=,23905001746=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 500000 --qp 0.5 -t 32 -i 22 -a 2 --lines 1 --args --sc 4 --ec 35
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918044,32,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918044,32,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:1640.194321, Max:1847.587717, Range:207.393396, Avg:1739.795737, Median:1724.690040, SD:65.460839,	TMin:1662.669470, TMax:1827.715812, TRange:165.046342, TAvg:1739.165693, TMedian:1724.690040, TSD:57.333108
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918044,32,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918044,32,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999557, Max->Median:0.582441
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.500000,0.500000,1570918044,32,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,130239242=,=,cache-references=,38951035985=,100.00=,=,=,=,
+CPU8=,100636802=,=,cache-references=,38951071269=,100.00=,=,=,=,
+CPU12=,113630007=,=,cache-references=,38951078614=,100.00=,=,=,=,
+CPU16=,108354049=,=,cache-references=,38951076653=,100.00=,=,=,=,
+CPU20=,112450225=,=,cache-references=,38951103954=,100.00=,=,=,=,
+CPU24=,103398060=,=,cache-references=,38951101888=,100.00=,=,=,=,
+CPU28=,111919706=,=,cache-references=,38951123763=,100.00=,=,=,=,
+CPU32=,106978595=,=,cache-references=,38951148593=,100.00=,=,=,=,
+CPU36=,177040=,=,cache-references=,38951173213=,100.00=,=,=,=,
+CPU40=,764770=,=,cache-references=,38951200038=,100.00=,=,=,=,
+CPU44=,1797750=,=,cache-references=,38951198812=,100.00=,=,=,=,
+CPU48=,1288241=,=,cache-references=,38951201329=,100.00=,=,=,=,
+CPU52=,1177175=,=,cache-references=,38951229411=,100.00=,=,=,=,
+CPU56=,809526=,=,cache-references=,38951260249=,100.00=,=,=,=,
+CPU60=,547759=,=,cache-references=,38951286651=,100.00=,=,=,=,
+CPU64=,627030=,=,cache-references=,38951314915=,100.00=,=,=,=,
+CPU68=,321042=,=,cache-references=,38951344494=,100.00=,=,=,=,
+CPU72=,1112721=,=,cache-references=,38951380609=,100.00=,=,=,=,
+CPU76=,77992=,=,cache-references=,38951409811=,100.00=,=,=,=,
+CPU80=,119673=,=,cache-references=,38951435709=,100.00=,=,=,=,
+CPU84=,603817=,=,cache-references=,38951464054=,100.00=,=,=,=,
+CPU88=,1411107=,=,cache-references=,38951463841=,100.00=,=,=,=,
+CPU92=,329586=,=,cache-references=,38951502269=,100.00=,=,=,=,
+CPU96=,452076=,=,cache-references=,38951502604=,100.00=,=,=,=,
+CPU100=,753971=,=,cache-references=,38951525904=,100.00=,=,=,=,
+CPU104=,380736=,=,cache-references=,38951552714=,100.00=,=,=,=,
+CPU108=,212781=,=,cache-references=,38951586343=,100.00=,=,=,=,
+CPU112=,1301126=,=,cache-references=,38951626903=,100.00=,=,=,=,
+CPU116=,278814=,=,cache-references=,38951654866=,100.00=,=,=,=,
+CPU120=,289075=,=,cache-references=,38951655211=,100.00=,=,=,=,
+CPU124=,873362=,=,cache-references=,38951690232=,100.00=,=,=,=,
+CPU128=,505244=,=,cache-references=,38951723541=,100.00=,=,=,=,
+CPU4=,66449313=,=,cache-misses=,38951759153=,100.00=,51.021=,of all cache refs
+CPU8=,64052577=,=,cache-misses=,38951783379=,100.00=,49.181=,of all cache refs
+CPU12=,63169570=,=,cache-misses=,38951828328=,100.00=,48.503=,of all cache refs
+CPU16=,64224572=,=,cache-misses=,38951861663=,100.00=,49.313=,of all cache refs
+CPU20=,64904733=,=,cache-misses=,38951892379=,100.00=,49.835=,of all cache refs
+CPU24=,61512561=,=,cache-misses=,38951921450=,100.00=,47.230=,of all cache refs
+CPU28=,65689236=,=,cache-misses=,38951953129=,100.00=,50.437=,of all cache refs
+CPU32=,65136347=,=,cache-misses=,38951985601=,100.00=,50.013=,of all cache refs
+CPU36=,24785=,=,cache-misses=,38952014051=,100.00=,0.019=,of all cache refs
+CPU40=,96373=,=,cache-misses=,38952042788=,100.00=,0.074=,of all cache refs
+CPU44=,510872=,=,cache-misses=,38952070181=,100.00=,0.392=,of all cache refs
+CPU48=,134205=,=,cache-misses=,38952102890=,100.00=,0.103=,of all cache refs
+CPU52=,149051=,=,cache-misses=,38952133646=,100.00=,0.114=,of all cache refs
+CPU56=,163838=,=,cache-misses=,38952175007=,100.00=,0.126=,of all cache refs
+CPU60=,73281=,=,cache-misses=,38952201517=,100.00=,0.056=,of all cache refs
+CPU64=,85130=,=,cache-misses=,38952228040=,100.00=,0.065=,of all cache refs
+CPU68=,90546=,=,cache-misses=,38952257142=,100.00=,0.070=,of all cache refs
+CPU72=,115988=,=,cache-misses=,38952284528=,100.00=,0.089=,of all cache refs
+CPU76=,15403=,=,cache-misses=,38952310986=,100.00=,0.012=,of all cache refs
+CPU80=,18994=,=,cache-misses=,38952341977=,100.00=,0.015=,of all cache refs
+CPU84=,94489=,=,cache-misses=,38952366711=,100.00=,0.073=,of all cache refs
+CPU88=,203440=,=,cache-misses=,38952390373=,100.00=,0.156=,of all cache refs
+CPU92=,48225=,=,cache-misses=,38952424959=,100.00=,0.037=,of all cache refs
+CPU96=,156662=,=,cache-misses=,38952450687=,100.00=,0.120=,of all cache refs
+CPU100=,169847=,=,cache-misses=,38952481515=,100.00=,0.130=,of all cache refs
+CPU104=,83532=,=,cache-misses=,38952509931=,100.00=,0.064=,of all cache refs
+CPU108=,38815=,=,cache-misses=,38952536857=,100.00=,0.030=,of all cache refs
+CPU112=,309604=,=,cache-misses=,38952580229=,100.00=,0.238=,of all cache refs
+CPU116=,50928=,=,cache-misses=,38952609185=,100.00=,0.039=,of all cache refs
+CPU120=,59317=,=,cache-misses=,38952652548=,100.00=,0.046=,of all cache refs
+CPU124=,125716=,=,cache-misses=,38952682242=,100.00=,0.097=,of all cache refs
+CPU128=,61103=,=,cache-misses=,38952721731=,100.00=,0.047=,of all cache refs
+CPU4=,54849401026=,=,cycles=,38952755107=,100.00=,=,=,=,
+CPU8=,54619571583=,=,cycles=,38952777248=,100.00=,=,=,=,
+CPU12=,55608610397=,=,cycles=,38952802491=,100.00=,=,=,=,
+CPU16=,54807446674=,=,cycles=,38952833407=,100.00=,=,=,=,
+CPU20=,55579687270=,=,cycles=,38952856361=,100.00=,=,=,=,
+CPU24=,55192637608=,=,cycles=,38952877583=,100.00=,=,=,=,
+CPU28=,55056970090=,=,cycles=,38952900385=,100.00=,=,=,=,
+CPU32=,55515403378=,=,cycles=,38952948312=,100.00=,=,=,=,
+CPU36=,119926532=,=,cycles=,38952990325=,100.00=,=,=,=,
+CPU40=,139827776=,=,cycles=,38953017401=,100.00=,=,=,=,
+CPU44=,175892987=,=,cycles=,38953043599=,100.00=,=,=,=,
+CPU48=,153504963=,=,cycles=,38953070180=,100.00=,=,=,=,
+CPU52=,172063113=,=,cycles=,38953097391=,100.00=,=,=,=,
+CPU56=,156058803=,=,cycles=,38953124589=,100.00=,=,=,=,
+CPU60=,140784825=,=,cycles=,38953150868=,100.00=,=,=,=,
+CPU64=,131927498=,=,cycles=,38953179352=,100.00=,=,=,=,
+CPU68=,150460555=,=,cycles=,38953208030=,100.00=,=,=,=,
+CPU72=,271893249=,=,cycles=,38953235693=,100.00=,=,=,=,
+CPU76=,228216786=,=,cycles=,38953265071=,100.00=,=,=,=,
+CPU80=,223116568=,=,cycles=,38953297600=,100.00=,=,=,=,
+CPU84=,251510516=,=,cycles=,38953333319=,100.00=,=,=,=,
+CPU88=,280057905=,=,cycles=,38953364710=,100.00=,=,=,=,
+CPU92=,231904909=,=,cycles=,38953400535=,100.00=,=,=,=,
+CPU96=,246127224=,=,cycles=,38953433422=,100.00=,=,=,=,
+CPU100=,257850414=,=,cycles=,38953464274=,100.00=,=,=,=,
+CPU104=,242665530=,=,cycles=,38953496032=,100.00=,=,=,=,
+CPU108=,119047248=,=,cycles=,38953526206=,100.00=,=,=,=,
+CPU112=,182536507=,=,cycles=,38953553815=,100.00=,=,=,=,
+CPU116=,124794934=,=,cycles=,38953582958=,100.00=,=,=,=,
+CPU120=,124393389=,=,cycles=,38953612702=,100.00=,=,=,=,
+CPU124=,143281194=,=,cycles=,38953641215=,100.00=,=,=,=,
+CPU128=,127277987=,=,cycles=,38953672603=,100.00=,=,=,=,
+CPU4=,51883283708=,=,instructions=,38953707170=,100.00=,0.95=,insn per cycle
+CPU8=,51492034138=,=,instructions=,38953738612=,100.00=,0.94=,insn per cycle
+CPU12=,52449878434=,=,instructions=,38953782745=,100.00=,0.96=,insn per cycle
+CPU16=,51476548548=,=,instructions=,38953781896=,100.00=,0.94=,insn per cycle
+CPU20=,53714646410=,=,instructions=,38953787080=,100.00=,0.98=,insn per cycle
+CPU24=,53051005991=,=,instructions=,38953815746=,100.00=,0.97=,insn per cycle
+CPU28=,52846685560=,=,instructions=,38953849034=,100.00=,0.96=,insn per cycle
+CPU32=,52682695499=,=,instructions=,38953849148=,100.00=,0.96=,insn per cycle
+CPU36=,31455546=,=,instructions=,38953874906=,100.00=,0.00=,insn per cycle
+CPU40=,34584479=,=,instructions=,38953901130=,100.00=,0.00=,insn per cycle
+CPU44=,46153007=,=,instructions=,38953937271=,100.00=,0.00=,insn per cycle
+CPU48=,43859569=,=,instructions=,38953962062=,100.00=,0.00=,insn per cycle
+CPU52=,88150819=,=,instructions=,38953987509=,100.00=,0.00=,insn per cycle
+CPU56=,65824245=,=,instructions=,38954022120=,100.00=,0.00=,insn per cycle
+CPU60=,45751608=,=,instructions=,38954047344=,100.00=,0.00=,insn per cycle
+CPU64=,35999537=,=,instructions=,38954072406=,100.00=,0.00=,insn per cycle
+CPU68=,67134673=,=,instructions=,38954097632=,100.00=,0.00=,insn per cycle
+CPU72=,51923334=,=,instructions=,38954126581=,100.00=,0.00=,insn per cycle
+CPU76=,59650670=,=,instructions=,38954161544=,100.00=,0.00=,insn per cycle
+CPU80=,58862920=,=,instructions=,38954193972=,100.00=,0.00=,insn per cycle
+CPU84=,64708556=,=,instructions=,38954224069=,100.00=,0.00=,insn per cycle
+CPU88=,84227690=,=,instructions=,38954259029=,100.00=,0.00=,insn per cycle
+CPU92=,61472874=,=,instructions=,38954291536=,100.00=,0.00=,insn per cycle
+CPU96=,62218505=,=,instructions=,38954321090=,100.00=,0.00=,insn per cycle
+CPU100=,65159589=,=,instructions=,38954349405=,100.00=,0.00=,insn per cycle
+CPU104=,62940980=,=,instructions=,38954377981=,100.00=,0.00=,insn per cycle
+CPU108=,31685545=,=,instructions=,38954408495=,100.00=,0.00=,insn per cycle
+CPU112=,121154174=,=,instructions=,38954435553=,100.00=,0.00=,insn per cycle
+CPU116=,32479457=,=,instructions=,38954462530=,100.00=,0.00=,insn per cycle
+CPU120=,32584528=,=,instructions=,38954493688=,100.00=,0.00=,insn per cycle
+CPU124=,48075803=,=,instructions=,38954525926=,100.00=,0.00=,insn per cycle
+CPU128=,33859847=,=,instructions=,38954555169=,100.00=,0.00=,insn per cycle
+CPU4=,9449427218=,=,branches=,38954584911=,100.00=,=,=,=,
+CPU8=,9465446591=,=,branches=,38954612373=,100.00=,=,=,=,
+CPU12=,9644067249=,=,branches=,38954642618=,100.00=,=,=,=,
+CPU16=,9455808327=,=,branches=,38954670562=,100.00=,=,=,=,
+CPU20=,9848344603=,=,branches=,38954699719=,100.00=,=,=,=,
+CPU24=,9725988775=,=,branches=,38954729925=,100.00=,=,=,=,
+CPU28=,9649910217=,=,branches=,38954763861=,100.00=,=,=,=,
+CPU32=,9679395477=,=,branches=,38954794106=,100.00=,=,=,=,
+CPU36=,6438627=,=,branches=,38954821440=,100.00=,=,=,=,
+CPU40=,6996182=,=,branches=,38954846886=,100.00=,=,=,=,
+CPU44=,9338676=,=,branches=,38954879818=,100.00=,=,=,=,
+CPU48=,8834198=,=,branches=,38954903113=,100.00=,=,=,=,
+CPU52=,14401814=,=,branches=,38954929943=,100.00=,=,=,=,
+CPU56=,12952476=,=,branches=,38954953272=,100.00=,=,=,=,
+CPU60=,9830148=,=,branches=,38954978241=,100.00=,=,=,=,
+CPU64=,7278713=,=,branches=,38955003009=,100.00=,=,=,=,
+CPU68=,14867619=,=,branches=,38955031854=,100.00=,=,=,=,
+CPU72=,10480285=,=,branches=,38955058597=,100.00=,=,=,=,
+CPU76=,12153351=,=,branches=,38955084494=,100.00=,=,=,=,
+CPU80=,11995313=,=,branches=,38955111673=,100.00=,=,=,=,
+CPU84=,13139640=,=,branches=,38955134515=,100.00=,=,=,=,
+CPU88=,15496298=,=,branches=,38955163711=,100.00=,=,=,=,
+CPU92=,12477607=,=,branches=,38955204067=,100.00=,=,=,=,
+CPU96=,12647943=,=,branches=,38955249439=,100.00=,=,=,=,
+CPU100=,13211342=,=,branches=,38955276886=,100.00=,=,=,=,
+CPU104=,12770887=,=,branches=,38955307875=,100.00=,=,=,=,
+CPU108=,6439136=,=,branches=,38955334815=,100.00=,=,=,=,
+CPU112=,26147931=,=,branches=,38955361111=,100.00=,=,=,=,
+CPU116=,6593899=,=,branches=,38955385375=,100.00=,=,=,=,
+CPU120=,6656797=,=,branches=,38955409960=,100.00=,=,=,=,
+CPU124=,9558792=,=,branches=,38955435166=,100.00=,=,=,=,
+CPU128=,6826020=,=,branches=,38955460596=,100.00=,=,=,=,
+CPU4=,10773=,=,faults=,38955489794=,100.00=,=,=,=,
+CPU8=,5917=,=,faults=,38955522315=,100.00=,=,=,=,
+CPU12=,6303=,=,faults=,38955552245=,100.00=,=,=,=,
+CPU16=,6188=,=,faults=,38955590397=,100.00=,=,=,=,
+CPU20=,6778=,=,faults=,38955614103=,100.00=,=,=,=,
+CPU24=,6608=,=,faults=,38955639062=,100.00=,=,=,=,
+CPU28=,8029=,=,faults=,38955667705=,100.00=,=,=,=,
+CPU32=,7951=,=,faults=,38955697245=,100.00=,=,=,=,
+CPU36=,9=,=,faults=,38955729439=,100.00=,=,=,=,
+CPU40=,35=,=,faults=,38955760934=,100.00=,=,=,=,
+CPU44=,22=,=,faults=,38955791837=,100.00=,=,=,=,
+CPU48=,37=,=,faults=,38955815743=,100.00=,=,=,=,
+CPU52=,48=,=,faults=,38955861225=,100.00=,=,=,=,
+CPU56=,615=,=,faults=,38955894729=,100.00=,=,=,=,
+CPU60=,347=,=,faults=,38955925306=,100.00=,=,=,=,
+CPU64=,0=,=,faults=,38955961913=,100.00=,=,=,=,
+CPU68=,0=,=,faults=,38955996324=,100.00=,=,=,=,
+CPU72=,1=,=,faults=,38956048718=,100.00=,=,=,=,
+CPU76=,0=,=,faults=,38956076537=,100.00=,=,=,=,
+CPU80=,0=,=,faults=,38956105471=,100.00=,=,=,=,
+CPU84=,0=,=,faults=,38956131872=,100.00=,=,=,=,
+CPU88=,0=,=,faults=,38956170032=,100.00=,=,=,=,
+CPU92=,0=,=,faults=,38956194109=,100.00=,=,=,=,
+CPU96=,4=,=,faults=,38956247803=,100.00=,=,=,=,
+CPU100=,0=,=,faults=,38956281708=,100.00=,=,=,=,
+CPU104=,0=,=,faults=,38956313417=,100.00=,=,=,=,
+CPU108=,2=,=,faults=,38956344478=,100.00=,=,=,=,
+CPU112=,968=,=,faults=,38956373667=,100.00=,=,=,=,
+CPU116=,0=,=,faults=,38956403000=,100.00=,=,=,=,
+CPU120=,1=,=,faults=,38956454746=,100.00=,=,=,=,
+CPU124=,0=,=,faults=,38956489118=,100.00=,=,=,=,
+CPU128=,98=,=,faults=,38956518634=,100.00=,=,=,=,
+CPU4=,1=,=,migrations=,38956544156=,100.00=,=,=,=,
+CPU8=,1=,=,migrations=,38956574714=,100.00=,=,=,=,
+CPU12=,1=,=,migrations=,38956609203=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,38956649504=,100.00=,=,=,=,
+CPU20=,1=,=,migrations=,38956677511=,100.00=,=,=,=,
+CPU24=,1=,=,migrations=,38956701468=,100.00=,=,=,=,
+CPU28=,1=,=,migrations=,38956724899=,100.00=,=,=,=,
+CPU32=,2=,=,migrations=,38956752516=,100.00=,=,=,=,
+CPU36=,0=,=,migrations=,38956787000=,100.00=,=,=,=,
+CPU40=,1=,=,migrations=,38956816887=,100.00=,=,=,=,
+CPU44=,3=,=,migrations=,38956847854=,100.00=,=,=,=,
+CPU48=,10=,=,migrations=,38956865529=,100.00=,=,=,=,
+CPU52=,7=,=,migrations=,38956896960=,100.00=,=,=,=,
+CPU56=,3=,=,migrations=,38956947379=,100.00=,=,=,=,
+CPU60=,12=,=,migrations=,38956949815=,100.00=,=,=,=,
+CPU64=,8=,=,migrations=,38956979028=,100.00=,=,=,=,
+CPU68=,2=,=,migrations=,38957007819=,100.00=,=,=,=,
+CPU72=,4=,=,migrations=,38957039901=,100.00=,=,=,=,
+CPU76=,0=,=,migrations=,38957075030=,100.00=,=,=,=,
+CPU80=,1=,=,migrations=,38957076186=,100.00=,=,=,=,
+CPU84=,1=,=,migrations=,38957078389=,100.00=,=,=,=,
+CPU88=,20=,=,migrations=,38957078639=,100.00=,=,=,=,
+CPU92=,2=,=,migrations=,38957108466=,100.00=,=,=,=,
+CPU96=,3=,=,migrations=,38957146351=,100.00=,=,=,=,
+CPU100=,2=,=,migrations=,38957170249=,100.00=,=,=,=,
+CPU104=,1=,=,migrations=,38957211450=,100.00=,=,=,=,
+CPU108=,4=,=,migrations=,38957257694=,100.00=,=,=,=,
+CPU112=,2=,=,migrations=,38957291066=,100.00=,=,=,=,
+CPU116=,4=,=,migrations=,38957340430=,100.00=,=,=,=,
+CPU120=,2=,=,migrations=,38957370475=,100.00=,=,=,=,
+CPU124=,4=,=,migrations=,38957407486=,100.00=,=,=,=,
+CPU128=,3=,=,migrations=,38957438780=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 500000 --qp 0.9 -t 32 -i 24 -a 2 --lines 1 --args --sc 4 --ec 35
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918083,32,2,16777216,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918083,32,2,16777216,0,0,1.100000,1.000000,	Milliseconds,	Min:586.203967, Max:720.750002, Range:134.546035, Avg:630.446781, Median:604.323090, SD:46.691923,	TMin:588.655920, TMax:703.966968, TRange:115.311048, TAvg:626.903673, TMedian:604.323090, TSD:41.534731
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918083,32,2,16777216,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918083,32,2,16777216,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999912, Max->Median:0.651672
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918083,32,2,16777216,0,0,1.100000,1.000000,END
+CPU4=,143179475=,=,cache-references=,20501967219=,100.00=,=,=,=,
+CPU8=,55134907=,=,cache-references=,20502000083=,100.00=,=,=,=,
+CPU12=,63485106=,=,cache-references=,20502030536=,100.00=,=,=,=,
+CPU16=,61321880=,=,cache-references=,20502058284=,100.00=,=,=,=,
+CPU20=,58812056=,=,cache-references=,20502090925=,100.00=,=,=,=,
+CPU24=,61468154=,=,cache-references=,20502123780=,100.00=,=,=,=,
+CPU28=,63696763=,=,cache-references=,20502155373=,100.00=,=,=,=,
+CPU32=,60548133=,=,cache-references=,20502162672=,100.00=,=,=,=,
+CPU36=,78489=,=,cache-references=,20502199032=,100.00=,=,=,=,
+CPU40=,446452=,=,cache-references=,20502189334=,100.00=,=,=,=,
+CPU44=,496065=,=,cache-references=,20502188716=,100.00=,=,=,=,
+CPU48=,107030=,=,cache-references=,20502218464=,100.00=,=,=,=,
+CPU52=,61913=,=,cache-references=,20502247278=,100.00=,=,=,=,
+CPU56=,88920=,=,cache-references=,20502280921=,100.00=,=,=,=,
+CPU60=,67888=,=,cache-references=,20502317106=,100.00=,=,=,=,
+CPU64=,336137=,=,cache-references=,20502348260=,100.00=,=,=,=,
+CPU68=,198136=,=,cache-references=,20502376942=,100.00=,=,=,=,
+CPU72=,454269=,=,cache-references=,20502404070=,100.00=,=,=,=,
+CPU76=,53254=,=,cache-references=,20502428861=,100.00=,=,=,=,
+CPU80=,53415=,=,cache-references=,20502458616=,100.00=,=,=,=,
+CPU84=,388177=,=,cache-references=,20502484290=,100.00=,=,=,=,
+CPU88=,775458=,=,cache-references=,20502483339=,100.00=,=,=,=,
+CPU92=,152488=,=,cache-references=,20502438281=,100.00=,=,=,=,
+CPU96=,269862=,=,cache-references=,20502457088=,100.00=,=,=,=,
+CPU100=,559360=,=,cache-references=,20502452140=,100.00=,=,=,=,
+CPU104=,312415=,=,cache-references=,20502460441=,100.00=,=,=,=,
+CPU108=,46268=,=,cache-references=,20502475294=,100.00=,=,=,=,
+CPU112=,380905=,=,cache-references=,20502472801=,100.00=,=,=,=,
+CPU116=,166642=,=,cache-references=,20502445458=,100.00=,=,=,=,
+CPU120=,80860=,=,cache-references=,20502485917=,100.00=,=,=,=,
+CPU124=,72556=,=,cache-references=,20502517484=,100.00=,=,=,=,
+CPU128=,173072=,=,cache-references=,20502545585=,100.00=,=,=,=,
+CPU4=,48030549=,=,cache-misses=,20502584588=,100.00=,33.546=,of all cache refs
+CPU8=,41162396=,=,cache-misses=,20502614398=,100.00=,28.749=,of all cache refs
+CPU12=,47474392=,=,cache-misses=,20502644413=,100.00=,33.157=,of all cache refs
+CPU16=,45476433=,=,cache-misses=,20502643876=,100.00=,31.762=,of all cache refs
+CPU20=,43901682=,=,cache-misses=,20502639616=,100.00=,30.662=,of all cache refs
+CPU24=,46043640=,=,cache-misses=,20502639770=,100.00=,32.158=,of all cache refs
+CPU28=,47686876=,=,cache-misses=,20502639494=,100.00=,33.306=,of all cache refs
+CPU32=,45168196=,=,cache-misses=,20502636517=,100.00=,31.547=,of all cache refs
+CPU36=,15056=,=,cache-misses=,20502625883=,100.00=,0.011=,of all cache refs
+CPU40=,85999=,=,cache-misses=,20502620281=,100.00=,0.060=,of all cache refs
+CPU44=,230121=,=,cache-misses=,20502621752=,100.00=,0.161=,of all cache refs
+CPU48=,20757=,=,cache-misses=,20502617467=,100.00=,0.014=,of all cache refs
+CPU52=,9553=,=,cache-misses=,20502592302=,100.00=,0.007=,of all cache refs
+CPU56=,15084=,=,cache-misses=,20502619245=,100.00=,0.011=,of all cache refs
+CPU60=,11841=,=,cache-misses=,20502654679=,100.00=,0.008=,of all cache refs
+CPU64=,48459=,=,cache-misses=,20502685044=,100.00=,0.034=,of all cache refs
+CPU68=,62103=,=,cache-misses=,20502714487=,100.00=,0.043=,of all cache refs
+CPU72=,66156=,=,cache-misses=,20502743575=,100.00=,0.046=,of all cache refs
+CPU76=,8278=,=,cache-misses=,20502772601=,100.00=,0.006=,of all cache refs
+CPU80=,8623=,=,cache-misses=,20502814644=,100.00=,0.006=,of all cache refs
+CPU84=,99326=,=,cache-misses=,20502886378=,100.00=,0.069=,of all cache refs
+CPU88=,125375=,=,cache-misses=,20502876666=,100.00=,0.088=,of all cache refs
+CPU92=,25577=,=,cache-misses=,20502835602=,100.00=,0.018=,of all cache refs
+CPU96=,102762=,=,cache-misses=,20502854308=,100.00=,0.072=,of all cache refs
+CPU100=,148019=,=,cache-misses=,20502853673=,100.00=,0.103=,of all cache refs
+CPU104=,63156=,=,cache-misses=,20502855656=,100.00=,0.044=,of all cache refs
+CPU108=,9648=,=,cache-misses=,20502863813=,100.00=,0.007=,of all cache refs
+CPU112=,115503=,=,cache-misses=,20502851173=,100.00=,0.081=,of all cache refs
+CPU116=,29372=,=,cache-misses=,20502841576=,100.00=,0.021=,of all cache refs
+CPU120=,21869=,=,cache-misses=,20502844703=,100.00=,0.015=,of all cache refs
+CPU124=,12114=,=,cache-misses=,20502838561=,100.00=,0.008=,of all cache refs
+CPU128=,38625=,=,cache-misses=,20502864897=,100.00=,0.027=,of all cache refs
+CPU4=,25110378685=,=,cycles=,20502905057=,100.00=,=,=,=,
+CPU8=,18721219298=,=,cycles=,20502930250=,100.00=,=,=,=,
+CPU12=,18758870262=,=,cycles=,20502955410=,100.00=,=,=,=,
+CPU16=,18722008574=,=,cycles=,20502955122=,100.00=,=,=,=,
+CPU20=,18868235509=,=,cycles=,20502952708=,100.00=,=,=,=,
+CPU24=,18717889001=,=,cycles=,20502952887=,100.00=,=,=,=,
+CPU28=,18718335386=,=,cycles=,20502962925=,100.00=,=,=,=,
+CPU32=,18714322081=,=,cycles=,20502960898=,100.00=,=,=,=,
+CPU36=,58720829=,=,cycles=,20502953035=,100.00=,=,=,=,
+CPU40=,72283823=,=,cycles=,20502937238=,100.00=,=,=,=,
+CPU44=,77682801=,=,cycles=,20502937633=,100.00=,=,=,=,
+CPU48=,60116212=,=,cycles=,20502943859=,100.00=,=,=,=,
+CPU52=,58536557=,=,cycles=,20502936329=,100.00=,=,=,=,
+CPU56=,59985924=,=,cycles=,20502931370=,100.00=,=,=,=,
+CPU60=,60868825=,=,cycles=,20502951665=,100.00=,=,=,=,
+CPU64=,66712955=,=,cycles=,20502980473=,100.00=,=,=,=,
+CPU68=,75704613=,=,cycles=,20503008847=,100.00=,=,=,=,
+CPU72=,159338251=,=,cycles=,20503032052=,100.00=,=,=,=,
+CPU76=,108616853=,=,cycles=,20503033689=,100.00=,=,=,=,
+CPU80=,96380250=,=,cycles=,20503038137=,100.00=,=,=,=,
+CPU84=,113163022=,=,cycles=,20503038629=,100.00=,=,=,=,
+CPU88=,119645703=,=,cycles=,20503044028=,100.00=,=,=,=,
+CPU92=,99672273=,=,cycles=,20503031837=,100.00=,=,=,=,
+CPU96=,107525202=,=,cycles=,20503013942=,100.00=,=,=,=,
+CPU100=,117089909=,=,cycles=,20503025171=,100.00=,=,=,=,
+CPU104=,106593008=,=,cycles=,20503024638=,100.00=,=,=,=,
+CPU108=,57530829=,=,cycles=,20503012847=,100.00=,=,=,=,
+CPU112=,68490194=,=,cycles=,20503004815=,100.00=,=,=,=,
+CPU116=,61958126=,=,cycles=,20502997895=,100.00=,=,=,=,
+CPU120=,59000232=,=,cycles=,20502947031=,100.00=,=,=,=,
+CPU124=,58380499=,=,cycles=,20502959666=,100.00=,=,=,=,
+CPU128=,61439494=,=,cycles=,20502944686=,100.00=,=,=,=,
+CPU4=,24793881902=,=,instructions=,20502970207=,100.00=,0.99=,insn per cycle
+CPU8=,18004183629=,=,instructions=,20502968347=,100.00=,0.72=,insn per cycle
+CPU12=,18004134696=,=,instructions=,20502960166=,100.00=,0.72=,insn per cycle
+CPU16=,18016072809=,=,instructions=,20502955563=,100.00=,0.72=,insn per cycle
+CPU20=,18007746536=,=,instructions=,20502959563=,100.00=,0.72=,insn per cycle
+CPU24=,18009219949=,=,instructions=,20502977311=,100.00=,0.72=,insn per cycle
+CPU28=,18003435016=,=,instructions=,20502980925=,100.00=,0.72=,insn per cycle
+CPU32=,18006074119=,=,instructions=,20502973593=,100.00=,0.72=,insn per cycle
+CPU36=,14826017=,=,instructions=,20502965958=,100.00=,0.00=,insn per cycle
+CPU40=,17265704=,=,instructions=,20502956961=,100.00=,0.00=,insn per cycle
+CPU44=,18621568=,=,instructions=,20502940934=,100.00=,0.00=,insn per cycle
+CPU48=,14801009=,=,instructions=,20502951043=,100.00=,0.00=,insn per cycle
+CPU52=,14637977=,=,instructions=,20502960492=,100.00=,0.00=,insn per cycle
+CPU56=,14520669=,=,instructions=,20502944455=,100.00=,0.00=,insn per cycle
+CPU60=,14538585=,=,instructions=,20502969759=,100.00=,0.00=,insn per cycle
+CPU64=,17412264=,=,instructions=,20502999014=,100.00=,0.00=,insn per cycle
+CPU68=,33917932=,=,instructions=,20503024431=,100.00=,0.00=,insn per cycle
+CPU72=,32290964=,=,instructions=,20503059727=,100.00=,0.00=,insn per cycle
+CPU76=,28141898=,=,instructions=,20503108307=,100.00=,0.00=,insn per cycle
+CPU80=,24850333=,=,instructions=,20503111053=,100.00=,0.00=,insn per cycle
+CPU84=,27520944=,=,instructions=,20503109414=,100.00=,0.00=,insn per cycle
+CPU88=,32387350=,=,instructions=,20503112370=,100.00=,0.00=,insn per cycle
+CPU92=,25759295=,=,instructions=,20503109839=,100.00=,0.00=,insn per cycle
+CPU96=,26448686=,=,instructions=,20503108994=,100.00=,0.00=,insn per cycle
+CPU100=,27941344=,=,instructions=,20503103932=,100.00=,0.00=,insn per cycle
+CPU104=,27632978=,=,instructions=,20503107751=,100.00=,0.00=,insn per cycle
+CPU108=,14541947=,=,instructions=,20503106342=,100.00=,0.00=,insn per cycle
+CPU112=,16297516=,=,instructions=,20503138040=,100.00=,0.00=,insn per cycle
+CPU116=,15644076=,=,instructions=,20503131288=,100.00=,0.00=,insn per cycle
+CPU120=,14795963=,=,instructions=,20503038308=,100.00=,0.00=,insn per cycle
+CPU124=,14674498=,=,instructions=,20503065968=,100.00=,0.00=,insn per cycle
+CPU128=,15283834=,=,instructions=,20503055007=,100.00=,0.00=,insn per cycle
+CPU4=,4213971913=,=,branches=,20503063516=,100.00=,=,=,=,
+CPU8=,3109799081=,=,branches=,20503051689=,100.00=,=,=,=,
+CPU12=,3109904343=,=,branches=,20503052015=,100.00=,=,=,=,
+CPU16=,3112073395=,=,branches=,20503053356=,100.00=,=,=,=,
+CPU20=,3110448929=,=,branches=,20503053463=,100.00=,=,=,=,
+CPU24=,3110678774=,=,branches=,20503041511=,100.00=,=,=,=,
+CPU28=,3109749551=,=,branches=,20503056383=,100.00=,=,=,=,
+CPU32=,3110251060=,=,branches=,20503049997=,100.00=,=,=,=,
+CPU36=,3020166=,=,branches=,20503045030=,100.00=,=,=,=,
+CPU40=,3472375=,=,branches=,20503035056=,100.00=,=,=,=,
+CPU44=,3770796=,=,branches=,20503021451=,100.00=,=,=,=,
+CPU48=,3000591=,=,branches=,20503004337=,100.00=,=,=,=,
+CPU52=,2981980=,=,branches=,20502994302=,100.00=,=,=,=,
+CPU56=,2956490=,=,branches=,20502975909=,100.00=,=,=,=,
+CPU60=,2960746=,=,branches=,20502992539=,100.00=,=,=,=,
+CPU64=,3542154=,=,branches=,20503018654=,100.00=,=,=,=,
+CPU68=,7500806=,=,branches=,20503046875=,100.00=,=,=,=,
+CPU72=,6501881=,=,branches=,20503070160=,100.00=,=,=,=,
+CPU76=,5726026=,=,branches=,20503060652=,100.00=,=,=,=,
+CPU80=,5042244=,=,branches=,20503093030=,100.00=,=,=,=,
+CPU84=,5547427=,=,branches=,20503077318=,100.00=,=,=,=,
+CPU88=,6436197=,=,branches=,20503071361=,100.00=,=,=,=,
+CPU92=,5223910=,=,branches=,20503065270=,100.00=,=,=,=,
+CPU96=,5360692=,=,branches=,20503060100=,100.00=,=,=,=,
+CPU100=,5628607=,=,branches=,20503050744=,100.00=,=,=,=,
+CPU104=,5561616=,=,branches=,20503042951=,100.00=,=,=,=,
+CPU108=,2960085=,=,branches=,20503037555=,100.00=,=,=,=,
+CPU112=,3293277=,=,branches=,20503027178=,100.00=,=,=,=,
+CPU116=,3172817=,=,branches=,20503014244=,100.00=,=,=,=,
+CPU120=,3012595=,=,branches=,20503009051=,100.00=,=,=,=,
+CPU124=,2986660=,=,branches=,20503004949=,100.00=,=,=,=,
+CPU128=,3100853=,=,branches=,20502999302=,100.00=,=,=,=,
+CPU4=,18325=,=,faults=,20502983671=,100.00=,=,=,=,
+CPU8=,4668=,=,faults=,20502986175=,100.00=,=,=,=,
+CPU12=,4884=,=,faults=,20503013121=,100.00=,=,=,=,
+CPU16=,5922=,=,faults=,20503015750=,100.00=,=,=,=,
+CPU20=,6817=,=,faults=,20503016240=,100.00=,=,=,=,
+CPU24=,4611=,=,faults=,20503022595=,100.00=,=,=,=,
+CPU28=,5686=,=,faults=,20503023929=,100.00=,=,=,=,
+CPU32=,5783=,=,faults=,20503027479=,100.00=,=,=,=,
+CPU36=,0=,=,faults=,20503022610=,100.00=,=,=,=,
+CPU40=,0=,=,faults=,20503022784=,100.00=,=,=,=,
+CPU44=,82=,=,faults=,20503022320=,100.00=,=,=,=,
+CPU48=,0=,=,faults=,20503029867=,100.00=,=,=,=,
+CPU52=,0=,=,faults=,20503031983=,100.00=,=,=,=,
+CPU56=,0=,=,faults=,20503026116=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,20503057589=,100.00=,=,=,=,
+CPU64=,0=,=,faults=,20503091959=,100.00=,=,=,=,
+CPU68=,0=,=,faults=,20503139553=,100.00=,=,=,=,
+CPU72=,0=,=,faults=,20503174068=,100.00=,=,=,=,
+CPU76=,0=,=,faults=,20503174394=,100.00=,=,=,=,
+CPU80=,0=,=,faults=,20503168050=,100.00=,=,=,=,
+CPU84=,0=,=,faults=,20503170368=,100.00=,=,=,=,
+CPU88=,0=,=,faults=,20503171996=,100.00=,=,=,=,
+CPU92=,0=,=,faults=,20503201040=,100.00=,=,=,=,
+CPU96=,3=,=,faults=,20503205089=,100.00=,=,=,=,
+CPU100=,0=,=,faults=,20503206357=,100.00=,=,=,=,
+CPU104=,0=,=,faults=,20503202670=,100.00=,=,=,=,
+CPU108=,0=,=,faults=,20503198637=,100.00=,=,=,=,
+CPU112=,5=,=,faults=,20503199742=,100.00=,=,=,=,
+CPU116=,15=,=,faults=,20503218107=,100.00=,=,=,=,
+CPU120=,0=,=,faults=,20503218849=,100.00=,=,=,=,
+CPU124=,0=,=,faults=,20503211503=,100.00=,=,=,=,
+CPU128=,0=,=,faults=,20503212239=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,20503212867=,100.00=,=,=,=,
+CPU8=,0=,=,migrations=,20503226149=,100.00=,=,=,=,
+CPU12=,0=,=,migrations=,20503225392=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,20503225578=,100.00=,=,=,=,
+CPU20=,1=,=,migrations=,20503225043=,100.00=,=,=,=,
+CPU24=,1=,=,migrations=,20503224764=,100.00=,=,=,=,
+CPU28=,1=,=,migrations=,20503221085=,100.00=,=,=,=,
+CPU32=,1=,=,migrations=,20503220666=,100.00=,=,=,=,
+CPU36=,1=,=,migrations=,20503233840=,100.00=,=,=,=,
+CPU40=,3=,=,migrations=,20503224976=,100.00=,=,=,=,
+CPU44=,2=,=,migrations=,20503224843=,100.00=,=,=,=,
+CPU48=,1=,=,migrations=,20503222077=,100.00=,=,=,=,
+CPU52=,0=,=,migrations=,20503207792=,100.00=,=,=,=,
+CPU56=,0=,=,migrations=,20503205109=,100.00=,=,=,=,
+CPU60=,0=,=,migrations=,20503235264=,100.00=,=,=,=,
+CPU64=,7=,=,migrations=,20503266187=,100.00=,=,=,=,
+CPU68=,2=,=,migrations=,20503295837=,100.00=,=,=,=,
+CPU72=,3=,=,migrations=,20503326250=,100.00=,=,=,=,
+CPU76=,0=,=,migrations=,20503336951=,100.00=,=,=,=,
+CPU80=,0=,=,migrations=,20503303435=,100.00=,=,=,=,
+CPU84=,0=,=,migrations=,20503302827=,100.00=,=,=,=,
+CPU88=,8=,=,migrations=,20503304935=,100.00=,=,=,=,
+CPU92=,5=,=,migrations=,20503278389=,100.00=,=,=,=,
+CPU96=,5=,=,migrations=,20503252938=,100.00=,=,=,=,
+CPU100=,0=,=,migrations=,20503226509=,100.00=,=,=,=,
+CPU104=,1=,=,migrations=,20503195947=,100.00=,=,=,=,
+CPU108=,1=,=,migrations=,20503228027=,100.00=,=,=,=,
+CPU112=,0=,=,migrations=,20503234261=,100.00=,=,=,=,
+CPU116=,1=,=,migrations=,20503230797=,100.00=,=,=,=,
+CPU120=,0=,=,migrations=,20503236429=,100.00=,=,=,=,
+CPU124=,0=,=,migrations=,20503251476=,100.00=,=,=,=,
+CPU128=,0=,=,migrations=,20503242882=,100.00=,=,=,=,
+FIRST perf stat -x=, -A --cpu=4,8,12,16,20,24,28,32,36,40,44,48,52,56,60,64,68,72,76,80,84,88,92,96,100,104,108,112,116,120,124,128 -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials 15 --inserts 500000 --qp 0.9 -t 32 -i 22 -a 2 --lines 1 --args --sc 4 --ec 35
+GPP,SP,numInsertions, trialsToRun, stopError, alpha, beta, queryPercentage,deletePercentage, randomSeed, nthreads,HashAttempts,InitSize,cooloff,enfTemp,tempvar,lines,HEADING
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918104,32,2,4194304,0,0,1.100000,1.000000,START
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918104,32,2,4194304,0,0,1.100000,1.000000,	Milliseconds,	Min:518.726515, Max:638.068960, Range:119.342445, Avg:554.136295, Median:532.381897, SD:43.825899,	TMin:521.476063, TMax:628.557948, TRange:107.081885, TAvg:550.403765, TMedian:532.381897, TSD:39.546451
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918104,32,2,4194304,0,0,1.100000,1.000000,	Memusage,	Min:0.000000, Max:0.000000, Range:0.000000, Avg:0.000000, Median:0.000000, SD:0.000000
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918104,32,2,4194304,0,0,1.100000,1.000000,	Barrier Gap,	Max->Min:0.999668, Max->Median:0.718312
+cuckoo/cpp/remain:V:harness:0.2,OMR:V/h:0.2,500000,15,0.000000,0.500000,0.500000,0.900000,0.900000,1570918104,32,2,4194304,0,0,1.100000,1.000000,END
+CPU4=,76776886=,=,cache-references=,17512884072=,100.00=,=,=,=,
+CPU8=,55158363=,=,cache-references=,17512912542=,100.00=,=,=,=,
+CPU12=,64301671=,=,cache-references=,17512915809=,100.00=,=,=,=,
+CPU16=,62809181=,=,cache-references=,17512913423=,100.00=,=,=,=,
+CPU20=,59738408=,=,cache-references=,17512967934=,100.00=,=,=,=,
+CPU24=,57866278=,=,cache-references=,17512996848=,100.00=,=,=,=,
+CPU28=,62528572=,=,cache-references=,17513022809=,100.00=,=,=,=,
+CPU32=,58023731=,=,cache-references=,17513029305=,100.00=,=,=,=,
+CPU36=,127369=,=,cache-references=,17513021856=,100.00=,=,=,=,
+CPU40=,340497=,=,cache-references=,17513033173=,100.00=,=,=,=,
+CPU44=,346870=,=,cache-references=,17513034411=,100.00=,=,=,=,
+CPU48=,303840=,=,cache-references=,17513062008=,100.00=,=,=,=,
+CPU52=,246125=,=,cache-references=,17513089539=,100.00=,=,=,=,
+CPU56=,85135=,=,cache-references=,17513117536=,100.00=,=,=,=,
+CPU60=,207060=,=,cache-references=,17513156756=,100.00=,=,=,=,
+CPU64=,259388=,=,cache-references=,17513182703=,100.00=,=,=,=,
+CPU68=,220396=,=,cache-references=,17513206033=,100.00=,=,=,=,
+CPU72=,350626=,=,cache-references=,17513227922=,100.00=,=,=,=,
+CPU76=,51162=,=,cache-references=,17513247687=,100.00=,=,=,=,
+CPU80=,88193=,=,cache-references=,17513269434=,100.00=,=,=,=,
+CPU84=,338991=,=,cache-references=,17513276332=,100.00=,=,=,=,
+CPU88=,1213370=,=,cache-references=,17513259612=,100.00=,=,=,=,
+CPU92=,398073=,=,cache-references=,17513255905=,100.00=,=,=,=,
+CPU96=,325339=,=,cache-references=,17513256509=,100.00=,=,=,=,
+CPU100=,355871=,=,cache-references=,17513281078=,100.00=,=,=,=,
+CPU104=,204378=,=,cache-references=,17513274258=,100.00=,=,=,=,
+CPU108=,247401=,=,cache-references=,17513278342=,100.00=,=,=,=,
+CPU112=,291357=,=,cache-references=,17513262917=,100.00=,=,=,=,
+CPU116=,59792=,=,cache-references=,17513275182=,100.00=,=,=,=,
+CPU120=,70017=,=,cache-references=,17513305531=,100.00=,=,=,=,
+CPU124=,55720=,=,cache-references=,17513335570=,100.00=,=,=,=,
+CPU128=,154919=,=,cache-references=,17513366692=,100.00=,=,=,=,
+CPU4=,24464795=,=,cache-misses=,17513376719=,100.00=,31.865=,of all cache refs
+CPU8=,23713486=,=,cache-misses=,17513375880=,100.00=,30.886=,of all cache refs
+CPU12=,26064926=,=,cache-misses=,17513376165=,100.00=,33.949=,of all cache refs
+CPU16=,25863209=,=,cache-misses=,17513315131=,100.00=,33.686=,of all cache refs
+CPU20=,24927657=,=,cache-misses=,17513310394=,100.00=,32.468=,of all cache refs
+CPU24=,24520821=,=,cache-misses=,17513281389=,100.00=,31.938=,of all cache refs
+CPU28=,25528225=,=,cache-misses=,17513224116=,100.00=,33.250=,of all cache refs
+CPU32=,24492049=,=,cache-misses=,17513195673=,100.00=,31.900=,of all cache refs
+CPU36=,12963=,=,cache-misses=,17513154390=,100.00=,0.017=,of all cache refs
+CPU40=,58516=,=,cache-misses=,17513119588=,100.00=,0.076=,of all cache refs
+CPU44=,153196=,=,cache-misses=,17513084183=,100.00=,0.200=,of all cache refs
+CPU48=,62649=,=,cache-misses=,17513079452=,100.00=,0.082=,of all cache refs
+CPU52=,34059=,=,cache-misses=,17513078275=,100.00=,0.044=,of all cache refs
+CPU56=,14663=,=,cache-misses=,17513077935=,100.00=,0.019=,of all cache refs
+CPU60=,112843=,=,cache-misses=,17513112682=,100.00=,0.147=,of all cache refs
+CPU64=,33982=,=,cache-misses=,17513139671=,100.00=,0.044=,of all cache refs
+CPU68=,54898=,=,cache-misses=,17513167105=,100.00=,0.072=,of all cache refs
+CPU72=,42457=,=,cache-misses=,17513190572=,100.00=,0.055=,of all cache refs
+CPU76=,6833=,=,cache-misses=,17513185238=,100.00=,0.009=,of all cache refs
+CPU80=,9759=,=,cache-misses=,17513185567=,100.00=,0.013=,of all cache refs
+CPU84=,75602=,=,cache-misses=,17513186254=,100.00=,0.098=,of all cache refs
+CPU88=,197496=,=,cache-misses=,17513151527=,100.00=,0.257=,of all cache refs
+CPU92=,72334=,=,cache-misses=,17513112600=,100.00=,0.094=,of all cache refs
+CPU96=,99977=,=,cache-misses=,17513081729=,100.00=,0.130=,of all cache refs
+CPU100=,99667=,=,cache-misses=,17513050882=,100.00=,0.130=,of all cache refs
+CPU104=,48587=,=,cache-misses=,17513015867=,100.00=,0.063=,of all cache refs
+CPU108=,47173=,=,cache-misses=,17512971286=,100.00=,0.061=,of all cache refs
+CPU112=,103837=,=,cache-misses=,17512921806=,100.00=,0.135=,of all cache refs
+CPU116=,15205=,=,cache-misses=,17512882319=,100.00=,0.020=,of all cache refs
+CPU120=,19833=,=,cache-misses=,17512875914=,100.00=,0.026=,of all cache refs
+CPU124=,10115=,=,cache-misses=,17512873718=,100.00=,0.013=,of all cache refs
+CPU128=,28969=,=,cache-misses=,17512871847=,100.00=,0.038=,of all cache refs
+CPU4=,18910457658=,=,cycles=,17512879666=,100.00=,=,=,=,
+CPU8=,17275214818=,=,cycles=,17512877699=,100.00=,=,=,=,
+CPU12=,17249710926=,=,cycles=,17512876481=,100.00=,=,=,=,
+CPU16=,17226982707=,=,cycles=,17512815833=,100.00=,=,=,=,
+CPU20=,17352093126=,=,cycles=,17512803252=,100.00=,=,=,=,
+CPU24=,17174770460=,=,cycles=,17512765865=,100.00=,=,=,=,
+CPU28=,17225142340=,=,cycles=,17512733439=,100.00=,=,=,=,
+CPU32=,17195754760=,=,cycles=,17512701519=,100.00=,=,=,=,
+CPU36=,51847613=,=,cycles=,17512652649=,100.00=,=,=,=,
+CPU40=,58712210=,=,cycles=,17512596439=,100.00=,=,=,=,
+CPU44=,60174962=,=,cycles=,17512555748=,100.00=,=,=,=,
+CPU48=,57997269=,=,cycles=,17512514792=,100.00=,=,=,=,
+CPU52=,56887206=,=,cycles=,17512466042=,100.00=,=,=,=,
+CPU56=,50438101=,=,cycles=,17512426429=,100.00=,=,=,=,
+CPU60=,55748053=,=,cycles=,17512425167=,100.00=,=,=,=,
+CPU64=,55182574=,=,cycles=,17512421905=,100.00=,=,=,=,
+CPU68=,69368642=,=,cycles=,17512418153=,100.00=,=,=,=,
+CPU72=,139536993=,=,cycles=,17512413397=,100.00=,=,=,=,
+CPU76=,83622324=,=,cycles=,17512378123=,100.00=,=,=,=,
+CPU80=,82927201=,=,cycles=,17512374699=,100.00=,=,=,=,
+CPU84=,96143918=,=,cycles=,17512373297=,100.00=,=,=,=,
+CPU88=,136353303=,=,cycles=,17512339254=,100.00=,=,=,=,
+CPU92=,100755730=,=,cycles=,17512304046=,100.00=,=,=,=,
+CPU96=,95085924=,=,cycles=,17512270964=,100.00=,=,=,=,
+CPU100=,96184684=,=,cycles=,17512234875=,100.00=,=,=,=,
+CPU104=,88088621=,=,cycles=,17512192180=,100.00=,=,=,=,
+CPU108=,55768628=,=,cycles=,17512149153=,100.00=,=,=,=,
+CPU112=,56639474=,=,cycles=,17512100789=,100.00=,=,=,=,
+CPU116=,49377661=,=,cycles=,17512051679=,100.00=,=,=,=,
+CPU120=,49573747=,=,cycles=,17511996254=,100.00=,=,=,=,
+CPU124=,48901294=,=,cycles=,17511952921=,100.00=,=,=,=,
+CPU128=,51293351=,=,cycles=,17511906738=,100.00=,=,=,=,
+CPU4=,20589359371=,=,instructions=,17511905606=,100.00=,1.09=,insn per cycle
+CPU8=,18753202474=,=,instructions=,17511899375=,100.00=,0.99=,insn per cycle
+CPU12=,18746797972=,=,instructions=,17511895731=,100.00=,0.99=,insn per cycle
+CPU16=,18730539680=,=,instructions=,17511839325=,100.00=,0.99=,insn per cycle
+CPU20=,18749067331=,=,instructions=,17511830916=,100.00=,0.99=,insn per cycle
+CPU24=,18742083019=,=,instructions=,17511798840=,100.00=,0.99=,insn per cycle
+CPU28=,18763429309=,=,instructions=,17511763982=,100.00=,0.99=,insn per cycle
+CPU32=,18751381274=,=,instructions=,17511725397=,100.00=,0.99=,insn per cycle
+CPU36=,12699824=,=,instructions=,17511683742=,100.00=,0.00=,insn per cycle
+CPU40=,13955406=,=,instructions=,17511640372=,100.00=,0.00=,insn per cycle
+CPU44=,13893688=,=,instructions=,17511598539=,100.00=,0.00=,insn per cycle
+CPU48=,16048122=,=,instructions=,17511548655=,100.00=,0.00=,insn per cycle
+CPU52=,18443388=,=,instructions=,17511506919=,100.00=,0.00=,insn per cycle
+CPU56=,12246837=,=,instructions=,17511457475=,100.00=,0.00=,insn per cycle
+CPU60=,14969681=,=,instructions=,17511451719=,100.00=,0.00=,insn per cycle
+CPU64=,14702909=,=,instructions=,17511446636=,100.00=,0.00=,insn per cycle
+CPU68=,33692204=,=,instructions=,17511441579=,100.00=,0.00=,insn per cycle
+CPU72=,27506303=,=,instructions=,17511435880=,100.00=,0.00=,insn per cycle
+CPU76=,21354636=,=,instructions=,17511422226=,100.00=,0.00=,insn per cycle
+CPU80=,21310626=,=,instructions=,17511414883=,100.00=,0.00=,insn per cycle
+CPU84=,23210603=,=,instructions=,17511413700=,100.00=,0.00=,insn per cycle
+CPU88=,77428902=,=,instructions=,17511378249=,100.00=,0.00=,insn per cycle
+CPU92=,36993659=,=,instructions=,17511346418=,100.00=,0.00=,insn per cycle
+CPU96=,23738871=,=,instructions=,17511312995=,100.00=,0.00=,insn per cycle
+CPU100=,22785776=,=,instructions=,17511282937=,100.00=,0.00=,insn per cycle
+CPU104=,22247398=,=,instructions=,17511234804=,100.00=,0.00=,insn per cycle
+CPU108=,15543397=,=,instructions=,17511185505=,100.00=,0.00=,insn per cycle
+CPU112=,13472463=,=,instructions=,17511142286=,100.00=,0.00=,insn per cycle
+CPU116=,12269994=,=,instructions=,17511093848=,100.00=,0.00=,insn per cycle
+CPU120=,12290493=,=,instructions=,17511049807=,100.00=,0.00=,insn per cycle
+CPU124=,12090970=,=,instructions=,17510997095=,100.00=,0.00=,insn per cycle
+CPU128=,12820409=,=,instructions=,17510953285=,100.00=,0.00=,insn per cycle
+CPU4=,3539604252=,=,branches=,17510949524=,100.00=,=,=,=,
+CPU8=,3238999989=,=,branches=,17510943923=,100.00=,=,=,=,
+CPU12=,3237723358=,=,branches=,17510940205=,100.00=,=,=,=,
+CPU16=,3234723020=,=,branches=,17510884825=,100.00=,=,=,=,
+CPU20=,3237999607=,=,branches=,17510850648=,100.00=,=,=,=,
+CPU24=,3236730990=,=,branches=,17510817052=,100.00=,=,=,=,
+CPU28=,3240810171=,=,branches=,17510773036=,100.00=,=,=,=,
+CPU32=,3238378150=,=,branches=,17510731343=,100.00=,=,=,=,
+CPU36=,2567066=,=,branches=,17510691599=,100.00=,=,=,=,
+CPU40=,2808393=,=,branches=,17510647936=,100.00=,=,=,=,
+CPU44=,2809435=,=,branches=,17510600867=,100.00=,=,=,=,
+CPU48=,3206325=,=,branches=,17510556369=,100.00=,=,=,=,
+CPU52=,3669845=,=,branches=,17510513293=,100.00=,=,=,=,
+CPU56=,2489247=,=,branches=,17510469319=,100.00=,=,=,=,
+CPU60=,3180284=,=,branches=,17510459293=,100.00=,=,=,=,
+CPU64=,2954714=,=,branches=,17510452466=,100.00=,=,=,=,
+CPU68=,7468449=,=,branches=,17510445699=,100.00=,=,=,=,
+CPU72=,5583995=,=,branches=,17510438040=,100.00=,=,=,=,
+CPU76=,4346609=,=,branches=,17510412142=,100.00=,=,=,=,
+CPU80=,4317175=,=,branches=,17510381954=,100.00=,=,=,=,
+CPU84=,4681468=,=,branches=,17510375534=,100.00=,=,=,=,
+CPU88=,11869311=,=,branches=,17510334775=,100.00=,=,=,=,
+CPU92=,7347729=,=,branches=,17510301028=,100.00=,=,=,=,
+CPU96=,4786112=,=,branches=,17510256026=,100.00=,=,=,=,
+CPU100=,4603405=,=,branches=,17510211180=,100.00=,=,=,=,
+CPU104=,4499763=,=,branches=,17510178848=,100.00=,=,=,=,
+CPU108=,3129249=,=,branches=,17510135505=,100.00=,=,=,=,
+CPU112=,2720499=,=,branches=,17510092324=,100.00=,=,=,=,
+CPU116=,2496790=,=,branches=,17510050364=,100.00=,=,=,=,
+CPU120=,2490338=,=,branches=,17510005418=,100.00=,=,=,=,
+CPU124=,2457007=,=,branches=,17509960618=,100.00=,=,=,=,
+CPU128=,2593478=,=,branches=,17509918549=,100.00=,=,=,=,
+CPU4=,15925=,=,faults=,17509889983=,100.00=,=,=,=,
+CPU8=,5047=,=,faults=,17509863839=,100.00=,=,=,=,
+CPU12=,5263=,=,faults=,17509865122=,100.00=,=,=,=,
+CPU16=,4242=,=,faults=,17509840087=,100.00=,=,=,=,
+CPU20=,5405=,=,faults=,17509812514=,100.00=,=,=,=,
+CPU24=,5164=,=,faults=,17509779460=,100.00=,=,=,=,
+CPU28=,5729=,=,faults=,17509752948=,100.00=,=,=,=,
+CPU32=,4756=,=,faults=,17509725168=,100.00=,=,=,=,
+CPU36=,0=,=,faults=,17509692738=,100.00=,=,=,=,
+CPU40=,0=,=,faults=,17509661340=,100.00=,=,=,=,
+CPU44=,8=,=,faults=,17509624421=,100.00=,=,=,=,
+CPU48=,208=,=,faults=,17509591559=,100.00=,=,=,=,
+CPU52=,224=,=,faults=,17509566913=,100.00=,=,=,=,
+CPU56=,0=,=,faults=,17509534175=,100.00=,=,=,=,
+CPU60=,0=,=,faults=,17509534609=,100.00=,=,=,=,
+CPU64=,0=,=,faults=,17509525732=,100.00=,=,=,=,
+CPU68=,0=,=,faults=,17509526039=,100.00=,=,=,=,
+CPU72=,0=,=,faults=,17509524168=,100.00=,=,=,=,
+CPU76=,0=,=,faults=,17509497513=,100.00=,=,=,=,
+CPU80=,0=,=,faults=,17509495100=,100.00=,=,=,=,
+CPU84=,0=,=,faults=,17509495215=,100.00=,=,=,=,
+CPU88=,47=,=,faults=,17509462491=,100.00=,=,=,=,
+CPU92=,211=,=,faults=,17509432601=,100.00=,=,=,=,
+CPU96=,3=,=,faults=,17509402519=,100.00=,=,=,=,
+CPU100=,0=,=,faults=,17509375593=,100.00=,=,=,=,
+CPU104=,0=,=,faults=,17509336341=,100.00=,=,=,=,
+CPU108=,353=,=,faults=,17509300449=,100.00=,=,=,=,
+CPU112=,5=,=,faults=,17509266023=,100.00=,=,=,=,
+CPU116=,0=,=,faults=,17509228090=,100.00=,=,=,=,
+CPU120=,0=,=,faults=,17509189046=,100.00=,=,=,=,
+CPU124=,0=,=,faults=,17509150136=,100.00=,=,=,=,
+CPU128=,0=,=,faults=,17509117910=,100.00=,=,=,=,
+CPU4=,2=,=,migrations=,17509092049=,100.00=,=,=,=,
+CPU8=,2=,=,migrations=,17509065113=,100.00=,=,=,=,
+CPU12=,4=,=,migrations=,17509064678=,100.00=,=,=,=,
+CPU16=,2=,=,migrations=,17509037877=,100.00=,=,=,=,
+CPU20=,3=,=,migrations=,17509010711=,100.00=,=,=,=,
+CPU24=,3=,=,migrations=,17508982060=,100.00=,=,=,=,
+CPU28=,1=,=,migrations=,17508954777=,100.00=,=,=,=,
+CPU32=,2=,=,migrations=,17508927377=,100.00=,=,=,=,
+CPU36=,2=,=,migrations=,17508894297=,100.00=,=,=,=,
+CPU40=,0=,=,migrations=,17508860240=,100.00=,=,=,=,
+CPU44=,0=,=,migrations=,17508821621=,100.00=,=,=,=,
+CPU48=,4=,=,migrations=,17508788875=,100.00=,=,=,=,
+CPU52=,2=,=,migrations=,17508754042=,100.00=,=,=,=,
+CPU56=,0=,=,migrations=,17508718577=,100.00=,=,=,=,
+CPU60=,1=,=,migrations=,17508717622=,100.00=,=,=,=,
+CPU64=,1=,=,migrations=,17508717516=,100.00=,=,=,=,
+CPU68=,0=,=,migrations=,17508717330=,100.00=,=,=,=,
+CPU72=,0=,=,migrations=,17508714882=,100.00=,=,=,=,
+CPU76=,0=,=,migrations=,17508683124=,100.00=,=,=,=,
+CPU80=,0=,=,migrations=,17508660585=,100.00=,=,=,=,
+CPU84=,0=,=,migrations=,17508660769=,100.00=,=,=,=,
+CPU88=,14=,=,migrations=,17508628026=,100.00=,=,=,=,
+CPU92=,3=,=,migrations=,17508581726=,100.00=,=,=,=,
+CPU96=,4=,=,migrations=,17508545862=,100.00=,=,=,=,
+CPU100=,1=,=,migrations=,17508510816=,100.00=,=,=,=,
+CPU104=,1=,=,migrations=,17508478913=,100.00=,=,=,=,
+CPU108=,5=,=,migrations=,17508445184=,100.00=,=,=,=,
+CPU112=,1=,=,migrations=,17508411114=,100.00=,=,=,=,
+CPU116=,0=,=,migrations=,17508379194=,100.00=,=,=,=,
+CPU120=,0=,=,migrations=,17508346290=,100.00=,=,=,=,
+CPU124=,0=,=,migrations=,17508309606=,100.00=,=,=,=,
+CPU128=,0=,=,migrations=,17508275078=,100.00=,=,=,=,
+ALL DONE!

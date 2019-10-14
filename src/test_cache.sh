@@ -1,14 +1,17 @@
 #!/bin/bash
 
 #unless there is something I'm missing this is what I want to use
-#sudo perf stat -B -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness -i 10 --inserts 1000000 -t 8 --lines 1 -a 1
+# perf stat -B -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness -i 10 --inserts 1000000 -t 8 --lines 1 -a 1
 
 
 outFile=""
 starttemp=56
 trials=15
 inserts=16000000
-declare -a threads=(1 8 16 32 64)
+coreInterval=4
+startCore=4
+myExec="harness"
+declare -a threads=(1 8 16 32)
 declare -a queryp=(0 0.5 0.9)
 declare -a attempts=(1 2)
 declare -a lines=(.5 1 2)
@@ -25,8 +28,8 @@ if [ $# -ne 0 ]; then
 fi
 
 # set to true if you want to do a quick test
-if [ 1 == 1 ]; then
-    attempts=(1)
+if [ 1 == 0 ]; then
+    attempts=(2)
     threads=(4)
     queryp=(.5)
     trials=5
@@ -34,7 +37,7 @@ if [ 1 == 1 ]; then
 fi
 #hashtable_locks?
 make clean
-for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hashtable_cuckoo; do
+for table in hashtable; do
     if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
 	unset lines
 	lines=(.5 1 2)
@@ -46,17 +49,20 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 	unset attempts
 	attempts=(2)
     fi
-    /bin/rm -f harness
+    /bin/rm -f $myExec
     echo "---- Making with ${table} ---- ($d)"
     make Hashtable=${table}.o WITHSTATS=0
     if [ $? != 0 ]; then
-	echo "Error:Failed to make harness for $table"
+	echo "Error:Failed to make $myExec for $table"
     else
-	tablever=`./harness --version | sed -e 's/.*aka //'`
+	tablever=`./$myExec --version | sed -e 's/.*aka //'`
 	for t in ${threads[@]}; do
-	    startCore=4
+
 	    endCore=$((startCore+t-1))
-	    watchCores="$startCore-$endCore"
+	    watchCores=""
+	    for i in $(seq 0 $(($endCore-$startCore))); do val=$(($i*$coreInterval+$startCore)); watchCores="$watchCores$val,"; done
+	    watchCores=${watchCores::-1}
+	    echo "WATCHING: $watchCores" 
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
@@ -75,15 +81,15 @@ for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy hasht
 				doit=1
 			    fi
 			    if [ $doit == 0 ]; then
-				echo ALREADY sudo perf stat -x, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				echo ALREADY  perf stat -x, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
 			    else
 				if [ $onlyshow -ne 1 ]; then
-#				    sleep 45
-				    echo FIRST sudo perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
-				    sudo perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				    sleep 45
+				    echo FIRST  perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
+				     perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
 
 				else
-				    echo sudo perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./harness --trials $trials --tracktemp  --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li --regtemp --args --sc $startCore --ec $endCore
+				    echo  perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
 				fi
 			    fi
 			done

@@ -3,6 +3,7 @@
 starttemp=56
 trials=10
 inserts=64000000
+stime=45
 declare -a threads=(1 8 16 32 64)
 declare -a queryp=(0 0.5 0.9)
 declare -a attempts=(1 2)
@@ -20,15 +21,16 @@ fi
 # set to true if you want to do a quick test
 if [ 0 == 1 ]; then
     attempts=(2 3)
-    threads=(1 2)
+    threads=(1 8)
     lines=(1 .5 2)
     queryp=(0)
-    trials=1
-    inserts=128
+    trials=5
+    inserts=32768
+    stime=0 
 fi    
 #hashtable hashtable_lazy hashtable_locks hashtable_cuckoo
 make clean
-for table in hashtable_lazy_cache ; do
+for table in hashtable_cache hashtable_lazy_cache hashtable hashtable_lazy; do
     if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
 	unset lines
 	lines=(.5 1 2)
@@ -37,8 +39,6 @@ for table in hashtable_lazy_cache ; do
     else
 	unset lines
 	lines=(1)
-	unset attempts
-	attempts=(2)
     fi
     /bin/rm -f harness
     d=`date`
@@ -53,7 +53,7 @@ for table in hashtable_lazy_cache ; do
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
-		for it in $((inserts)) $((inserts/4)); do
+		for it in $((inserts)) $((inserts/4)) $((inserts/256)); do
 		    it=$(echo 'l('$it')/l(2)' | bc -l)
 		    it=$(echo $it+.5 | bc)
 		    it=${it%.*}
@@ -73,12 +73,12 @@ for table in hashtable_lazy_cache ; do
 				echo ALREADY ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  --args
 			    else
 				if [ $onlyshow -ne 1 ]; then
-				    sleep 45
+				    sleep $stime
 				    if [ $? == 1 ]; then
 					echo "Failed to reach $starttemp, not running"
 				    else
 					echo ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  --args
-					./harness --trials $trials  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li   --args
+					./harness --trials $trials  --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li  -v --args
 				    fi
 				else
 				    echo ./harness --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha --lines $li --args
