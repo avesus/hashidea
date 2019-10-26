@@ -115,7 +115,8 @@ checkTableQuery(HashTable* head, unsigned long val)
       buckets[i]=murmur3_32((const uint8_t *)&val, kSize, head->seeds[i]);
     }
     //    short tag= buckets[0]&&0xff;
-   short tag=hashtag(val);
+        short tag=hashtag(buckets[0]);
+    //    short tag=hashtag(val);
   for(int j=0;j<head->cur;j++){
 
     ht=head->TableArray[j];
@@ -260,7 +261,8 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 			      kSize, 
 			      head->seeds[i]);
   }
-   short tag=hashtag(ent->val);
+   short tag=hashtag(buckets[0]);
+   //  short tag=hashtag(ent->val);
   //  short tag=buckets[0]&&0xffff;
   setTag(&ent, tag);
   int LocalCur=head->cur;
@@ -342,6 +344,7 @@ HashTable*
 initTable(HashTable* head, int InitSize, int HashAttempts, int numThreads, 
 	  unsigned int* seeds, double lines)
 {
+
   head=(HashTable*)calloc(1,sizeof(HashTable));
   head->seeds=seeds;
   if(InitSize<max(((int)((lines)*entPerLine)),entPerLine<<1)){
