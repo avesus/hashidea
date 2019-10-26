@@ -1,0 +1,330 @@
+Doing Table: hashtable
+Doing 1 CPUs
+CPU0: Avg: 56.71 Med: 59.71 Std: 9.48
+Avg: 56.71 Med: 59.71 Std: 9.48
+Doing 8 CPUs
+CPU0: Avg: 56.09 Med: 56.24 Std: 6.96
+CPU1: Avg: 29.94 Med: 31.21 Std: 10.41
+CPU2: Avg: 30.43 Med: 30.64 Std: 11.23
+CPU3: Avg: 25.34 Med: 24.51 Std: 7.57
+CPU4: Avg: 24.96 Med: 24.44 Std: 7.43
+CPU5: Avg: 29.88 Med: 31.2 Std: 10.36
+CPU6: Avg: 30.32 Med: 30.63 Std: 11.23
+CPU7: Avg: 25.2 Med: 24.38 Std: 7.51
+Avg: 31.52 Med: 29.25 Std: 12.9
+Doing 16 CPUs
+CPU0: Avg: 53.69 Med: 55.97 Std: 7.89
+CPU1: Avg: 17.61 Med: 17.79 Std: 6.56
+CPU2: Avg: 17.86 Med: 18.18 Std: 6.94
+CPU3: Avg: 16.24 Med: 15.68 Std: 5.76
+CPU4: Avg: 15.69 Med: 15.14 Std: 5.56
+CPU5: Avg: 17.59 Med: 17.78 Std: 6.58
+CPU6: Avg: 17.86 Med: 18.21 Std: 6.94
+CPU7: Avg: 16.2 Med: 15.7 Std: 5.76
+CPU8: Avg: 15.79 Med: 15.41 Std: 5.53
+CPU9: Avg: 17.57 Med: 17.73 Std: 6.53
+CPU10: Avg: 17.8 Med: 18.14 Std: 6.91
+CPU11: Avg: 16.17 Med: 15.7 Std: 5.76
+CPU12: Avg: 15.7 Med: 15.18 Std: 5.53
+CPU13: Avg: 17.56 Med: 17.74 Std: 6.53
+CPU14: Avg: 17.98 Med: 18.37 Std: 7.01
+CPU15: Avg: 16.16 Med: 15.64 Std: 5.77
+Avg: 19.22 Med: 18.0 Std: 10.73
+Doing 32 CPUs
+CPU0: Avg: 52.36 Med: 54.9 Std: 9.41
+CPU1: Avg: 10.29 Med: 10.37 Std: 4.29
+CPU2: Avg: 10.12 Med: 10.14 Std: 4.3
+CPU3: Avg: 10.03 Med: 10.29 Std: 3.38
+CPU4: Avg: 9.03 Med: 8.9 Std: 3.42
+CPU5: Avg: 10.26 Med: 10.31 Std: 4.31
+CPU6: Avg: 10.12 Med: 10.12 Std: 4.32
+CPU7: Avg: 9.49 Med: 9.32 Std: 3.66
+CPU8: Avg: 9.05 Med: 8.94 Std: 3.42
+CPU9: Avg: 10.36 Med: 10.41 Std: 4.38
+CPU10: Avg: 10.12 Med: 10.05 Std: 4.31
+CPU11: Avg: 9.53 Med: 9.4 Std: 3.66
+CPU12: Avg: 9.07 Med: 8.92 Std: 3.43
+CPU13: Avg: 10.28 Med: 10.38 Std: 4.3
+CPU14: Avg: 10.23 Med: 10.28 Std: 4.27
+CPU15: Avg: 9.52 Med: 9.38 Std: 3.66
+CPU16: Avg: 9.11 Med: 8.93 Std: 3.47
+CPU17: Avg: 10.3 Med: 10.44 Std: 4.29
+CPU18: Avg: 10.12 Med: 10.12 Std: 4.29
+CPU19: Avg: 9.53 Med: 9.38 Std: 3.71
+CPU20: Avg: 9.05 Med: 8.94 Std: 3.44
+CPU21: Avg: 10.35 Med: 10.35 Std: 4.3
+CPU22: Avg: 10.11 Med: 10.11 Std: 4.29
+CPU23: Avg: 9.48 Med: 9.31 Std: 3.67
+CPU24: Avg: 9.04 Med: 8.91 Std: 3.42
+CPU25: Avg: 10.29 Med: 10.4 Std: 4.3
+CPU26: Avg: 10.07 Med: 10.11 Std: 4.23
+CPU27: Avg: 9.46 Med: 9.36 Std: 3.68
+CPU28: Avg: 9.03 Med: 8.94 Std: 3.38
+CPU29: Avg: 10.4 Med: 10.39 Std: 4.29
+CPU30: Avg: 10.12 Med: 10.14 Std: 4.26
+CPU31: Avg: 9.55 Med: 9.39 Std: 3.74
+Avg: 11.12 Med: 10.45 Std: 8.39
+Doing Table: hashtable_cache
+Doing 1 CPUs
+CPU0: Avg: 47.8 Med: 54.92 Std: 17.97
+Avg: 47.8 Med: 54.92 Std: 17.97
+Doing 8 CPUs
+CPU0: Avg: 56.35 Med: 56.02 Std: 10.84
+CPU1: Avg: 44.81 Med: 46.47 Std: 12.32
+CPU2: Avg: 43.56 Med: 45.67 Std: 11.7
+CPU3: Avg: 32.82 Med: 32.39 Std: 7.63
+CPU4: Avg: 32.41 Med: 31.68 Std: 7.58
+CPU5: Avg: 43.61 Med: 45.56 Std: 11.62
+CPU6: Avg: 43.36 Med: 45.39 Std: 11.58
+CPU7: Avg: 32.31 Med: 31.92 Std: 7.36
+Avg: 41.15 Med: 39.59 Std: 12.8
+Doing 16 CPUs
+CPU0: Avg: 56.19 Med: 56.3 Std: 10.91
+CPU1: Avg: 29.51 Med: 30.5 Std: 10.16
+CPU2: Avg: 28.48 Med: 29.09 Std: 9.82
+CPU3: Avg: 23.56 Med: 23.95 Std: 6.93
+CPU4: Avg: 23.74 Med: 23.79 Std: 7.24
+CPU5: Avg: 28.37 Med: 29.27 Std: 9.35
+CPU6: Avg: 28.38 Med: 28.89 Std: 9.72
+CPU7: Avg: 23.43 Med: 24.16 Std: 6.75
+CPU8: Avg: 23.2 Med: 23.22 Std: 7.22
+CPU9: Avg: 28.95 Med: 29.67 Std: 9.74
+CPU10: Avg: 28.45 Med: 29.14 Std: 9.74
+CPU11: Avg: 23.27 Med: 23.51 Std: 6.87
+CPU12: Avg: 25.2 Med: 24.7 Std: 7.89
+CPU13: Avg: 28.98 Med: 30.04 Std: 9.73
+CPU14: Avg: 28.58 Med: 29.47 Std: 9.8
+CPU15: Avg: 23.26 Med: 24.11 Std: 7.04
+Avg: 28.22 Med: 26.69 Std: 11.57
+Doing 32 CPUs
+CPU0: Avg: 55.69 Med: 57.47 Std: 10.83
+CPU1: Avg: 17.07 Med: 16.27 Std: 7.79
+CPU2: Avg: 16.9 Med: 15.92 Std: 7.7
+CPU3: Avg: 15.49 Med: 15.12 Std: 6.46
+CPU4: Avg: 14.59 Med: 14.09 Std: 5.89
+CPU5: Avg: 16.76 Med: 16.14 Std: 7.61
+CPU6: Avg: 18.06 Med: 15.84 Std: 8.64
+CPU7: Avg: 14.99 Med: 14.66 Std: 6.28
+CPU8: Avg: 14.3 Med: 13.66 Std: 5.77
+CPU9: Avg: 16.77 Med: 16.27 Std: 7.64
+CPU10: Avg: 16.52 Med: 15.75 Std: 7.31
+CPU11: Avg: 15.15 Med: 14.87 Std: 6.35
+CPU12: Avg: 16.0 Med: 15.73 Std: 6.12
+CPU13: Avg: 16.88 Med: 16.74 Std: 7.57
+CPU14: Avg: 16.75 Med: 15.99 Std: 7.4
+CPU15: Avg: 14.96 Med: 14.46 Std: 6.23
+CPU16: Avg: 14.98 Med: 14.41 Std: 5.9
+CPU17: Avg: 16.7 Med: 16.32 Std: 7.68
+CPU18: Avg: 16.57 Med: 15.92 Std: 7.31
+CPU19: Avg: 15.06 Med: 14.62 Std: 6.18
+CPU20: Avg: 14.79 Med: 13.79 Std: 6.06
+CPU21: Avg: 16.92 Med: 16.31 Std: 7.8
+CPU22: Avg: 16.5 Med: 15.84 Std: 7.29
+CPU23: Avg: 15.12 Med: 14.7 Std: 6.59
+CPU24: Avg: 14.17 Med: 13.78 Std: 5.67
+CPU25: Avg: 16.77 Med: 16.2 Std: 7.61
+CPU26: Avg: 16.55 Med: 15.8 Std: 7.26
+CPU27: Avg: 14.78 Med: 14.38 Std: 6.0
+CPU28: Avg: 15.02 Med: 13.93 Std: 6.59
+CPU29: Avg: 16.72 Med: 16.55 Std: 7.65
+CPU30: Avg: 16.6 Med: 15.78 Std: 7.33
+CPU31: Avg: 14.74 Med: 14.43 Std: 5.76
+Avg: 17.15 Med: 15.11 Std: 9.89
+Doing Table: hashtable_cuckoo
+Doing 1 CPUs
+CPU0: Avg: 54.61 Med: 54.7 Std: 10.08
+Avg: 54.61 Med: 54.7 Std: 10.08
+Doing 8 CPUs
+CPU0: Avg: 54.53 Med: 54.92 Std: 10.05
+CPU1: Avg: 28.08 Med: 27.72 Std: 14.53
+CPU2: Avg: 28.14 Med: 27.84 Std: 14.79
+CPU3: Avg: 24.41 Med: 22.32 Std: 12.44
+CPU4: Avg: 24.12 Med: 21.88 Std: 12.29
+CPU5: Avg: 28.29 Med: 27.87 Std: 14.67
+CPU6: Avg: 28.47 Med: 27.7 Std: 14.6
+CPU7: Avg: 24.54 Med: 22.41 Std: 12.48
+Avg: 30.07 Med: 29.43 Std: 15.55
+Doing 16 CPUs
+CPU0: Avg: 51.76 Med: 52.9 Std: 9.75
+CPU1: Avg: 16.87 Med: 15.12 Std: 10.23
+CPU2: Avg: 16.88 Med: 15.38 Std: 10.23
+CPU3: Avg: 15.23 Med: 13.48 Std: 8.95
+CPU4: Avg: 14.9 Med: 12.79 Std: 8.85
+CPU5: Avg: 17.05 Med: 15.25 Std: 10.43
+CPU6: Avg: 17.06 Med: 15.46 Std: 10.39
+CPU7: Avg: 15.27 Med: 13.08 Std: 8.97
+CPU8: Avg: 14.86 Med: 12.87 Std: 8.78
+CPU9: Avg: 17.09 Med: 15.24 Std: 10.45
+CPU10: Avg: 17.13 Med: 15.44 Std: 10.52
+CPU11: Avg: 15.16 Med: 13.04 Std: 9.02
+CPU12: Avg: 14.8 Med: 12.85 Std: 8.7
+CPU13: Avg: 16.96 Med: 15.32 Std: 10.21
+CPU14: Avg: 17.14 Med: 15.7 Std: 10.33
+CPU15: Avg: 14.98 Med: 12.89 Std: 8.85
+Avg: 18.32 Med: 15.54 Std: 12.47
+Doing 32 CPUs
+CPU0: Avg: 50.14 Med: 51.43 Std: 9.15
+CPU1: Avg: 10.17 Med: 8.99 Std: 6.6
+CPU2: Avg: 10.23 Med: 9.29 Std: 6.42
+CPU3: Avg: 9.52 Med: 8.46 Std: 5.82
+CPU4: Avg: 9.24 Med: 8.1 Std: 5.65
+CPU5: Avg: 10.23 Med: 8.96 Std: 6.71
+CPU6: Avg: 10.28 Med: 9.29 Std: 6.51
+CPU7: Avg: 9.57 Med: 8.41 Std: 5.92
+CPU8: Avg: 9.39 Med: 8.19 Std: 5.79
+CPU9: Avg: 10.37 Med: 9.13 Std: 6.7
+CPU10: Avg: 10.59 Med: 9.5 Std: 6.73
+CPU11: Avg: 9.67 Med: 8.48 Std: 6.0
+CPU12: Avg: 9.52 Med: 8.25 Std: 5.89
+CPU13: Avg: 10.38 Med: 9.2 Std: 6.72
+CPU14: Avg: 10.54 Med: 9.53 Std: 6.61
+CPU15: Avg: 9.66 Med: 8.42 Std: 5.99
+CPU16: Avg: 9.47 Med: 8.25 Std: 5.84
+CPU17: Avg: 10.37 Med: 9.1 Std: 6.75
+CPU18: Avg: 10.45 Med: 9.41 Std: 6.64
+CPU19: Avg: 9.69 Med: 8.49 Std: 6.04
+CPU20: Avg: 9.38 Med: 8.16 Std: 5.78
+CPU21: Avg: 10.37 Med: 9.09 Std: 6.8
+CPU22: Avg: 10.43 Med: 9.34 Std: 6.64
+CPU23: Avg: 9.66 Med: 8.44 Std: 6.0
+CPU24: Avg: 9.32 Med: 8.12 Std: 5.75
+CPU25: Avg: 10.22 Med: 8.93 Std: 6.71
+CPU26: Avg: 10.33 Med: 9.23 Std: 6.6
+CPU27: Avg: 9.57 Med: 8.32 Std: 5.99
+CPU28: Avg: 9.28 Med: 8.06 Std: 5.68
+CPU29: Avg: 10.22 Med: 8.91 Std: 6.74
+CPU30: Avg: 10.34 Med: 9.32 Std: 6.58
+CPU31: Avg: 9.58 Med: 8.34 Std: 5.98
+Avg: 11.19 Med: 9.54 Std: 9.15
+Doing Table: hashtable_lazy
+Doing 1 CPUs
+CPU0: Avg: 47.43 Med: 54.31 Std: 18.03
+Avg: 47.43 Med: 54.31 Std: 18.03
+Doing 8 CPUs
+CPU0: Avg: 59.9 Med: 63.91 Std: 10.45
+CPU1: Avg: 44.98 Med: 44.99 Std: 13.23
+CPU2: Avg: 44.83 Med: 45.23 Std: 13.4
+CPU3: Avg: 36.32 Med: 34.18 Std: 11.43
+CPU4: Avg: 35.77 Med: 33.03 Std: 11.06
+CPU5: Avg: 44.55 Med: 44.71 Std: 13.1
+CPU6: Avg: 44.65 Med: 45.51 Std: 13.35
+CPU7: Avg: 36.25 Med: 34.48 Std: 11.31
+Avg: 43.41 Med: 42.6 Std: 14.17
+Doing 16 CPUs
+CPU0: Avg: 59.2 Med: 63.61 Std: 10.54
+CPU1: Avg: 31.08 Med: 30.74 Std: 12.58
+CPU2: Avg: 29.99 Med: 29.88 Std: 12.08
+CPU3: Avg: 26.62 Med: 24.23 Std: 10.77
+CPU4: Avg: 26.45 Med: 24.51 Std: 10.59
+CPU5: Avg: 31.1 Med: 30.87 Std: 12.82
+CPU6: Avg: 30.87 Med: 29.7 Std: 11.84
+CPU7: Avg: 26.53 Med: 23.91 Std: 10.73
+CPU8: Avg: 26.63 Med: 23.25 Std: 10.98
+CPU9: Avg: 31.03 Med: 29.98 Std: 12.64
+CPU10: Avg: 30.28 Med: 29.71 Std: 12.67
+CPU11: Avg: 26.26 Med: 23.77 Std: 10.88
+CPU12: Avg: 29.01 Med: 25.59 Std: 11.06
+CPU13: Avg: 30.73 Med: 29.67 Std: 12.67
+CPU14: Avg: 30.05 Med: 29.89 Std: 12.28
+CPU15: Avg: 26.27 Med: 23.96 Std: 11.0
+Avg: 30.76 Med: 29.14 Std: 13.8
+Doing 32 CPUs
+CPU0: Avg: 59.62 Med: 63.25 Std: 11.82
+CPU1: Avg: 19.67 Med: 19.91 Std: 9.45
+CPU2: Avg: 18.53 Med: 18.07 Std: 9.6
+CPU3: Avg: 18.14 Med: 15.91 Std: 9.38
+CPU4: Avg: 17.21 Med: 15.35 Std: 8.93
+CPU5: Avg: 19.03 Med: 19.16 Std: 9.7
+CPU6: Avg: 18.44 Med: 17.91 Std: 9.54
+CPU7: Avg: 17.65 Med: 15.84 Std: 9.55
+CPU8: Avg: 17.77 Med: 15.2 Std: 9.17
+CPU9: Avg: 19.54 Med: 19.92 Std: 10.16
+CPU10: Avg: 18.42 Med: 17.88 Std: 9.48
+CPU11: Avg: 17.49 Med: 15.72 Std: 9.08
+CPU12: Avg: 18.47 Med: 15.96 Std: 9.2
+CPU13: Avg: 18.94 Med: 20.27 Std: 9.74
+CPU14: Avg: 18.51 Med: 18.11 Std: 9.54
+CPU15: Avg: 17.34 Med: 15.8 Std: 8.96
+CPU16: Avg: 17.44 Med: 15.25 Std: 9.12
+CPU17: Avg: 18.98 Med: 19.82 Std: 9.43
+CPU18: Avg: 18.43 Med: 17.79 Std: 9.55
+CPU19: Avg: 17.39 Med: 15.84 Std: 9.12
+CPU20: Avg: 17.48 Med: 14.89 Std: 9.12
+CPU21: Avg: 19.16 Med: 19.96 Std: 9.36
+CPU22: Avg: 18.42 Med: 17.79 Std: 9.47
+CPU23: Avg: 17.25 Med: 15.84 Std: 9.12
+CPU24: Avg: 16.89 Med: 15.92 Std: 8.51
+CPU25: Avg: 19.08 Med: 18.89 Std: 9.7
+CPU26: Avg: 18.4 Med: 17.71 Std: 9.46
+CPU27: Avg: 17.22 Med: 15.7 Std: 9.0
+CPU28: Avg: 16.42 Med: 15.09 Std: 8.28
+CPU29: Avg: 19.03 Med: 18.88 Std: 9.5
+CPU30: Avg: 18.48 Med: 17.62 Std: 9.65
+CPU31: Avg: 17.38 Med: 15.79 Std: 9.02
+Avg: 19.44 Med: 16.88 Std: 11.79
+Doing Table: hashtable_lazy_cache
+Doing 1 CPUs
+CPU0: Avg: 41.91 Med: 47.2 Std: 16.37
+Avg: 41.91 Med: 47.2 Std: 16.37
+Doing 8 CPUs
+CPU0: Avg: 55.09 Med: 57.64 Std: 9.01
+CPU1: Avg: 75.8 Med: 73.44 Std: 10.15
+CPU2: Avg: 73.82 Med: 72.69 Std: 11.6
+CPU3: Avg: 56.65 Med: 56.4 Std: 8.78
+CPU4: Avg: 53.74 Med: 56.59 Std: 8.45
+CPU5: Avg: 75.06 Med: 73.35 Std: 10.11
+CPU6: Avg: 75.61 Med: 73.07 Std: 13.33
+CPU7: Avg: 58.83 Med: 56.8 Std: 11.92
+Avg: 65.57 Med: 63.95 Std: 13.74
+Doing 16 CPUs
+CPU0: Avg: 47.75 Med: 48.28 Std: 8.94
+CPU1: Avg: 64.7 Med: 65.49 Std: 12.35
+CPU2: Avg: 62.46 Med: 63.24 Std: 10.08
+CPU3: Avg: 48.64 Med: 49.08 Std: 10.43
+CPU4: Avg: 48.04 Med: 47.99 Std: 9.11
+CPU5: Avg: 62.99 Med: 64.77 Std: 9.59
+CPU6: Avg: 61.63 Med: 62.98 Std: 9.11
+CPU7: Avg: 47.56 Med: 48.2 Std: 9.32
+CPU8: Avg: 45.94 Med: 45.76 Std: 8.85
+CPU9: Avg: 63.56 Med: 66.3 Std: 9.38
+CPU10: Avg: 61.94 Med: 63.31 Std: 9.43
+CPU11: Avg: 51.17 Med: 49.61 Std: 14.23
+CPU12: Avg: 46.65 Med: 47.35 Std: 7.87
+CPU13: Avg: 63.23 Med: 65.0 Std: 10.49
+CPU14: Avg: 66.72 Med: 69.88 Std: 9.99
+CPU15: Avg: 47.85 Med: 49.02 Std: 9.31
+Avg: 55.68 Med: 53.17 Std: 12.12
+Doing 32 CPUs
+CPU0: Avg: 38.03 Med: 33.08 Std: 10.83
+CPU1: Avg: 46.67 Med: 43.52 Std: 13.06
+CPU2: Avg: 45.74 Med: 42.97 Std: 13.05
+CPU3: Avg: 39.91 Med: 35.66 Std: 13.32
+CPU4: Avg: 39.92 Med: 33.91 Std: 13.54
+CPU5: Avg: 46.73 Med: 42.56 Std: 13.44
+CPU6: Avg: 46.8 Med: 43.24 Std: 15.64
+CPU7: Avg: 39.12 Med: 35.27 Std: 13.62
+CPU8: Avg: 36.88 Med: 32.06 Std: 12.1
+CPU9: Avg: 46.55 Med: 43.94 Std: 12.76
+CPU10: Avg: 46.32 Med: 42.92 Std: 14.23
+CPU11: Avg: 38.66 Med: 34.95 Std: 12.36
+CPU12: Avg: 39.93 Med: 33.92 Std: 14.05
+CPU13: Avg: 46.29 Med: 43.81 Std: 12.29
+CPU14: Avg: 51.55 Med: 53.15 Std: 12.69
+CPU15: Avg: 39.27 Med: 36.77 Std: 11.97
+CPU16: Avg: 38.65 Med: 34.3 Std: 11.06
+CPU17: Avg: 47.83 Med: 42.62 Std: 16.51
+CPU18: Avg: 46.69 Med: 42.99 Std: 14.87
+CPU19: Avg: 39.27 Med: 35.37 Std: 12.55
+CPU20: Avg: 37.5 Med: 33.17 Std: 11.73
+CPU21: Avg: 47.8 Med: 43.84 Std: 14.5
+CPU22: Avg: 45.09 Med: 42.47 Std: 12.69
+CPU23: Avg: 38.83 Med: 34.98 Std: 13.35
+CPU24: Avg: 37.13 Med: 31.49 Std: 13.13
+CPU25: Avg: 46.96 Med: 42.5 Std: 14.34
+CPU26: Avg: 45.44 Med: 42.7 Std: 12.99
+CPU27: Avg: 42.25 Med: 37.64 Std: 15.74
+CPU28: Avg: 36.91 Med: 31.19 Std: 12.7
+CPU29: Avg: 46.03 Med: 42.66 Std: 13.91
+CPU30: Avg: 46.28 Med: 43.0 Std: 14.36
+CPU31: Avg: 39.11 Med: 34.89 Std: 13.43
+Avg: 42.82 Med: 40.44 Std: 12.97
