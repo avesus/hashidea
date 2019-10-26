@@ -8,7 +8,7 @@ outFile=""
 starttemp=56
 trials=15
 inserts=16000000
-coreInterval=4
+coreInterval=1
 startCore=4
 myExec="harness"
 declare -a threads=(1 8 16 32)
@@ -35,9 +35,9 @@ if [ 1 == 0 ]; then
     trials=5
     inserts=100000
 fi
-#hashtable_locks?
-make clean
-for table in hashtable; do
+
+make clean;
+for table in hashtable hashtable_cache hashtable_lazy_cache hashtable_lazy hashtable_cuckoo; do
     if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
 	unset lines
 	lines=(.5 1 2)
@@ -62,7 +62,6 @@ for table in hashtable; do
 	    watchCores=""
 	    for i in $(seq 0 $(($endCore-$startCore))); do val=$(($i*$coreInterval+$startCore)); watchCores="$watchCores$val,"; done
 	    watchCores=${watchCores::-1}
-	    echo "WATCHING: $watchCores" 
 	    echo "Running for threads $t on table ${table} ($d)"
 	    for qp in ${queryp[@]}; do
 		#echo "Running for qp $qp"
