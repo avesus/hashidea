@@ -534,7 +534,8 @@ createTable(HashTable* head, int tsize){
   //  IncrStat(createtable);
   SubTable* ht=(SubTable*)calloc(1,sizeof(SubTable));
   ht->TableSize=tsize;
-  ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
+  ht->InnerTable=(entry**)aligned_alloc(lineSize,tsize*sizeof(entry*));
+  memset(ht->InnerTable, 0, tsize*sizeof(entry*));
   ht->threadCopy=( int*)aligned_alloc(lineSize,head->numThreads<<logLineSize);
   memset(ht->threadCopy, 0, head->numThreads<<logLineSize);
   return ht;

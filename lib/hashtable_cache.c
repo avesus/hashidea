@@ -368,6 +368,8 @@ static SubTable*
 createTable(int tsize){
   SubTable* ht=(SubTable*)malloc(sizeof(SubTable));
   ht->TableSize=tsize;
-  ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
+  ht->InnerTable=(entry**)aligned_alloc(lineSize,tsize*sizeof(entry*));
+  memset(ht->InnerTable, 0, tsize*sizeof(entry*));
+  //  ht->InnerTable=(entry**)calloc((ht->TableSize),sizeof(entry*));
   return ht;
 }
