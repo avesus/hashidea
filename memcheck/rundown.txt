@@ -1,0 +1,177 @@
+Summary:
+1) Perf stat l1-dcache loads/misses make sense if you take into account hardware prefetching
+2) Perf stat's automatic hit calculation does not make sense or is not calculable with the data present (L1-dcached-stores is supported but L1-dcached-stores-misses is not, this might have to do with that)
+3) There are some concerns about L1 cache statistics being different in the same run
+4) Cache references are still totally unexplained
+5) L1 cache behavior as reported by perf stat is predictable.
+6) Prefetches are not counted towards misses but are counted towards loads (not included in references).
+
+Size of array is (1<<27) for all tests
+
+Irreconciliable: When specifying -d -d -d AND specifically calling L1-dcache-load* events
+     1,312,600,064      L1-dcache-loads                                               (13.15%)
+       129,598,503      L1-dcache-load-misses     #    9.46% of all L1-dcache hits    (13.58%)
+       203,952,826      L1-dcache-stores                                              (13.62%)
+
+     1,428,121,604      L1-dcache-loads                                               (8.94%)
+       146,516,045      L1-dcache-load-misses     #   10.69% of all L1-dcache hits    (11.92%)
+
+Also percentages do not add up: 140/230 = .6
+       230,486,039      L1-dcache-loads                                               (13.26%)
+       140,156,574      L1-dcache-load-misses     #   52.39% of all L1-dcache hits    (13.64%)
+       190,108,748      L1-dcache-stores                                              (13.66%)
+
+
+       304,537,103      L1-dcache-loads                                               (9.10%)
+       137,956,994      L1-dcache-load-misses     #   51.57% of all L1-dcache hits    (12.14%)
+
+Everything seems to be an approximation:
+l1-dcache is the metric that seems to correlate most stably with expected hit/miss rate
+
+https://stackoverflow.com/questions/23605341/i-dont-understand-cache-miss-count-between-cachegrind-vs-perf-tool
+TLDR: perfstat takes into account automatic prefetching, cachegrind does not (so perfstat should be trusted more).
+
+Can make a somewhat reasonable explanation (but numbers not equalling for same event is concerning, also still can explain where cache-references/cache-misses come from)
+
+Cachegrind results for stide == 16 (this should be miss every line, cache grind simulates properly)
+==12477== D   refs:      16,835,622  (8,435,835 rd   + 8,399,787 wr)
+==12477== D1  misses:     8,391,782  (8,391,158 rd   +       624 wr)
+==12477== LLd misses:     8,391,290  (8,390,722 rd   +       568 wr)
+==12477== D1  miss rate:       49.8% (     99.5%     +       0.0%  )
+==12477== LLd miss rate:       49.8% (     99.5%     +       0.0%  )
+
+
+perf stat stride == 16
+        11,205,904      cache-references                                              (7.48%)
+        10,419,155      cache-misses              #   92.979 % of all cache refs      (9.32%)
+       139,326,273      L1-dcache-loads                                               (11.15%)
+         9,562,802      L1-dcache-load-misses     #    5.23% of all L1-dcache hits    (12.98%)
+
+
+cachegrind stride == 1
+==12565== D   refs:      268,493,861  (134,264,954 rd   + 134,228,907 wr)
+==12565== D1  misses:      8,391,780  (  8,391,156 rd   +         624 wr)
+==12565== LLd misses:      8,391,289  (  8,390,721 rd   +         568 wr)
+==12565== D1  miss rate:         3.1% (        6.2%     +         0.0%  )
+==12565== LLd miss rate:         3.1% (        6.2%     +         0.0%  )
+
+perf stat stride == 1
+        11,097,601      cache-references                                              (12.17%)
+        10,879,178      cache-misses              #   98.032 % of all cache refs      (13.67%)
+       287,057,750      L1-dcache-loads                                               (15.17%)
+        11,961,293      L1-dcache-load-misses     #    4.23% of all L1-dcache hits    (16.67%)
+
+
+
+memory access pattern that sleeps to clear cache
+perf stat
+     2,503,326,757      cache-references                                              (12.84%)
+     1,606,583,436      cache-misses              #   64.178 % of all cache refs      (12.91%)
+     1,356,432,157      L1-dcache-loads                                               (12.97%)
+     1,542,636,565      L1-dcache-load-misses     #  116.07% of all L1-dcache hits    (13.00%)
+
+==12610== D   refs:      1,342,236,290  (1,208,007,084 rd   + 134,229,206 wr)
+==12610== D1  misses:    1,207,963,027  (1,207,962,278 rd   +         749 wr)
+==12610== LLd misses:    1,207,962,542  (1,207,961,851 rd   +         691 wr)
+==12610== D1  miss rate:          90.0% (        100.0%     +         0.0%  )
+==12610== LLd miss rate:          90.0% (        100.0%     +         0.0%  )
+
+cache references/l1-dcache-misses is not affected by builtin prefetch but l1-dcache loads is. 
+perf stat with builtin prefetch:
+     2,497,558,763      cache-references                                              (12.68%)
+     1,622,242,594      cache-misses              #   64.953 % of all cache refs      (12.79%)
+     2,375,975,295      L1-dcache-loads                                               (12.91%)
+     1,536,191,566      L1-dcache-load-misses     #   63.27% of all L1-dcache hits    (13.02%)
+
+perf stat with aggressive prefetching:
+     2,561,400,113      cache-references                                              (12.83%)
+     1,657,394,336      cache-misses              #   64.707 % of all cache refs      (12.84%)
+     5,607,786,514      L1-dcache-loads                                               (12.87%)
+     1,563,442,627      L1-dcache-load-misses     #   27.86% of all L1-dcache hits    (13.00%)
+
+perf stat with super aggrssive prefetching:
+     2,775,778,894      cache-references                                              (12.88%)
+     1,960,754,471      cache-misses              #   70.638 % of all cache refs      (12.90%)
+    54,020,988,414      L1-dcache-loads                                               (12.92%)
+     2,278,798,303      L1-dcache-load-misses     #    4.23% of all L1-dcache hits    (12.96%)
+
+
+cachegrind with aggressive prefetching:
+==13704== D   refs:       1,208,018,569  (1,208,007,087 rd   + 11,482 wr)
+==13704== D1  misses:     1,207,963,028  (1,207,962,281 rd   +    747 wr)
+==13704== LLd misses:     1,207,962,542  (1,207,961,852 rd   +    690 wr)
+==13704== D1  miss rate:          100.0% (        100.0%     +    6.5%  )
+==13704== LLd miss rate:          100.0% (        100.0%     +    6.0%  )
+
+
+
+
+Testing prefetching with sleep between loops:
+
+perf stat with stride = 1024 sleep 10ms between iterations
+       620,552,661      cache-references                                              (12.54%)
+       489,981,010      cache-misses              #   78.959 % of all cache refs      (12.72%)
+       584,253,887      L1-dcache-loads                                               (12.77%)
+       108,024,994      L1-dcache-load-misses     #   17.90% of all L1-dcache hits    (13.03%)
+
+perf stat with stride = 1024 .1 ms between iteration
+        59,554,808      cache-references                                              (8.19%)
+        17,656,342      cache-misses              #   29.647 % of all cache refs      (9.42%)
+       302,115,818      L1-dcache-loads                                               (9.35%)
+        27,028,864      L1-dcache-load-misses     #    9.43% of all L1-dcache hits    (10.43%)
+       176,432,541      L1-dcache-stores                                              (10.97%)
+
+perf stat with stide = 1024 no sleep between iterations 
+        11,262,691      cache-references                                              (7.50%)
+        10,480,650      cache-misses              #   93.056 % of all cache refs      (9.37%)
+       126,075,852      L1-dcache-loads                                               (11.24%)
+         8,926,516      L1-dcache-load-misses     #    4.48% of all L1-dcache hits    (13.12%)
+
+hit rate does become better as sleep time is decreased which agrees which prefetching. But 10ms should be enough to flush cache so suprised 10ms sleep is still pretty good. If you dont know will start doing more research into hardware prefetching. 
+
+No clue with cache-references changes with sleep. Appears to support idea that since cache at least somewhat flushes more data is being added to cache (assuming hardware prefetching) but doesnt really make sense with other results
+
+
+
+
+Understanding cache-refences?
+
+https://stackoverflow.com/questions/12601474/what-are-perf-cache-events-meaning/12602131
+TLDR: cache-references is related to LLC(false?)
+
+The LLC seems closer to the cache-references than anything else but doesnt seem to actually have any correlation.
+
+Perf stat with stride length that will skip most of the data (512)
+        10,864,730      cache-references                                              (9.46%)
+        10,235,778      cache-misses              #   94.211 % of all cache refs      (11.39%)
+           113,099      LLC-loads                                                     (15.44%)
+            90,922      LLC-load-misses           #   82.02% of all LL-cache hits     (15.44%)
+         9,214,412      LLC-stores                                                    (7.72%)
+         9,555,109      LLC-store-misses                                              (7.72%)
+
+Perf stat with stride length that will skip some of data (32)
+        17,186,464      cache-references                                              (13.05%)
+        12,602,748      cache-misses              #   73.329 % of all cache refs      (13.13%)
+            99,799      LLC-loads                                                     (12.87%)
+            81,713      LLC-load-misses           #   67.13% of all LL-cache hits     (12.87%)
+         6,615,821      LLC-stores                                                    (6.43%)
+         6,898,925      LLC-store-misses                                              (6.43%)
+
+
+perf stat with stide == 1
+        12,072,546      cache-references                                              (12.30%)
+        12,715,523      cache-misses              #  105.326 % of all cache refs      (13.84%)
+           465,509      LLC-loads                                                     (13.92%)
+            95,735      LLC-load-misses           #   33.83% of all LL-cache hits     (12.39%)
+         8,955,224      LLC-stores                                                    (6.15%)
+         9,101,386      LLC-store-misses                                              (6.15%)
+
+
+
+Basically what perf stat seems to be doing with l1-dcache-loads is taking into account the total L1 cache loads taking into account hardware prefetches and will be the actual performance. It also seems, despite its name, cache-references has absolutely nothing to do with L1 (or any) performance. So far unable to find any combination of metrics that it is the sum of.
+L1 cache metric, while inconsistence does seem to be predictable based on the code/stride length/prefetching
+Also still fail to see how the %hits is actually calculated
+
+
+Full Run:
+sudo perf stat -d -d -d -e cache-references,cache-misses,L1-dcache-loads,L1-dcache-load-misses,L1-dcache-stores,L1-dcache-store-misses,L1-dcache-prefetches,L1-dcache-prefetch-misses,L1-icache-loads,L1-icache-load-misses,L1-icache-prefetches,L1-icache-prefetch-misses,LLC-loads,LLC-load-misses,LLC-stores,LLC-store-misses,LLC-prefetches,LLC-prefetch-misses,dTLB-loads,dTLB-load-misses,dTLB-stores,dTLB-store-misses,dTLB-prefetches,dTLB-prefetch-misses,iTLB-loads,iTLB-load-misses,branch-loads,branch-load-misses,node-loads,node-load-misses,node-stores,node-store-misses,node-prefetches,node-prefetch-misses ./tm
