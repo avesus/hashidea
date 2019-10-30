@@ -1,3 +1,5 @@
+#define _GNU_SOURCE
+#include <sched.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -8,13 +10,12 @@
 #define mp 50
 #define MIN(X,Y)   ((X) < (Y) ? (X) : (Y))
 
-void mStride(int stride){
-  int* arr= aligned_alloc(64, size*sizeof(int));
+void mStride(int * arr, int stride){
+
   volatile int sink;
   int sum;
  for(int i=0;i<(size);i+=stride){
-
-   sum=arr[i]+=i;
+   sum+=arr[i];
    //   usleep(100);
  }
  sink=sum;
@@ -26,10 +27,10 @@ void mpre(){
   for(int i=0;i<(size);i++){
     __builtin_prefetch(arr+i);
     sum+=i;
-
   }
   sink=sum;
 }
+
 void m(){
   int* arr= aligned_alloc(64, size*sizeof(int));
   volatile int sink;
@@ -80,11 +81,24 @@ void m(){
 void sanityCheck(){
 
   //any events should be noise compared to other runs
-  usleep(25000000);
+  usleep(1000000);
 }
 int main(int argc, char** argv){
-        mStride(atoi(argv[1]));
+  cpu_set_t *set=calloc(1, sizeof(cpu_set_t));
+  int cpu= 0;
+  int* arr= aligned_alloc(4096, size*sizeof(int));
+  int s=atoi(argv[1]);
+  CPU_ZERO(set);
+  CPU_SET(cpu, set);
+  sched_setaffinity(getpid(),sizeof(set),set);
+
+
+  for(int i=0;i<8;i++){
+    mStride(arr,s);
+    //    m();
+  }
+  
   // m();
   //  mpre();
-  //    sanityCheck();
+  //  sanityCheck();
 }

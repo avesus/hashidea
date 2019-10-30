@@ -33,7 +33,7 @@ TLDR: perfstat takes into account automatic prefetching, cachegrind does not (so
 
 Can make a somewhat reasonable explanation (but numbers not equalling for same event is concerning, also still can explain where cache-references/cache-misses come from)
 
-Cachegrind results for stide == 16 (this should be miss every line, cache grind simulates properly)
+Cachegrind results for stride == 16 (this should be miss every line, cache grind simulates properly)
 ==12477== D   refs:      16,835,622  (8,435,835 rd   + 8,399,787 wr)
 ==12477== D1  misses:     8,391,782  (8,391,158 rd   +       624 wr)
 ==12477== LLd misses:     8,391,290  (8,390,722 rd   +       568 wr)
