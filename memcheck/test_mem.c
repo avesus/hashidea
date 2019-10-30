@@ -14,10 +14,29 @@ void mStride(int * arr, int stride){
 
   volatile int sink;
   int sum;
- for(int i=0;i<(size);i+=stride){
-   sum+=arr[i];
+  for(int i=0;i<(size);i+=stride){
+    sum+=arr[i];
    //   usleep(100);
  }
+ sink=sum;
+}
+void baseLine(int stride){
+  volatile int sink;
+  int sum;
+  for(int i=0;i<size;i+=stride){
+    sum+=rand();
+  }
+ sink=sum;
+}
+void rStride(int * arr, int stride){
+
+  volatile int sink;
+  int sum;
+  for(int i=0;i<size;i+=stride){  
+    sum+=arr[rand()%size];
+  }
+   //   usleep(100);
+
  sink=sum;
 }
 void mpre(){
@@ -87,14 +106,15 @@ int main(int argc, char** argv){
   cpu_set_t *set=calloc(1, sizeof(cpu_set_t));
   int cpu= 0;
   int* arr= aligned_alloc(4096, size*sizeof(int));
+  int* arr2= aligned_alloc(4096, size*sizeof(int));
   int s=atoi(argv[1]);
   CPU_ZERO(set);
   CPU_SET(cpu, set);
   sched_setaffinity(getpid(),sizeof(set),set);
-
-
   for(int i=0;i<8;i++){
-    mStride(arr,s);
+            rStride(arr,s);
+    //    baseLine(s);
+    //     mStride(arr,s);
     //    m();
   }
   
