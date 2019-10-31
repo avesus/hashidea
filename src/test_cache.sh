@@ -28,17 +28,18 @@ if [ $# -ne 0 ]; then
 fi
 
 # set to true if you want to do a quick test
-if [ 1 == 0 ]; then
+if [ 0 == 1 ]; then
     attempts=(2)
-    threads=(4)
+    threads=(2 4)
     queryp=(.5)
     trials=5
     inserts=100000
 fi
 
+#hashtable_cache hashtable_lazy_cache
 make clean;
-for table in hashtable hashtable_cache hashtable_lazy_cache hashtable_lazy hashtable_cuckoo; do
-    if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache) ]]; then
+for table in hashtable hashtable_cache_np hashtable_lazy_cache_np hashtable_lazy hashtable_cuckoo; do
+    if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache_np) || ($table == hashtable_cache) || ($table == hashtable_lazy_cache_np)]]; then
 	unset lines
 	lines=(.5 1 2)
 	unset attempts
@@ -80,15 +81,15 @@ for table in hashtable hashtable_cache hashtable_lazy_cache hashtable_lazy hasht
 				doit=1
 			    fi
 			    if [ $doit == 0 ]; then
-				echo ALREADY  perf stat -x, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
+				echo ALREADY perf stat -A --cpu=$watchCores -e L1-dcache-loads,L1-dcache-misses ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
 			    else
 				if [ $onlyshow -ne 1 ]; then
 				    sleep 45
-				    echo FIRST  perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
-				     perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
+				    echo FIRST perf stat -A --cpu=$watchCores -e L1-dcache-loads,L1-dcache-misses ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
+				     sudo perf stat -A --cpu=$watchCores -e L1-dcache-loads,L1-dcache-misses ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
 
 				else
-				    echo  perf stat -x=, -A --cpu=$watchCores -e cache-references,cache-misses,cycles,instructions,branches,faults,migrations ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
+				    echo  perf stat -A --cpu=$watchCores -e L1-dcache-loads,L1-dcache-misses ./$myExec --trials $trials   --inserts $in --qp $qp -t $t -i $it -a $ha  --lines $li  --args --ci $coreInterval --sc $startCore --ec $endCore
 				fi
 			    fi
 			done
