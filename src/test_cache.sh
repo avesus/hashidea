@@ -39,7 +39,7 @@ fi
 #hashtable_cache hashtable_lazy_cache
 make clean;
 for table in hashtable hashtable_cache_np hashtable_lazy_cache_np hashtable_lazy hashtable_cuckoo; do
-    if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache_np) || ($table == hashtable_cache) || ($table == hashtable_lazy_cache_np)]]; then
+    if [[ ($table == hashtable_cache) || ($table == hashtable_lazy_cache_np) || ($table == hashtable_cache_np) || ($table == hashtable_lazy_cache)]]; then
 	unset lines
 	lines=(.5 1 2)
 	unset attempts
