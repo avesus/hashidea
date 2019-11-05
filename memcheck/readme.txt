@@ -47,3 +47,5 @@ https://github.com/andikleen/pmu-tools
 
 A reasonable guide:
 https://www.halobates.de/modern-pmus-yokohama.pdf
+
+likwid library

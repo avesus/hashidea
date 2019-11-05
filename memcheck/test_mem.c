@@ -14,8 +14,12 @@ void mStride(int * arr, int stride){
 
   volatile int sink;
   int sum;
-  for(int i=0;i<(size);i+=stride){
-    sum+=arr[i];
+  unsigned long bound=size;
+  
+  
+    for(unsigned long i=0;i<(bound*512);i+=stride){
+  //    for(unsigned long i=0;i<(bound*stride);i+=stride){
+    sum+=arr[i%bound];
    //   usleep(100);
  }
  sink=sum;
@@ -100,25 +104,18 @@ void m(){
 void sanityCheck(){
 
   //any events should be noise compared to other runs
-  usleep(1000000);
+    usleep(2000000);
 }
 int main(int argc, char** argv){
-  cpu_set_t *set=calloc(1, sizeof(cpu_set_t));
-  int cpu= 0;
-  int* arr= aligned_alloc(4096, size*sizeof(int));
-  int* arr2= aligned_alloc(4096, size*sizeof(int));
+  int* arr= aligned_alloc(1048576, size*sizeof(int));
   int s=atoi(argv[1]);
-  CPU_ZERO(set);
-  CPU_SET(cpu, set);
-  sched_setaffinity(getpid(),sizeof(set),set);
-  for(int i=0;i<8;i++){
-            rStride(arr,s);
-    //    baseLine(s);
-    //     mStride(arr,s);
+    //             rStride(arr,s);
+		//    baseLine(s);
+    mStride(arr,s);
     //    m();
-  }
+
   
   // m();
   //  mpre();
-  //  sanityCheck();
+  //    sanityCheck();
 }
