@@ -125,10 +125,10 @@ checkTableQuery(HashTable* head, unsigned long val)
       int s=(buckets[i]&tsizeMask);//%(ht->TableSize>>head->logReadsPerLine))<<head->logReadsPerLine;
       
       //call the new line before time amt of computation just cuz...
-          __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
+      //          __builtin_prefetch(ht->InnerTable[s+(tag&(uBound-1))]);
       //check this line
       for(int c=tag;c<uBound+tag;c++){
-	__builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
+	//__builtin_prefetch(ht->InnerTable[s+((c+1)&(uBound-1))]);
 	int res=lookupQuery(ht, val, s+(c&(uBound-1)), tag);
 	if(res==unk){ //unkown if in our not
 	  continue;

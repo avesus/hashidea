@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"sync"
 	"github.com/pborman/getopt"
-
+	"runtime/debug"
 )
 //my int64 for casting to byte array for hash
 type hint64 int64;
@@ -24,8 +24,6 @@ type caster struct {
 	len int64;
 	cap int64;
 }
-
-
 
 //for timing
 type myBarrier struct {
@@ -43,8 +41,7 @@ type hashtable struct {
 	tables []*subtable;
 	seeds []uint32;
 	tnum int32;
-	attempts int;
-	cmode bool;
+	cmode int8;
 }
 
 
@@ -68,7 +65,7 @@ var wg sync.WaitGroup
 var oHelp *bool = new(bool); 
 var verbose *int = new(int);
 var check *bool = new(bool);
-var cstyle *bool = new(bool);
+var cstyle *int8 = new(int8);
 var att *int = new(int);
 var maxST *int32 = new(int32);
 var initSize *uint = new(uint);
@@ -83,29 +80,50 @@ const in int = -1
 const unk int = -2
 const notIn int = -3
 
+func cnew(type_size uintptr) unsafe.Pointer {
+	temp := (*byte)(C.calloc(1,C.ulong(type_size)));
+	return unsafe.Pointer(&temp)
+}
+func cmake(size uint32, type_size uintptr) unsafe.Pointer {
+	var temp caster;
+	temp.ptr=(*byte)(C.calloc(C.ulong(size),C.ulong(type_size)));
+	temp.len=int64(size);
+	temp.cap=int64(size);
+	return unsafe.Pointer(&temp);
 
-
-func createSubTable(cmode bool, size uint32) *subtable {
-	var newTable *subtable = new(subtable);
-	if cmode {
-		var temp caster;
-		temp.ptr=(*byte)(C.calloc(C.ulong(size),8));
-		temp.len=int64(size);
-		temp.cap=int64(size);
-		newTable.table=*(*[]*entry)(unsafe.Pointer(&temp));
+}
+func createSubTable(cmode int8, size uint32) *subtable {
+	var newTable *subtable;
+	if cmode > 0  {
+		if cmode > 1 {
+			newTable=*(**subtable)(cnew(unsafe.Sizeof(*newTable)));
+		}else {
+			newTable = new(subtable);
+		}
+		newTable.table=*(*[]*entry)(cmake(size, unsafe.Sizeof(newTable.table[0])));
 	} else {
+		newTable = new(subtable);
 		newTable.table = make([]*entry,  size);
 	}
-	
 	return newTable;
 }
-func initTable(attempts int, isize uint, nthread int, seed []uint32, cmode bool) *hashtable {
-	var newTable *hashtable = new(hashtable);
-	newTable.attempts = attempts;
+func initTable(attempts int, isize uint, nthread int, seed []uint32, cmode int8) *hashtable {
+	var newTable *hashtable
+	if cmode > 1 {
+		newTable=*(**hashtable)(cnew(unsafe.Sizeof(*newTable)));
+
+	}else {
+		newTable = new(hashtable);
+	}
+
 	newTable.seeds=seed;
 	newTable.tnum = 1;
 	newTable.cmode = cmode;
-	newTable.tables = make([]*subtable, *maxST);
+	if cmode > 1 {
+		newTable.tables=*(*[]*subtable)(cmake(uint32(*maxST), unsafe.Sizeof(newTable.tables[0])));
+	} else {
+		newTable.tables = make([]*subtable,  *maxST);
+	}
 	newTable.tables[0] = createSubTable(cmode, 1<<isize);
 	return newTable;
 }
@@ -161,8 +179,11 @@ func (ht* hashtable) addSubTable(newTable *subtable, tslot int32) {
 		var newSize int32 = tslot + 1;
 		atomic.CompareAndSwapInt32(&ht.tnum, tslot, newSize);
 	}else {
-		if ht.cmode {
+		if ht.cmode > 0 {
 			C.free(unsafe.Pointer(&newTable.table[0]));
+			if ht.cmode > 1 {
+				C.free(unsafe.Pointer(newTable));
+			}
 		}
 		var newSize int32 = tslot + 1;
 		atomic.CompareAndSwapInt32(&ht.tnum, tslot, newSize);
@@ -173,14 +194,14 @@ func (ht* hashtable) addSubTable(newTable *subtable, tslot int32) {
 
 func (ht* hashtable) query(val hint64) *entry{
 
-	var buckets []uint32 = make([]uint32, ht.attempts);
-	for i:=0;i<ht.attempts;i++ {
+	var buckets []uint32 = make([]uint32, len(ht.seeds));
+	for i:=0;i<len(ht.seeds);i++ {
 		buckets[i]=val.hash(ht.seeds[i]);
 	}
 	var tcur *subtable;
 	for i:=int32(0);i<ht.tnum;i++ {
 		tcur = ht.tables[i];
-		for j:=0;j<ht.attempts;j++ {
+		for j:=0;j<len(ht.seeds);j++ {
 			var res int = tcur.lookupQuery(val, buckets[j]&(uint32(len(tcur.table)-1)));
 			if res == unk {
 				continue;
@@ -198,8 +219,8 @@ func (ht* hashtable) query(val hint64) *entry{
 
 func (ht* hashtable) insert(ent *entry) int{
 
-	var buckets []uint32 = make([]uint32, ht.attempts);
-	for i:=0;i<ht.attempts;i++ {
+	var buckets []uint32 = make([]uint32, len(ht.seeds));
+	for i:=0;i<len(ht.seeds);i++ {
 		buckets[i]=ent.val.hash(ht.seeds[i]);
 	}
 	var lcur int32 = ht.tnum;
@@ -208,7 +229,7 @@ func (ht* hashtable) insert(ent *entry) int{
 
 		for i:=int32(0);i<lcur;i++ {
 			tcur = ht.tables[i];
-			for j:=0;j<ht.attempts;j++ {
+			for j:=0;j<len(ht.seeds);j++ {
 				var res int = tcur.lookup(ent, buckets[j]&(uint32(len(tcur.table)-1)));
 				if res == unk {
 					continue;
@@ -236,17 +257,15 @@ func (ht* hashtable) insert(ent *entry) int{
 	}
 }
 func (ht* hashtable) inserter(tid int, ninserts int, e []align64) {
-	if ht.cmode {
-		var temp caster;
-		temp.ptr=(*byte)(C.calloc(C.ulong(ninserts),8));
-		temp.len=int64(ninserts);
-		temp.cap=int64(ninserts);
-		e[tid].e=*(*[]entry)(unsafe.Pointer(&temp));
+	if ht.cmode > 0 {
+		e[tid].e=*(*[]entry)(cmake(uint32(ninserts), unsafe.Sizeof(e[tid].e[0])));
+		e[tid].q=*(*[]int)(cmake(uint32(ninserts), unsafe.Sizeof(e[tid].q[0])));
 	} else {
 		e[tid].e = make([]entry, ninserts);
+		e[tid].q = make([]int, ninserts);
 	}
 
-	e[tid].q = make([]int, ninserts);
+
 	for i:=0;i<ninserts;i++ {
 		e[tid].q[i] = rand.Int()%100;
 		e[tid].e[i].val=hint64(rand.Int63());
@@ -280,8 +299,11 @@ func (ht hashtable) results() {
 				counter[i]++;
 			}
 		}
-		if ht.cmode && *check == false {
+		if ht.cmode > 0 && *check == false {
 			C.free(unsafe.Pointer(&ht.tables[i].table[0]));
+			if ht.cmode > 1 {
+				C.free(unsafe.Pointer(ht.tables[i]));
+			}
 		}
 	}
 	if *verbose > 0 {
@@ -305,7 +327,6 @@ func (ht hashtable) results() {
 
 		}
 		fmt.Printf("Total: %d/%d\n", totalItems, totalSpace);
-		fmt.Printf("%d over %d took %s\n",*inserts,*nthreads, endBarrier.timer.Sub(startBarrier.timer));
 	}
 }
 func main()  {
@@ -313,7 +334,7 @@ func main()  {
 	//parse arguments
 	verbose = getopt.IntLong("verbose", 'v', 0, "verbose mode");
 	check = getopt.BoolLong("check", 'o', "correctness check");
-	cstyle = getopt.BoolLong("cstyle", 'c', "use c style allocation");
+	cstyle = (*int8)(unsafe.Pointer(getopt.Int32Long("cstyle", 'c', 0, "use c style allocation")));
 	nthreads = getopt.IntLong("threads", 't', 1, "num threads");
 	maxST = getopt.Int32Long("max", 'm', 32, "max subtables");
 	inserts = getopt.IntLong("inserts", 'n', 0, "inserts per thread");
@@ -323,17 +344,25 @@ func main()  {
 	trials = getopt.IntLong("trials",'r', 1, "trials to run");
 	oHelp = getopt.BoolLong("help", 'h', "display usage");
 	getopt.Parse();
-
 	if *oHelp == true {
 		getopt.Usage()
 		return;
 	}
-	
+	if *cstyle > 2 {
+		debug.SetGCPercent(-1)
+	}
 	//initializing variables
 	var seeds []uint32;
+	if *cstyle > 1 {
+		seeds=*(*[]uint32)(cmake(uint32(*att), unsafe.Sizeof(seeds[0])));
+
+	}else {
+		seeds = make([]uint32, *att);
+	}
+
 	rand.Seed(time.Now().UTC().UnixNano());
 	for i:=0;i<*att;i++ {
-		seeds = append(seeds, uint32(rand.Int()));
+		seeds[i] = uint32(rand.Int());
 	}
 	var startTimes []time.Time = make([]time.Time, *trials);
 	var endTimes []time.Time = make([]time.Time, *trials);
@@ -343,8 +372,18 @@ func main()  {
 		//start testing
 		startBarrier.barrier.Add(*nthreads);
 		endBarrier.barrier.Add(*nthreads);
-		
-		var e []align64=make([]align64, *nthreads);
+		var e []align64;
+		if *cstyle > 2 {
+			var temp caster;
+			temp.ptr=(*byte)(C.aligned_alloc(
+				C.ulong(*nthreads)*C.ulong(unsafe.Sizeof(e[0])+64),
+				C.ulong(unsafe.Sizeof(e[0]))));
+			temp.len=int64(*nthreads);
+			temp.cap=int64(*nthreads);
+			e=*(*[]align64)(unsafe.Pointer(&temp));
+		}else{
+			e=make([]align64, *nthreads);
+		}
 		var isAligned *int64 = (*int64)((unsafe.Pointer(&e)));
 		if (*isAligned)%64 != 0 {
 			fmt.Printf("Error aligned input array\n... Exitting\n");
@@ -358,17 +397,29 @@ func main()  {
 		endBarrier.timer = time.Now();
 		endTimes[t]=endBarrier.timer;
 		startTimes[t]=startBarrier.timer;
-		if ht.cmode && *check==false {
+		if ht.cmode > 0 && *check==false {
 			for i :=0; i<*nthreads;i++ {
 				C.free(unsafe.Pointer(&e[i].e[0]));
+				C.free(unsafe.Pointer(&e[i].q[0]));
 			}
+
 		}
+		if ht.cmode > 2 {
+			C.free(unsafe.Pointer(&e[0]));
+		}
+
+		
 		//test/print results
 		ht.results();
+		if ht.cmode > 1 {
+			C.free(unsafe.Pointer(&ht.seeds[0]));
+			C.free(unsafe.Pointer(&ht.tables[0]));
+			C.free(unsafe.Pointer(ht));
+		}
 	}
 	fmt.Printf("--------------------------------------------------------------\n");
 	fmt.Printf("Results %d Runs\n", *trials);
-	fmt.Printf("Params: Attempts = %d, InitSize = %d, Inserts = %d, QueryPercent = %d, Threads = %d, Cstyle = %t\n",
+	fmt.Printf("Params: Attempts = %d, InitSize = %d, Inserts = %d, QueryPercent = %d, Threads = %d, Cstyle = %d\n",
 		*att, *initSize, *inserts,*queryPercent, *nthreads, *cstyle);
 	for t:=0;t<*trials;t++ {
 		fmt.Printf("Run[%d] -> %s\n", t, endTimes[t].Sub(startTimes[t]));

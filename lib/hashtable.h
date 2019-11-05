@@ -1,6 +1,6 @@
 #ifndef _HASHTABLE_H_
 #define _HASHTABLE_H_
-
+#define includeDel
 typedef struct HashTable HashTable;
 
 typedef struct entry{
