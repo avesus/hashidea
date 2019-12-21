@@ -40,8 +40,12 @@ typedef struct HashTable{
 #define in -1
 #define unk -2
 #define deleted 1
+#define undeleting 2
+#define finishUpper 4
 #define lowBits 7
 
+
+#define LOST_DELETE_RACE 2
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
 #define max(X, Y)  ((X) < (Y) ? (Y) : (X))
 // create a sub table
@@ -171,11 +175,23 @@ static int lookup(SubTable* ht, entry* ent, unsigned int s){
   if(ht->InnerTable[s]==NULL){
     return s;
   }
+  if(getBool(ht->InnerTable[s])==deleted){
+    return s;
+  }
   else if(getPtr(ht->InnerTable[s])->val==ent->val){
-    if(getBool(ht->InnerTable[s])){
-      return s;
-      }
     return in;
+  }
+  
+  return unk;
+}
+
+static int lookupDelete(SubTable* ht, entry* ent, unsigned int s){
+
+  if(ht->InnerTable[s]==NULL){
+    return notIn;
+  }
+  else if(getPtr(ht->InnerTable[s])->val==ent->val){
+    return s;
   }
   return unk;
 }
@@ -224,44 +240,133 @@ int deleteVal(HashTable* head, unsigned long val){
       if(res==notIn){ //is in
 	return 0;
       }
-
-      
-      return setPtr(&ht->InnerTable[res], getBool(ht->InnerTable[res]), 1);
+      while(getPtr(ht->InnerTable[res])->val==val&&getBool(ht->InnerTable[res])!=deleted){
+	setPtr(&ht->InnerTable[res], getBool(ht->InnerTable[res]), 1);
+      }
     }
   }
   return 0;
 }
 
 
+int deleteAdd(HashTable* head, int start, int hashLoc, entry** pos, entry* ent, unsigned int* buckets){
+  SubTable* ht;
+    for(int j=start;j<head->cur;j++){
+      ht=head->TableArray[j];
+      for(int i=(hashLoc*(start==j));i<head->hashAttempts;i++){
+	int res=lookupDelete(ht, ent,buckets[i]%ht->TableSize);
+	if(res==unk){ //unkown if in our not
+	  continue;
+	}
+	if(res==notIn){ //is in
+	  goto downLoop;
+	}
+	int bits=getBool(ht->InnerTable[res]);
+	if(!bits){
+	      setPtr(pos, undeleting, deleted);
+	      return 0;
+	}
+	else if(bits==deleted){
+	  continue;
+	}
+	//feels weird to kill something with more progress than us
+	//but necessary to force same path for all
+	else if (bits==undeleting||bits==finishUpper){
+	retryDelete:
+	  if(setPtr(&ht->InnerTable[res], bits, deleted)){
+	    continue;
+	  }
+	  else{
+	    bits = getBool(ht->InnerTable[res]);
+	    if(!bits){
+	      //given that in undeleting state only can be set to delete by other
+	      //dont need to verify return value
+	      setPtr(pos, undeleting, deleted);
+	      return 0;
+	      //want to unset self
+	    }
+	    else if(bits==deleted){
+	      //case another thread unset at same time
+	      continue;
+	    }
+	    else {
+	      //i really think this is best way to do it (so the continues still work!)
+	      goto retryDelete;
+	    }
+	  }
+	}
+      }
+    }
+ downLoop:
+    if(!setPtr(pos,undeleting, finishUpper)){
+      //only way to get here is someone else set me to deleted so can just return
+      return 0;
+    }
+    for(int j=start;j>=0;j--){
+      for(int i=0;i<max(hashLoc, head->hashAttempts*(j!=start));i++){
+	int res=lookupDelete(ht, ent,buckets[i]%ht->TableSize);
+	if(res==unk){ //unkown if in our not
+	  continue;
+	}
+	if(res==notIn){ //this case should NEVER happen!
+	  fprintf(stderr,"If this happened I really dont understand the control flow...\nThis should be impossible.\n");
+	  exit(0);
+	}
+	int bits=getBool(ht->InnerTable[res]);
+	if(!bits){
+	  setPtr(pos, undeleting, deleted);
+	  return 0;
+	}
+	else if(bits==deleted){
+	  continue;
+	}
+	
+	else if (bits==undeleting||bits==finishUpper){
+	  setPtr(pos, undeleting, deleted);
+	  return 0;
+	}
+      }
+    }
+   
+}
+
 int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* ht=NULL;
   int LocalCur=head->cur;
   unsigned int buckets[head->hashAttempts];
-      for(int i =0;i<head->hashAttempts;i++){
-        buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
-    }
-      while(1){
-  for(int j=start;j<head->cur;j++){
-    ht=head->TableArray[j];
+  for(int i =0;i<head->hashAttempts;i++){
+    buckets[i]=murmur3_32((const uint8_t *)&ent->val, kSize, head->seeds[i]);
+  }
+  while(1){
+    for(int j=start;j<head->cur;j++){
+      ht=head->TableArray[j];
 
-    for(int i =0; i<head->hashAttempts; i++) {
-      int res=lookup(ht, ent,buckets[i]%ht->TableSize);
-      if(res==unk){ //unkown if in our not
-	continue;
-      }
-      if(res==in){ //is in
-	return 0;
-      }
+      for(int i =0; i<head->hashAttempts; i++) {
+	int res=lookup(ht, ent,buckets[i]%ht->TableSize);
+	if(res==unk){ //unkown if in our not
+	  continue;
+	}
+	if(res==in){ //is in
+	  return 0;
+	}
 
-      entry* expected=NULL;
-      if(getBool(ht->InnerTable[res])){
-	expected=ht->InnerTable[res];
-      }
+	entry* expected=NULL;
+	int delAdd=0;
+	if(ht->InnerTable[res]){
+	  setPtr(&ent,0,2);
+	  setPtr(&expected, 0, 1);
+	  delAdd=1;
+	}
       int cmp= __atomic_compare_exchange(ht->InnerTable+res,
 					 &expected,
 					 &ent,
 					 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
       if(cmp){
+	if(delAdd){
+	  if(!deleteAdd(head, start, i, &ht->InnerTable[res], ent, (unsigned int*)buckets)){
+	    return LOST_DELETE_RACE;
+	  }
+	}
 	return 1;
       }
       else{
@@ -275,7 +380,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
   SubTable* new_table=createTable(head->TableArray[LocalCur-1]->TableSize<<1);
   addDrop(head, new_table, LocalCur, ent);
   start=LocalCur;
-      }
+}
 }
 
 

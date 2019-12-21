@@ -40,6 +40,7 @@ def tToIndex(tname):
 def iToName(index):
     return tnames[index]
 
+
 doTable = sys.argv[2]
 run = ""
 for i in range(3, len(sys.argv)):
@@ -118,6 +119,7 @@ for t in range(0, 5):
     tstatArrRatio = []
     for i in range(0, 33):
         if modified[i]:
+            print("Num-Cpus: " + str(i))
             statArrLoads = []
             statArrMisses = []
             statArrRatio = []

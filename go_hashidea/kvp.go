@@ -84,7 +84,7 @@ func cnew(type_size uintptr) unsafe.Pointer {
 	temp := (*byte)(C.calloc(1,C.ulong(type_size)));
 	return unsafe.Pointer(&temp)
 }
-func cmake(size uint32, type_size uintptr) unsafe.Pointer {
+func cmake_slice(size uint32, type_size uintptr) unsafe.Pointer {
 	var temp caster;
 	temp.ptr=(*byte)(C.calloc(C.ulong(size),C.ulong(type_size)));
 	temp.len=int64(size);
@@ -92,6 +92,9 @@ func cmake(size uint32, type_size uintptr) unsafe.Pointer {
 	return unsafe.Pointer(&temp);
 
 }
+
+
+
 func createSubTable(cmode int8, size uint32) *subtable {
 	var newTable *subtable;
 	if cmode > 0  {
@@ -100,7 +103,7 @@ func createSubTable(cmode int8, size uint32) *subtable {
 		}else {
 			newTable = new(subtable);
 		}
-		newTable.table=*(*[]*entry)(cmake(size, unsafe.Sizeof(newTable.table[0])));
+		newTable.table=*(*[]*entry)(cmake_slice(size, unsafe.Sizeof(newTable.table[0])));
 	} else {
 		newTable = new(subtable);
 		newTable.table = make([]*entry,  size);
@@ -120,7 +123,7 @@ func initTable(attempts int, isize uint, nthread int, seed []uint32, cmode int8)
 	newTable.tnum = 1;
 	newTable.cmode = cmode;
 	if cmode > 1 {
-		newTable.tables=*(*[]*subtable)(cmake(uint32(*maxST), unsafe.Sizeof(newTable.tables[0])));
+		newTable.tables=*(*[]*subtable)(cmake_slice(uint32(*maxST), unsafe.Sizeof(newTable.tables[0])));
 	} else {
 		newTable.tables = make([]*subtable,  *maxST);
 	}
@@ -256,10 +259,11 @@ func (ht* hashtable) insert(ent *entry) int{
 		ht.addSubTable(newTable, lcur);
 	}
 }
+
 func (ht* hashtable) inserter(tid int, ninserts int, e []align64) {
 	if ht.cmode > 0 {
-		e[tid].e=*(*[]entry)(cmake(uint32(ninserts), unsafe.Sizeof(e[tid].e[0])));
-		e[tid].q=*(*[]int)(cmake(uint32(ninserts), unsafe.Sizeof(e[tid].q[0])));
+		e[tid].e=*(*[]entry)(cmake_slice(uint32(ninserts), unsafe.Sizeof(e[tid].e[0])));
+		e[tid].q=*(*[]int)(cmake_slice(uint32(ninserts), unsafe.Sizeof(e[tid].q[0])));
 	} else {
 		e[tid].e = make([]entry, ninserts);
 		e[tid].q = make([]int, ninserts);
@@ -326,7 +330,8 @@ func (ht hashtable) results() {
 			}
 
 		}
-		fmt.Printf("Total: %d/%d\n", totalItems, totalSpace);
+		fmt.Printf("Total: %d/%d\nRuntime: %s\n", totalItems, totalSpace, endBarrier.timer.Sub(startBarrier.timer));
+		
 	}
 }
 func main()  {
@@ -354,7 +359,7 @@ func main()  {
 	//initializing variables
 	var seeds []uint32;
 	if *cstyle > 1 {
-		seeds=*(*[]uint32)(cmake(uint32(*att), unsafe.Sizeof(seeds[0])));
+		seeds=*(*[]uint32)(cmake_slice(uint32(*att), unsafe.Sizeof(seeds[0])));
 
 	}else {
 		seeds = make([]uint32, *att);
