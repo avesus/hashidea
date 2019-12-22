@@ -253,7 +253,7 @@ static int addDrop(HashTable* head, SubTable* toadd, int AddSlot, entry* ent){
 
 
 
-int deleteVal(HashTable* head, unsigned long val){
+int deleteVal(HashTable* head, unsigned long val, int tid){
   SubTable* ht=NULL;
   unsigned int buckets[head->hashAttempts];
   int logReadsPerLine=head->logReadsPerLine;

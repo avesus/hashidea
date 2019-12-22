@@ -128,7 +128,7 @@ inline short genHashTag(unsigned long key){
 static int 
 lookupQuery(SubTable* ht, unsigned long val, unsigned int s, short vTag, int ndel);
 
-int deleteVal(HashTable* head, unsigned long val){
+int deleteVal(HashTable* head, unsigned long val, int tid){
   SubTable* ht=NULL;
       unsigned int buckets[head->hashAttempts];
   int uBound=head->readsPerLine;

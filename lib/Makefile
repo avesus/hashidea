@@ -14,6 +14,6 @@ cache-params.h:
 	../src/getcacheparms > cache-params.h
 
 clean:
-	/bin/rm -f *.o *~ cache-params.h
+	/bin/rm -f *.o *~ *#* cache-params.h
 
 

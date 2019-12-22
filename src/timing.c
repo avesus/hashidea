@@ -30,10 +30,10 @@ endTimer(TimingStruct* ts) {
   s = clock_getres(clockID, &res);
   if (s) errdie("Could not get resolution");
   
-  if (verbose) fprintf(stderr, 
+  /*  if (verbose) fprintf(stderr, 
 		       "%ld %ld -> %ld %ld = %ld %ld by %ld %ld: %lu\n", 
 		       ts->tv_sec, ts->tv_nsec, end.tv_sec, end.tv_nsec, 
-		       secs, nano, res.tv_sec, res.tv_nsec, ((long)secs)*1000000000 + nano);
+		       secs, nano, res.tv_sec, res.tv_nsec, ((long)secs)*1000000000 + nano);*/
   return ((long)secs)*1000000000L + nano;
 }
 

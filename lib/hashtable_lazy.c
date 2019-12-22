@@ -63,7 +63,7 @@ int setPtr(entry** ent){
   return __atomic_compare_exchange(ent,&exEnt, &newEnt, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED);
 }
 
-int deleteVal(HashTable* head, unsigned long val){
+int deleteVal(HashTable* head, unsigned long val, int tid){
   return 1;
 }
 

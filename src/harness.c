@@ -20,7 +20,7 @@
 #include "temp.h"
 
 
-//#define includeDel 0
+#define includeDel
 
 #define Version "0.2"
 #define min(X, Y)  ((X) < (Y) ? (X) : (Y))
@@ -187,7 +187,7 @@ static ArgOption args[] = {
   { KindOption,   Integer, 	"--ec", 	0, &endCore, 		"End core" },
   { KindHelp,     Help, 	"-h" },
   { KindOption,   Integer,      "-a",           0, &HashAttempts,       "Set hash attempts for open table hashing" },
-  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table (table size = 1 << -i" },
+  { KindOption,   Integer,      "-i",           0, &InitSize,           "Set table size for starting table (table size = 1 << i" },
   { KindOption,   Set,          "--regtemp",    0, &regtemp,            "Set so that between trials will wait until cpu temp returns to close to starting temp." },
   { KindOption,   Set,          "--tracktemp",  0, &tracktemp,          "Track thread temps for each trial. Note this will affect timing slightly" },
   { KindEnd }
@@ -367,9 +367,9 @@ endThreadTimer(int tid, int trialNum) {
   if (tid == 0) {
     myBarrier(&loopBarrier, tid);
     duration = endTimer(&trialTimer);
-    if (verbose) showWaiting(&loopBarrier, "ETT");
+    if (verbose&&0) showWaiting(&loopBarrier, "ETT");
     getBTsummary(&loopBarrier, tdp->barrierEnds, &tdp->barrierGaps);
-    if (verbose) printf("BT Summary: max:%g\tmedian:%g\n", tdp->barrierGaps.maxgap, tdp->barrierGaps.medgap);
+    if (verbose&&0) printf("BT Summary: max:%g\tmedian:%g\n", tdp->barrierGaps.maxgap, tdp->barrierGaps.medgap);
   } else {
     myBarrier(&loopBarrier, tid);
   }
@@ -427,7 +427,7 @@ insertTrial(HashTable* head, int n, int tid, void* entChunk, unsigned long* rVal
 #endif
 	insertTable(head, getStart(head), ent, tid);
       }
-      deleteVal(head, val);
+      deleteVal(head, val, tid);
     }
     else{
       entry* ent = (entry*)((char*)entChunk+(i*sizeof(entry)));  
@@ -581,7 +581,7 @@ run(void* arg) {
       
 	if (stddev <= stopError) notDone = 0;
 	else if ((trialNumber+1) >= 10*trialsToRun) notDone = 0;
-	if (verbose) printf("Med:%lf, Avg:%lf, SD:%lf\n", median, mean, stddev);
+	if (verbose&&0) printf("Med:%lf, Avg:%lf, SD:%lf\n", median, mean, stddev);
       } else if ((trialNumber+1) >= trialsToRun) {
 	notDone = 0;
       }

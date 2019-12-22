@@ -27,7 +27,7 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid);
 int getStart(HashTable* head);
 
 
-int deleteVal(HashTable* head, unsigned long val);
+int deleteVal(HashTable* head, unsigned long val, int tid);
 
 // check that library is compiled correctly for system currently being run on
 int checkCompiledCorrectly(void);

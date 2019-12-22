@@ -222,7 +222,7 @@ int getStart(HashTable* head){
 }
 
 
-int deleteVal(HashTable* head, unsigned long val){
+int deleteVal(HashTable* head, unsigned long val, int tid){
   return 0;
 }
 ////////////////////////////////////////////////////////////////

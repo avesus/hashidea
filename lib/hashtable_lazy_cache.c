@@ -101,7 +101,7 @@ inline short genHashTag(unsigned long key){
   return (short)(tag&0xffff);
 }
 
-int deleteVal(HashTable* head, unsigned long val){
+int deleteVal(HashTable* head, unsigned long val, int tid){
   return 1;
 }
 int insertTableTag(HashTable* head,  int start, entry* ent, int tid);
