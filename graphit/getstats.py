@@ -5,6 +5,9 @@ import re
 # import subprocess
 from pprint import pprint
 import sys
+import statistics
+import math
+
 
 
 def resetState(args):
@@ -30,8 +33,21 @@ def parseerror(msg, dieflag=True):
 
 # get avg, median, min, max, and Std Dev of data in array
 def calcPerfStats(data):
-    return [str(data[0]), str(data[0]), str(data[0]), str(data[0]), str(0)]
-
+    ret = [str(data[0]),str(data[0]),str(data[0]),str(data[0]),str(data[0])]
+    to_parse = list(map(float, data))
+    if len(data) > 1:
+        ret[0] = str(statistics.mean(to_parse))
+        ret[1] = str(statistics.median(to_parse))
+        ret[2] = str(min(to_parse))
+        ret[3] = str(max(to_parse))
+        ret[4] = str(statistics.stdev(to_parse))
+    else:
+        ret[0] = str(statistics.mean(to_parse))
+        ret[1] = str(statistics.median(to_parse))
+        ret[2] = str(min(to_parse))
+        ret[3] = str(max(to_parse))
+        ret[4] = str(0)
+    return ret
 
 ################################################################
 # setup arguments
@@ -39,6 +55,7 @@ parser = argparse.ArgumentParser(description='generate graphs from harness data'
 parser.add_argument("-v", "--verbosity", action="count", default=0, help="increase output verbosity")
 parser.add_argument("-o", "--out", default="", help="output file, defaults to stdout")
 parser.add_argument("-p", "--perfstat", action="store_true", help="if set, then include perfstat data too")
+parser.add_argument("-s", "--skipcpu", action="store_true", help="if set, perf data will exclude cpu 4")
 parser.add_argument("-w", "--window", type=int, default=0, help="prev window lines shown on error")
 parser.add_argument("datafile", nargs="+", help="file with data in it.")
 # parse arguments
@@ -48,6 +65,7 @@ inname = flags.datafile[0]
 windowsize = flags.window
 outname = flags.out
 getperfstat = flags.perfstat
+skip_bad_cpu = flags.skipcpu
 if outname == "":
     outfile = sys.stdout
 else:
@@ -129,6 +147,8 @@ for inname in flags.datafile:
                             heading.extend(["-".join([key, x]) for x in ["min", "max", "avg", "med", "SD"]])
                         cnts = []
                         for cpu in perfdata:
+                            if skip_bad_cpu and str(cpu) == str(4) and len(perfdata) > 1:
+                                continue
                             cnts.append(perfdata[cpu][key])
                         outdata.extend(calcPerfStats(cnts))
                     # we are done with this run, so write out data
