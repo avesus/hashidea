@@ -6,7 +6,7 @@ import argparse
 import sys
 # from pprint import pprint
 
-verbose = False #True
+verbose = False				# True
 
 parser = argparse.ArgumentParser(description='read log file to check for good run')
 # ./harness --trials 20 --inserts 1000000 --qp 0 -t 16 -i 32000000 -a 3
