@@ -45,6 +45,7 @@ typedef struct SubTable {
 // head of cache: this is the main hahstable
 typedef struct HashTable{
   SubTable** TableArray; //array of tables
+  SubTable** toFree; //array of tables
   unsigned int * seeds;
   int hashAttempts;
   unsigned long start;
@@ -359,11 +360,17 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int
       if(ht->TableSize==sumArr(ht->threadCopy, head->numThreads)){
 	if(__atomic_compare_exchange(&head->start,&exStart, &newStart, 1, __ATOMIC_RELAXED, __ATOMIC_RELAXED)){
 
-	  //this is a memory leak/definition of magic number. I really do NOT want to use
-	  //a reference counter as they are incredibly slow. Going back a few subtables should
-	  //gurantee no other thread is in it. Once we have a good way to do this we can
-	  //actually include the freeing portion.
-	  head->TableArray[(exStart-(3))&(max_tables-1)] = NULL;
+	  //this is the potential race condition. We use to arrays, the toFree array will
+	  //store old version that must be out of use by the time it will be freed.
+	  //we know this because before addrop if table diff > max_tables>>1 will throw error
+	  //let me know if you have a more elegant way of handling it (we obviously can just have
+	  //it spin there, but is a SUPER SUPER SUPER unlikely event. I.e a thread would have to be
+	  //dead for the time it takes the hashtable to inserts >2^32 * initsize entries.
+	  if(head->toFree[(exStart-(max_tables>>1))&(max_tables-1)]){
+	    free(head->toFree[(exStart-(max_tables>>1))&(max_tables-1)]);
+	  }
+	  head->toFree[(exStart-(max_tables>>1))&(max_tables-1)]=head->TableArray[(exStart-(max_tables>>1))&(max_tables-1)];
+	  head->TableArray[(exStart-(max_tables>>1))&(max_tables-1)] = NULL;
 	}
       }
     }
@@ -498,6 +505,9 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
       nextTableSize = nextTableSize<<1;
     }
 
+    //this is error if diff becomes to large and race condition is present
+    assert(head->cur-head->start<(max_tables>>1));
+
     //create next subtables
     SubTable* new_table=createTable(head, nextTableSize);
     addDrop(head, new_table, LocalCur, ent, tid, start+1);
@@ -515,6 +525,7 @@ HashTable* initTable(HashTable* head, int InitSize, int HashAttempts, int numThr
   head->hashAttempts=HashAttempts;
   head->numThreads=numThreads;
   head->TableArray=(SubTable**)calloc(max_tables,sizeof(SubTable*));
+  head->toFree=(SubTable**)calloc(max_tables,sizeof(SubTable*));
   head->TableArray[0]=createTable(head, InitSize);
   head->cur=1;
   head->start=0;
