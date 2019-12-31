@@ -1,0 +1,133 @@
+\documentclass[12pt,twocolumn,letterpaper]{article}
+
+\usepackage{times}
+\usepackage{fancyhdr}
+\usepackage{datetime}
+\usepackage{url}
+\usepackage{hyperref}
+\usepackage{color}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+%%%%%%%%% TITLE
+
+
+
+%%%%%%%%%%%%%%%% ifdef's to control paper (draft, final, etc.)
+
+\input{../styles/myifdefs}
+\mnotestrue
+%\notesfalse
+
+\notestrue
+%\notesfalse
+
+%\draftheaderfalse
+\draftheadertrue
+
+\showrefsfalse
+%\showrefstrue
+
+\showwherestrue
+%\showwheresfalse
+
+%%%%%%%%%%%%%%%% basic defs for figs, references, etc.
+
+\usepackage{../styles/defs}
+
+%%%%%%%%%%%%%%%% basic formatting stuff
+\setcounter{tocdepth}{2}
+\setcounter{secnumdepth}{2}
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{4}
+\renewcommand{\topfraction}{.9}
+\renewcommand{\bottomfraction}{.9}
+\setcounter{totalnumber}{6}
+\renewcommand{\floatpagefraction}{.9}
+\renewcommand{\dblfloatpagefraction}{.9}
+\renewcommand{\dbltopfraction}{.9}
+\setcounter{dbltopnumber}{4}
+\renewcommand{\textfraction}{.1}
+\setlength{\illfootroom}{-5pt}
+\setlength{\illheadroom}{0pt}
+\setlength{\oddsidemargin}{0pt}
+\setlength{\evensidemargin}{0pt}
+\setlength{\textwidth}{460pt}
+\setlength{\voffset}{-1cm}
+\setlength{\textheight}{21cm}
+\setlength{\parindent}{10pt}
+\setlength{\parskip}{0pt}
+\floatsep 6pt plus 2pt minus 2pt
+\textfloatsep 10pt plus 2pt minus 4pt
+\dblfloatsep    6pt plus 2pt minus 2pt
+\dbltextfloatsep 10pt plus 2pt minus 4pt
+
+\clubpenalty 10000
+\widowpenalty 10000
+
+\oddsidemargin  -0   in
+\evensidemargin -0   in
+\topmargin     -0.5 in
+\textwidth      6.5 in
+\textheight     9   in
+\fancyheadoffset{0pt}
+
+%%%%%%%%%%%%%%%% basic header/footer with tracking for files and sections
+
+\pagestyle{fancy}
+\ifdraftheader
+ \lhead{\small \em \today -- \timenow}
+ \chead{}
+ \rhead{\small fast scalable hashtables}
+ \lfoot{\small \currfilename}
+ \cfoot{\thepage}
+ \rfoot{DRAFT! DO NOT DISTRIBUTE}
+\else
+ \newcommand{\mysection}[1]{\section{#1}}
+ \lhead{}
+ \chead{}
+ \rhead{\small  fast scalable hashtables}
+ \lfoot{}
+ \cfoot{\thepage}
+ \rfoot{}
+\fi
+
+
+\begin{document}
+
+%%%%%%%%% TITLE
+\title{Fast Scalable hashtables for modern multi-core processors}
+
+\author{Noah \& Seth}
+
+%\thispagestyle{empty}
+
+%%%%%%%%% ABSTRACT
+\twocolumn[
+\begin{@twocolumnfalse}
+\maketitle
+\begin{abstract}
+  Abstract here
+  
+\par\vspace{\baselineskip}
+\end{abstract}
+\end{@twocolumnfalse}
+]
+
+%%%%%%%%% BODY TEXT
+\input{intro}
+\input{lockfree}
+\input{deletion}
+\input{cache}
+\input{exper}
+\input{concs}
+
+\bibliography{references}
+
+
+\end{document}

@@ -1,0 +1,29 @@
+%
+% Copyright (c) 1993 by Seth Copen Goldstein
+%
+% Permission to use, copy, modify, and distribute this file
+% in any form (electronic, hardcopy, etc.) for any purpose is
+% hereby DENIED without express permission of author.
+%
+% Author: 		Seth Copen Goldstein
+% Version:		2
+% Creation Date:	Thu Oct 20 11:34:44 1994
+% Filename:		time.tex
+% History:
+%
+%	used to get Date and Time
+%
+
+%
+% compute the time in hours and minutes; make new variables \timehh and \timemm
+%
+\newcount\timehh\newcount\timemm
+\timehh=\time 
+\divide\timehh by 60 \timemm=\time
+\count255=\timehh\multiply\count255 by -60 \advance\timemm by \count255
+
+\newcommand{\timenow}{\ifnum\timehh<10 0\fi%
+	\number\timehh\,:\,%
+	\ifnum\timemm<10 0\fi%
+	\number\timemm}
+

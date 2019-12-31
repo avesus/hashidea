@@ -1,0 +1,101 @@
+%%% packages this needs
+
+\usepackage{currfile}
+\usepackage{marginnote}
+\raggedleftmarginnote
+\raggedrightmarginnote
+\setlength{\marginparwidth}{.7in}
+
+%
+% to print out a version which includes notes to ourselves set \notestrue
+%
+\ifnotes
+\newcommand{\note}[1]{{\bf [Note: #1]}}
+\else
+\newcommand{\note}[1]{}
+\fi
+%
+% for margin notes
+%
+\makeatletter
+\ifmnotes
+\def\mnote#1{\marginnote{\raggedright\tiny #1}}
+\else
+\def\mnote#1{\relax}
+\fi
+\makeatother
+%
+\long\def\ignore#1{\relax}
+
+%
+% define label and reference commands that are related to the things
+% that they label or define.  If \showrefstrue, then the at the time
+% of def and use the label names appear in the margins.
+%
+
+\ifshowrefs
+\newcommand{\showref}[1]{{\sl (#1)}}
+\else
+\newcommand{\showref}[1]{}
+\fi
+
+\ifshowlabs
+\newcommand{\showdef}[1]{\mnote{(#1)}}
+\newcommand{\showdefhere}[1]{{\sl (#1)}}
+\else
+\newcommand{\showdef}[1]{}
+\newcommand{\showdefhere}[1]{}
+\fi
+
+\ifshowwheres
+\newcommand{\showwhere}[1]{\mnote{#1\\{\tt \currfilename}}}
+\else
+\newcommand{\showwhere}[1]{}
+\fi
+
+
+\newcommand{\fig}[1]{Figure~\ref{fig-#1}\showref{fig-#1}}
+\newcommand{\figs}[2]{Figures~\ref{fig-#1}\showref{fig-#1} and~\ref{fig-#2}\showref{fig-#2}}
+\newcommand{\tab}[1]{Table~\ref{tab-#1}\showref{tab-#1}}
+\newcommand{\sect}[1]{Section~\sectref{#1}\showref{sect-#1}}
+\newcommand{\app}[1]{Appendix~\ref{sect-#1}\showref{sect-#1}}
+\newcommand{\chap}[1]{Chapter~\ref{chap-#1}\showref{chap-#1}}
+\newcommand{\labsect}[1]{\label{sect-#1}\showdef{sect-#1}\showwhere{#1}}
+\newcommand{\labchap}[1]{\label{chap-#1}\showdef{chap-#1}}
+
+% commands for making captions and the labels that go with them.
+
+\makeatletter
+\newcommand{\@scap}[4]{
+        \caption[\sl #2]{\label{#4-#1}\showdefhere{#4-#1}\sl #3}}
+\newcommand{\@cap}[3]{\caption{\label{#3-#1}\showdefhere{#3-#1}\sl #2}}
+
+\newcommand{\sfigcap}[3]{\@scap{#1}{#2}{#3}{fig}}
+\newcommand{\stabcap}[3]{\@scap{#1}{#2}{#3}{tab}}
+\newcommand{\figcap}[2]{\@cap{#1}{#2}{fig}}
+\newcommand{\tabcap}[2]{\@cap{#1}{#2}{tab}}
+\newcommand{\progcap}[2]{\@cap{#1}{#2}{prog}}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% define a figure that will be included later
+%
+
+\input{figs}
+\input{time}
+
+\makeatletter
+\def\@figblank#1[#2]#3{%
+\begin{figure}
+\framebox[.95\columnwidth]{\rule[-1in]{0in}{#2}#1}
+\figcap{#1}{#3}
+\end{figure}}
+
+\def\figblank#1{\@ifnextchar [{\@figblank{#1}}{\@figblank{#1}[1in]}}
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% tight itemize
+
+\newenvironment{tightitemize}{\begin{list}{$\bullet$}{\setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}\setlength{\parsep}{0pt}}}{\end{list}}

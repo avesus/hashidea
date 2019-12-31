@@ -1,0 +1,19 @@
+\def\ifundefined#1{\expandafter\ifx\csname #1 \endcsname\relax}
+\ifundefined{ifdraftheader}\newif\ifdraftheader\fi
+
+\newif\ifmnotes
+\newif\ifnotes
+\newif\ifshowrefs
+\newif\ifshowlabs
+\newif\ifdraftfigs
+\newif\ifshowwheres
+
+% defaults to false, just to make sure
+
+\mnotesfalse
+\notesfalse
+\draftheaderfalse
+\showrefsfalse
+\showlabsfalse
+\draftfigsfalse
+\showwheresfalse

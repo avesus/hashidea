@@ -1,0 +1,10 @@
+references.bib
+myifdefs.tex
+defs.sty
+figs.tex
+time.tex
+top.pdf
+.,*
+*.aux
+*.log
+*.out

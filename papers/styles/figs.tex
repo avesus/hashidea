@@ -1,0 +1,66 @@
+%%% Macros for including illustrations in latex files
+
+\def\illustrationfileprefix{figs/}
+
+\newcommand{\psillustration}[1]{{\psfig{file=\illustrationfileprefix#1.ps}}}
+
+\newcommand{\psscaledillustration}[2]{{\psfig{file=\illustrationfileprefix#1.ps,height=#2}}}
+
+%%% Include ps file in figure.
+%%% Ignore height argument, use size of the figure.
+\newcommand{\illfigure}[3]{%
+  \begin{figure}[htbp]	
+   \begin{center}
+	\vspace{\illheadroom}
+	\mbox{\psillustration{#1}}
+	\vspace{\illfootroom}
+	\caption{\label{fig-#1}#3}
+   \end{center}
+  \end{figure}
+  }
+
+%%% Include ps file in figure. Full page width even in twocolumn mode.
+%%% Ignore height argument, use size of the figure.
+\newcommand{\widefigure}[3]{%
+\begin{figure*}[htbp]
+\begin{center}
+\vspace{\illheadroom}\mbox{\psillustration{#1}}\vspace{\illfootroom}
+\caption{\label{fig-#1}#3}
+\end{center}
+\end{figure*}
+}
+
+%%% Include ps in figure, scaled to fit
+\newcommand{\scaledfigure}[3]{%
+  \begin{figure}[htbp]	
+   \begin{center}
+	\vspace{\illheadroom}
+	\mbox{\psscaledillustration{#1}{#2}}
+	\vspace{\illfootroom}
+	\caption{\label{fig-#1}#3}
+   \end{center}
+  \end{figure}
+  }
+
+%%% Make empty figure of specified height
+\def\draftfigure#1[#2]#3{%
+  \begin{figure}[htbp]	
+   \begin{center}
+    \parbox{\illuswidth}{
+	\vspace{\illheadroom}
+	\vspace{#2}
+	\vspace{\illfootroom}
+	\caption{\label{fig-#1}#3}}
+   \end{center}
+  \end{figure}
+  }
+
+\newlength{\illheadroom}
+\setlength{\illheadroom}{5pt}
+% \setlength{\illheadroom}{10pt}
+\newlength{\illfootroom}
+% \setlength{\illfootroom}{10pt}
+\setlength{\illfootroom}{5pt}
+\newlength{\illuswidth}
+\setlength{\illuswidth}{\textwidth}
+% \addtolength{\illuswidth}{-12pt}

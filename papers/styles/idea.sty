@@ -1,0 +1,189 @@
+\usepackage{multicol}
+\usepackage{times}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage[rflt]{floatflt}
+\usepackage{datetime}
+\usepackage{color}
+\usepackage[normalem]{ulem}
+\usepackage{setspace}
+\usepackage{comment}
+
+\newcommand{\showdraftwatermark}{\usepackage{draftwatermark}\SetWatermarkText{DRAFT}\SetWatermarkScale{1}\SetWatermarkLightness{.9}}
+
+\clubpenalty 10000
+\widowpenalty 10000
+
+\oddsidemargin  -0   in
+\evensidemargin -0   in
+\topmargin     -0.5 in
+\textwidth      6.5 in
+\textheight     9   in
+
+\setlength{\marginparwidth}{.7in}
+\ifcsname ifmnotes\endcsname\else\newif\ifmnotes\mnotestrue\fi
+\ifmnotes
+\typeout{Margin notes will be printed out.}
+\def\mnote#1{\leavevmode\marginpar[\raggedright\tiny #1]{\raggedright\tiny #1}}
+\else
+\typeout{Margin notes will NOT be printed.}
+\def\mnote#1{\relax}
+\fi
+
+\newenvironment{tightitemize}%
+        {\begin{list}{$\bullet$}{%
+                \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}%
+                \setlength{\parskip}{0pt}\setlength{\parsep}{0pt}%
+                \setlength{\labelwidth}{0.25cm}%
+                \setlength{\leftmargin}{0cm}\addtolength{\leftmargin}{\labelwidth}%
+%               \setlength{\leftmargin}{1mm}%
+        }}%
+        {\end{list}}
+ 
+
+\newcommand{\ignore}[1]{\relax}
+\newcommand{\showref}[1]{}
+\newcommand{\showdefhere}[1]{}
+
+\makeatletter
+\newcommand{\@scap}[4]{
+        \caption[\sl #2]{\label{#4-#1}\showdefhere{#4-#1}\sl #3}}
+\newcommand{\@cap}[3]{\caption{\label{#3-#1}\showdefhere{#3-#1}\sl #2}}
+
+\newcommand{\labeqn}[1]{\label{eq:#1}}
+\newcommand{\refeqn}[1]{Equation~\ref{eq:#1}}
+\newcommand{\sfigcap}[3]{\@scap{#1}{#2}{#3}{fig}}
+\newcommand{\stabcap}[3]{\@scap{#1}{#2}{#3}{tab}}
+\newcommand{\figcap}[2]{\@cap{#1}{#2}{fig}}
+\newcommand{\tabcap}[2]{\@cap{#1}{#2}{tab}}
+\newcommand{\progcap}[2]{\@cap{#1}{#2}{prog}}
+\newcommand{\labsect}[1]{\label{sect-#1}}
+\newcommand{\refsect}[1]{Section~\ref{sect-#1}}
+\newcommand{\refapx}[1]{Appendix~\ref{sect-#1}}
+\newcommand{\reffig}[1]{Figure~\ref{fig-#1}}
+\newcommand{\reftable}[1]{Table~\ref{tab-#1}}
+\newcommand{\labfig}[1]{\label{fig-#1}}
+\makeatother
+\newcommand{\fig}[1]{Figure~\ref{fig-#1}\showref{fig-#1}}
+\newcommand{\tab}[1]{Table~\ref{tab-#1}\showref{tab-#1}}
+
+\newcommand{\insertfig}[4]{\begin{figure}
+\centerline{\includegraphics[#2]{#3}}
+\figcap{#1}{#4}
+\end{figure}}
+
+\renewcommand{\author}{Seth Copen Goldstein}
+\def\headtitle{ }
+\newcommand{\headmatter}[2]{\begin{center}
+\vspace*{-.4in}{\Large #1}\\[2ex]
+\author \\
+#2\\[2ex]
+\gdef\headtitle{#1}
+\end{center}
+}
+\newcommand{\tightheadmatter}[2]{\begin{center}
+\vspace*{-.4in}{\Large #1}\\
+\author
+\gdef\headtitle{#1}
+\end{center}
+}
+
+\newcommand{\fulltightheadmatter}[2]{\begin{center}
+\vspace*{-.4in}{\Large #1}\\
+\author\\
+#2
+\gdef\headtitle{#1}
+\end{center}
+}
+
+\newcommand{\degree}{\ensuremath{^\circ}}
+
+%%%%%%%%%%%%%%%% headers and footers
+
+\mmddyydate 
+\settimeformat{ampmtime}
+ 
+\renewcommand{\headrulewidth}{1pt} %0pt for no rule, 2pt thicker etc...
+\renewcommand{\footrulewidth}{0pt}% default is 0pt
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Compiled: \today\ \currenttime}
+\fancyhead[C]{}
+\fancyhead[R]{\small\headtitle}
+\fancyfoot[R]{\thepage}
+\fancyfoot[C]{}
+\fancyfoot[L]{\small \copyright 2016 \author}
+
+\fancypagestyle{final}
+{
+   \renewcommand{\headrulewidth}{0pt}%
+   \fancyhf{}
+   \fancyfoot[C]{\thepage}
+}
+\fancypagestyle{firststyle}
+{
+   \renewcommand{\headrulewidth}{0pt}%
+   \fancyhf{}
+   \fancyfoot[R]{Compiled: \today\ \currenttime}
+   \fancyfoot[L]{\small \copyright 2016 \author}
+   \fancyfoot[C]{\jobname}
+}
+\thispagestyle{firststyle}
+
+\fancypagestyle{pathstyle}
+{
+   \renewcommand{\headrulewidth}{0pt}%
+   \fancyhf{}
+   \fancyfoot[R]{Compiled: \today\ \currenttime}
+   \fancyfoot[C]{}
+   \fancyfoot[L]{\shortpathname}
+}
+
+\definecolor{delcolor}{gray}{0.4}
+\newcommand{\added}[1]{{\color{blue}\bf #1}}
+\newcommand{\deled}[1]{{\color{delcolor}\sout{#1}}}
+
+% wants to be loaded as late as possible
+\usepackage{xspace}
+
+\newif\ifnotesatend
+\notesatendfalse
+
+\newcommand{\seth}[1]{{\addnote{red}{#1}}}
+\newcommand{\rob}[1]{{\addnote{blue}{#1}}}
+\newcommand{\ross}[1]{{\addnote{blue}{#1}}}
+\newcommand{\kamlet}[1]{{\addnote{green}{#1}}}
+\newcommand{\torob}[1]{{\color{green} #1}}
+
+\usepackage{endnotes}
+
+\newcommand{\addnote}[2]{\ifnotesatend %
+%% put mark here and put notes at end
+{\color{#1}\endnote{#2}} %
+\else
+{\color{#1}\footnote{\color{#1} #2}}%
+\fi}
+
+\def\makeenmark{\hbox{$^{\rm NOTE:\theenmark}$}}
+
+\newcommand{\showallnotes}{%
+\ifnotesatend
+\newpage
+\begingroup
+\parindent 0pt
+\parskip 2ex
+\def\enotesize{\normalsize}
+\theendnotes
+\endgroup
+\fi
+}
+
+
+\newcommand{\widemargins}{%
+\oddsidemargin  -.6   in
+\evensidemargin \oddsidemargin
+\topmargin     -1 in
+\textwidth      7.7 in
+\textheight     10   in
+}
