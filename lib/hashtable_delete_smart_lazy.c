@@ -58,6 +58,7 @@ typedef struct HashTable{
 
 //return values for checking table.  Returned by lookupQuery
 #define dUnk -4 //deleted same value
+#define dComp -5 //deleted same value
 #define notIn -3 //item is not in (used in query/delete)
 #define in -1 //item is already in
 #define unk -2 //unkown keep looking
@@ -310,11 +311,17 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int
 
   //if values equal case  
   else if(getPtr(ht->InnerTable[s])->val==getPtr(ent)->val){
-
+    //i feel like there may be a race condition here. Either make it
+    //so no re-use or have undelete no matter what, then check bool if
+    //bool is NOT set then 100% fine, if bool is set then chance
+    //another thread marked it and either saw as delete or not deleted
+    //in that case probably best to just re-insert anyways as if
+    //another thread saw is deleted not doing so would drop an insert
+    //and if another thread re-inserted the two will cross paths...
     if(isDeleted(getPtr(ht->InnerTable[s]))){
       //if item is deleted and copy mode (we in smallest subtable)
       //2 cases.
-      if(doCopy){
+      /*      if(doCopy){
 	if(getBool(ht->InnerTable[s])){
 	  //case 1 another thread has already marked this slot as having been moved
 	  //so continue searching
@@ -326,9 +333,23 @@ static int lookup(HashTable* head, SubTable* ht, entry* ent, unsigned int s, int
 	  goto gotBool;
 	}
 	return unk;
-      }
+      }*/
       //if not min subtable return dUnk (for undelete)
-      return dUnk;
+
+      //this is my fix to what I believe is the race described above
+      int ret =unDelete(getPtr(ht->InnerTable[s]));
+      ht->insertCount[tid]+=ret;
+      if(ret){
+	if(getBool(ht->InnerTable[s])){
+	  insertTable(head, head->start+1, getPtr(ht->InnerTable[s]), tid);
+	}
+	return dComp;
+    }
+    else{
+      return in;
+    }
+    
+
     }
     //not deleted, return in
     return in;
@@ -449,8 +470,11 @@ int insertTable(HashTable* head,  int start, entry* ent, int tid){
 	  return 0;
 	}
 
-
-
+	//from potential race
+	//this is my fix to what I believe is the race described above
+	if(res==dComp){
+	  return 1;
+	}
 	//if res == dUnk we want to undelete
 	if(res==dUnk){
 	  res=buckets[i]%ht->TableSize; //get slot

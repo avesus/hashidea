@@ -10,11 +10,159 @@
 %
 
 
-LS04 summary<Noah> = {url: https://link.springer.com/chapter/10.1007/978-3-540-30186-8_9 - theoretically faster the Michael-Scott-Queue, seems to rely on not existent functions, pdf in LS04.pdf}
+
 MKLLP18 summary<Noah> = {url: https://dl.acm.org/citation.cfm?id=3210388 - no pdf (dont have membership hope you do, was sent to me by a professor havent read yet}
-MS96 summary <Noah> = {url: https://www.cs.rochester.edu/u/scott/papers/1996_PODC_queues.pdf - the queue type we are using now, authorors rely on a non-existent function to impliment deletes (there are ways around it with hazard pointers). Pdf in MS96.pdf}
 Michael02 summary<Noah> = {url: https://www.liblfds.org/downloads/white%20papers/[Hash]%20-%20[Michael]%20-%20High%20Performance%20Dynamic%20Lock-Free%20Hash%20Tables%20and%20List-Based%20Sets.pdf - seems to basically be a michael-scott que hash table as we have. Pdf in MICHAEL02.pdf}
 NK16 summary<Noah> = {url: https://dl.acm.org/citation.cfm?id=2851196 - They say this is a good hash table, need to read article to see. No pdf need subscription}
 TMW11 - summary<Noah> = {url: https://www.usenix.org/legacy/event/atc11/tech/final_files/Triplett.pdf - They got REALLY good improvements, but apparently do have blocking. Pdf in TMW11.pdf}
 LAKF14 - summary<Noah> = {url: http://www.cs.princeton.edu/~mfreed/docs/cuckoo-eurosys14.pdf - Optimizations about typical finegrain locking approach/better mem management. Pdf in LAFK14.pdf}
-FAK13 - summary<Noah> = {url: http://www.cs.cmu.edu/~dga/papers/memc3-nsdi2013.pdf - Used for memcached, from abstract seems that biggest improvement was to their LRU model so it would make sense that our insert/query tests are not really hitting on the point of the table. Pdf in FAK13.pdf}
+
+@inproceedings {FAK13,
+author = {Bin Fan and David G. Andersen and Michael Kaminsky},
+title = {MemC3: Compact and Concurrent MemCache with Dumber Caching and Smarter Hashing},
+booktitle = {Presented as part of the 10th {USENIX} Symposium on Networked Systems Design and Implementation ({NSDI} 13)},
+year = {2013},
+isbn = {978-1-931971-00-3},
+address = {Lombard, IL},
+pages = {371--384},
+ abstract={This paper presents a set of architecturally and
+                  workloadinspired algorithmic and engineering
+                  improvements
+to the popular Memcached system that substantially
+improve both its memory efficiency and throughput.
+These techniques—optimistic cuckoo hashing, a compact
+                  LRU-approximating eviction algorithm based upon
+CLOCK, and comprehensive implementation of optimistic locking—enable
+                  the resulting system to use 30%
+less memory for small key-value pairs, and serve up to
+3x as many queries per second over the network. We
+have implemented these modifications in a system we
+call MemC3—Memcached with CLOCK and Concurrent Cuckoo hashing—but
+                  believe that they also apply
+more generally to many of today’s read-intensive, highly
+concurrent networked storage and caching systems.},
+url = {\url{https://www.usenix.org/conference/nsdi13/technical-sessions/presentation/fan}},
+publisher = {{USENIX}},
+}
+
+
+@inproceedings{LAKF14,
+ author = {Li, Xiaozhou and Andersen, David G. and Kaminsky, Michael and Freedman, Michael J.},
+ title = {Algorithmic Improvements for Fast Concurrent Cuckoo Hashing},
+ booktitle = {Proceedings of the Ninth European Conference on Computer Systems},
+ series = {EuroSys '14},
+ year = {2014},
+ isbn = {978-1-4503-2704-6},
+ location = {Amsterdam, The Netherlands},
+ pages = {27:1--27:14},
+ articleno = {27},
+ numpages = {14},
+ abstract={Fast concurrent hash tables are an increasingly important
+building block as we scale systems to greater numbers of cores
+and threads. This paper presents the design, implementation,
+and evaluation of a high-throughput and memory-efficient
+concurrent hash table that supports multiple readers and writers. The design arises from careful attention to systems-level
+optimizations such as minimizing critical section length and
+reducing interprocessor coherence traffic through algorithm
+re-engineering. As part of the architectural basis for this
+engineering, we include a discussion of our experience and
+results adopting Intel’s recent hardware transactional memory
+(HTM) support to this critical building block. We find that
+naively allowing concurrent access using a coarse-grained
+lock on existing data structures reduces overall performance
+with more threads. While HTM mitigates this slowdown
+somewhat, it does not eliminate it. Algorithmic optimizations
+that benefit both HTM and designs for fine-grained locking
+are needed to achieve high performance.
+Our performance results demonstrate that our new hash
+table design—based around optimistic cuckoo hashing—
+outperforms other optimized concurrent hash tables by up
+to 2.5x for write-heavy workloads, even while using substantially less memory for small key-value items. On a 16-core
+machine, our hash table executes almost 40 million insert and
+more than 70 million lookup operations per second.},
+ url = {\url{http://doi.acm.org/10.1145/2592798.2592820}},
+ doi = {10.1145/2592798.2592820},
+ acmid = {2592820},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+
+@INPROCEEDINGS{FLD13,
+author={S. {Feldman} and P. {LaBorde} and D. {Dechev}},
+booktitle={2013 International Conference on Embedded Computer Systems: Architectures, Modeling, and Simulation (SAMOS)},
+title={Concurrent multi-level arrays: Wait-free extensible hash maps},
+year={2013},
+volume={},
+number={},
+pages={155-163},
+abstract={In this work we present the first design and implementation of a wait-free hash map. Our multiprocessor data structure allows a large number of threads to concurrently put, get, and remove information. Wait-freedom means that all threads make progress in a finite amount of time - an attribute that can be critical in real-time environments. This is opposed to the traditional blocking implementations of shared data structures which suffer from the negative impact of deadlock and related correctness and performance issues. Our design is portable because we only use atomic operations that are provided by the hardware; therefore, our hash map can be utilized by a variety of data-intensive applications including those within the domains of embedded systems and supercomputers. The challenges of providing this guarantee make the design and implementation of wait-free objects difficult. As such, there are few wait-free data structures described in the literature; in particular, there are no wait-free hash maps. It often becomes necessary to sacrifice performance in order to achieve wait-freedom. However, our experimental evaluation shows that our hash map design is, on average, 5 times faster than a traditional blocking design. Our solution outperforms the best available alternative non-blocking designs in a large majority of cases, typically by a factor of 8 or higher.},
+keywords={concurrency control;data structures;multiprocessing systems;concurrent multi level arrays;wait free extensible hash map design;multiprocessor data structure;atomic operations;embedded systems;supercomputers;Arrays;Memory management;Standards;Instruction sets;Algorithm design and analysis;Resource management},
+doi={10.1109/SAMOS.2013.6621118},
+ISSN={null},
+month={July},}
+
+@inproceedings{MICHAEL02
+  title={High performance dynamic lock-free hash tables and list-based sets},
+  author={Michael, Maged M},
+  booktitle={Proceedings of the fourteenth annual ACM symposium on Parallel algorithms and architectures},
+  pages={73--82},
+  abstract={Lock-free (non-blocking) shared data structures promise more
+robust performance and reliability than conventional lockbased implementations. However, all prior lock-free algorithms for sets and hash tables suffer from serious drawbacks
+that prevent or limit their use in practice. These drawbacks
+include size inflexibility, dependence on atomic primitives not
+supported on any current processor architecture, and dependence on highly-inefficient or blocking memory management
+techniques.
+Building on the results of prior researchers, this paper
+presents the first CAS-based lock-free list-based set algorithm
+that is compatible with all lock-free memory management
+methods. We use it as a building block of an algorithm for
+lock-free hash tables. In addition to being lock-free, the new
+algorithm is dynamic, linearizable, and space-efficient.
+Our experimental results show that the new algorithm outperforms the best known lock-free as well as lock-based hash
+table implementations by significant margins, and indicate
+that it is the algorithm of choice for implementing shared
+hash tables.},
+  year={2002},
+  organization={ACM}
+}
+
+@inproceedings{TMW11,
+author = {Triplett, Josh and McKenney, Paul E. and Walpole, Jonathan},
+title = {Resizable, Scalable, Concurrent Hash Tables via Relativistic Programming},
+year = {2011},
+publisher = {USENIX Association},
+address = {USA},
+booktitle = {Proceedings of the 2011 USENIX Conference on USENIX Annual Technical Conference},
+pages = {11},
+abstract = {We present algorithms for shrinking and expanding a hash table while allowing concurrent, wait-free, linearly scalable lookups. These resize algorithms allow Read-Copy Update (RCU) hash tables to maintain constant-time performance as the number of entries grows, and reclaim memory as the number of entries decreases, without delaying or disrupting readers. We call the resulting data structure a relativistic hash table.
+
+Benchmarks of relativistic hash tables in the Linux kernel show that lookup scalability during resize improves 125x over reader-writer locking, and 56\% over Linux's current state of the art. Relativistic hash lookups experience no performance degradation during a resize. Applying this algorithm to memcached removes a scalability limit for get requests, allowing memcached to scale linearly and service up to 46\% more requests per second.
+
+Relativistic hash tables demonstrate the promise of a new concurrent programming methodology known as relativistic programming. Relativistic programming makes novel use of existing RCU synchronization primitives, namely the wait-for-readers operation that waits for unfinished readers to complete. This operation, conventionally used to handle reclamation, here allows ordering of updates without read-side synchronization or memory barriers.},
+numpages = {1},
+location = {Portland, OR},
+series = {USENIXATC’11}
+}
+
+@inproceedings{ZP16,
+author = {Zhan, Yang and Porter, Donald E.},
+title = {Versioned Programming: A Simple Technique for Implementing Efficient, Lock-Free, and Composable Data Structures},
+year = {2016},
+isbn = {9781450343817},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2928275.2928285},
+doi = {10.1145/2928275.2928285},
+booktitle = {Proceedings of the 9th ACM International on Systems and Storage Conference},
+articleno = {Article 11},
+numpages = {12},
+abstract = {This paper introduces versioned programming, a technique that can be used to convert pointer-based data structures into efficient, lock-free implementations. Versioned programming allows arbitrary composition of pointer modifications. Taking linked-lists as an example, VLISTs, or versioned lists, support features missing in other lock-free implementations, such as double linking and atomic moves among lists.
+
+The main idea of versioning is to allow different versions of a nodes exist at the same time such that each thread can pick the appropriate version and has a consistent view of the whole data structure. We present a detailed example of VLISTs, simple enough to include all code inline. The paper also evaluates versioned tree implementations.
+
+We evaluate versioned programming against several concurrency techniques. With a modest number of writers, versioned programming outperforms read-log-update, which locks nodes. VLIST out-perform lists with SwissTM, a highquality STM, showing the value of trading some programmer-transparency for performance. Composability hurts performance compared to a non-composable, hand-written lock-free algorithm. Using the technique described in this paper, application developers can have both the performance scalability of sophisticated synchronization techniques with functionality and simplicity comparable to coarse locks.},
+keywords = {Versioned Programming, Concurrent Programming, Lock-Free Data Structures},
+location = {Haifa, Israel},
+series = {SYSTOR ’16}
+}

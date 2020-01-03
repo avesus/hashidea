@@ -1,0 +1,152 @@
+\section{Implementation}\labsect{impl}
+\subsection{General}
+The general structure of the \texttt{hashtable} is a circular array of
+\texttt{subtables} each of which can be thought of as an independent
+\texttt{open-address} hashtable. A new \texttt{subtable} is added to
+the \texttt{hashtable} when an \texttt{insert} operation is unable to
+find a free bucket in the \texttt{hashtable}. The new
+\texttt{subtable} will be added to the array of subtable with an
+atomic \texttt{CAS} operation. This allows any thread to expand the
+\texttt{hashtable} \textit{without} disrupting the rest of the
+table. The \texttt{CAS} ensures that if two concurrent threads try and
+add a \texttt{subtable}, they won't double add. Typically each new
+\texttt{subtable} will be double the size of the previous, though this
+can vary as we will discuss later.
+
+
+Each given \texttt{subtable} consists of an array of pointers to
+\texttt{entries} within the \texttt{hashtable}. All of the pointers
+start out as NULL and are modified using \texttt{CAS}. This means that
+to \texttt{find} the location of a given \texttt{entry} a thread might
+search through multiple \texttt{subtables}. To \texttt{find} and
+\texttt{entries} location within a given \texttt{subtable},
+\texttt{open-address} hashing is used. The \texttt{hashtable} is
+preconfigured with the number of \texttt{hash-attempts}, each attempt
+corresponding to a unique hash function, each operation should try
+within a given \texttt{subtable} before moving on to the next. The
+order that the \texttt{subtables} are checked as well as the order
+that each unique hash function is used within a given
+\texttt{subtable} is fixed so that any two threads operating on the
+same data are guranteed to follow the same execution path.
+
+\subsection{Insert}
+The \texttt{insert} operation is implemented by iterating through the
+\texttt{subtables} via the path described above until the
+\textit{first NULL bucket} is found. At this point the thread will
+attempt to \texttt{CAS} the \texttt{entry's} pointer value into the
+bucket. If the \texttt{CAS} is succesful then the \texttt{insert}
+operation is complete. If unsuccesful, another thread must have
+updated that slot. So, the thread will check if the slot's
+\texttt{entry's} value match. If the value's match the \texttt{insert}
+operation is complete, otherwise it will continue through its
+\texttt{hash-attempts} for the \texttt{subtable} it is on and
+potentially continue on to, or create if it does not exist, the next
+\texttt{subtable}. It is important to maintain, for both performance
+and correctness, that when searching for an \texttt{entry}, when the
+\textit{first NULL bucket} is found, the entry cannot be anywhere
+later in the chain of \texttt{subtables}. By forcing all operations on
+a given \texttt{entry} through the same bucket and only using atomic
+operation on said bucket the common ABA race condition is
+overcome. Maintaining this invariant is why the order that an
+operation will go through the \texttt{subtables} and
+\texttt{hash-attempts} within said subtable is fixed. This ordering
+combined with \texttt{insert} operations attempts to add their
+\texttt{entry} to the \textit{first NULL bucket} the \texttt{entry}
+hashed to ensures that whether another thread wins the \texttt{CAS} or
+not will not affect the invariant. Maintaining the \textit{first NULL
+  bucket} invariant does imply that \texttt{delete} operations need to
+do more than just \texttt{free()} and NULL out the slot of the
+\texttt{entry} being deleted.
+
+\subsection{Query}
+The \texttt{query} process is done similar to insert in that when
+\texttt{querying} for an entry a thread will check each
+\texttt{subtable} and potential bucket in the same order until it
+finds the \texttt{entry} which will result in success or runs out of
+\texttt{subtables} or finds a NULL bucket both of which will indicate
+the \texttt{entry} is not present.
+
+\subsection{Delete}
+For reasons that will become apparent later, \texttt{delete} will be
+discussed after other implementation details have been establish.
+
+\subsection{Resizing}
+In it simplist form, \texttt{resizing} by creating more space can be
+accomplish simply by inserts adding a new \texttt{subtable}. A big
+issue with simply attaching new \texttt{subtables} and not moving any
+of the \texttt{entry's} in smaller subtables is that the overall
+runtime of the algorithm becomes $O(n*log_{initial\_size}(n))$. With
+large \texttt{initial table size}, this would grow slowly, though if
+the amount of \texttt{entries} was not predictable this would be an
+issue. To implement \texttt{resizing} without blocking we used a lazy
+method. \texttt{Resizing} is triggered when the difference between the
+largest and smallest \texttt{subtable} passes a threshold. Once
+\texttt{resizing} has been triggered, new \texttt{insert} operations
+will begin lazily moving up \texttt{entries} from the smallest
+\texttt{subtable}. This is done in 2 steps. \texttt{insert} will
+naturally check \texttt{hash-attempt} number of buckets in the
+smallest \texttt{subtable} as part of the general algorithm. When
+\texttt{resizing} is taking place, after checking a bucket this is NOT
+a match, that buckets entry will be marked by setting the 1s bit via a
+\texttt{CAS}. If the \texttt{CAS} is succesful, the \texttt{entry}
+will be re-added to a larger subtable and a counter for the smallest
+\texttt{subtable} will be incremeneted. Once the counter has reach the
+size of the \texttt{subtable} all the items have been moved up and it
+is impossible for a new \texttt{entry} to be added (there is not
+room). This means that the starting index in \texttt{subtable} list
+can be incremented safely. Since \texttt{subtable} sizes increase
+exponentially, the items from the smallest table are expected to be
+removed significantly more quickly than the larger \texttt{subtables}
+filled, keeping the size of the \texttt{subtable} list constant. This
+lazy method also has the added benefit of distributing the cost over
+many operations keeping the standard deviation low.
+
+\subsection{Delete}
+Deletes implementation is the trickiest by far due to both the need to
+preserve the \textit{first NULL bucket} invariant and common issues
+that arise from trying to delete in a parallel program. To overcome
+these pitfalls, the \texttt{delete} algorithm, instead of directly
+deleting any \texttt{entries}, instead sets a deleted boolean inside
+of the \texttt{entry} being deleted. Note this is distinct from
+setting a boolean or bits in the bucket the \texttt{entry's} pointer
+is stored in an necessary to handle the case of deletion/re-inserting
+occuring while an \texttt{entry} is being moved for
+\texttt{resizing}. Once an \texttt{entry's delete bool} has been set,
+it can only be unset by another \texttt{insert} operation trying to
+add the same key. Allowing any \texttt{insert} to write over the
+deleted entry could easily lead to an ABA race. The way that deleted
+\texttt{entries} are actually removed from the table is by the
+\texttt{resizing} process. During lazy \texttt{resizing} if an
+\texttt{entry} in the smallest \texttt{subtable} has its
+\texttt{delete bool} set, instead of re-inserting it, the
+\texttt{entry} will simply have its 1s bit marked like any other moved
+entry and will be dropped with the \texttt{subtable} it belongs to
+when the resizing process completes. If an \texttt{insert} operation
+finds its matching \texttt{deleted entry} it will always try and
+\texttt{undelete} it. The \texttt{undelete} process will also check if
+the resize bits of the \texttt{entry} are set, and if so move the
+\texttt{entry} as part of the \texttt{resizing} process. This is to
+avoid the ABA race where an \texttt{entry} could have been marked and
+pass over as \texttt{deleted} in parallel to another thread inserting
+the \texttt{entry}. If this results in a double \texttt{insert}, while
+a regretable inefficiency, while not affect the correctness of the
+\texttt{hashtable}. Since deletion can only occur with the aid of
+resizing, real-time insert/delete ratio's are tracked by each
+\texttt{subtable}, as well as the amount of the \texttt{subtables} to
+determine if new \texttt{subtables} should double in size or remain
+the same as the previous. Ensuring that the insert/delete ratio is
+above a threshold is important is otherwise a insert, delete, insert,
+delete..., while leaving the table empty, could also cause a great
+deal of memory to be taken up by the exponentially growing
+\texttt{subtables}. As well, since the \texttt{subtable} array is
+circular, it is important for correctness that the first and last
+\texttt{subtables} don't conflict. This is why irrelivant of the
+delete/insert ratio if enough \texttt{subtables} are active doubling
+the new sizes will resume. Both of these parameters are tunable.
+
+
+
+
+
+
+
