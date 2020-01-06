@@ -1,5 +1,6 @@
-\documentclass[12pt,twocolumn,letterpaper]{article}
+\documentclass[12pt,letterpaper]{article}
 
+\usepackage{multicol}
 \usepackage{times}
 \usepackage{fancyhdr}
 \usepackage{datetime}
@@ -35,6 +36,10 @@
 
 \showwherestrue
 %\showwheresfalse
+
+%%%% If you want two columns on a page, set \draftcolfalse, otherwise if you want 1 col per page, \draftcoltrue
+%\draftcolfalse
+\draftcoltrue
 
 %%%%%%%%%%%%%%%% basic defs for figs, references, etc.
 
@@ -72,10 +77,26 @@
 
 \oddsidemargin  -0   in
 \evensidemargin -0   in
-\topmargin     -0.5 in
 \textwidth      6.5 in
-\textheight     9   in
+\ifdraftcol
+\newlength{\mycol}
+\newlength{\extramargin}
+\setlength{\mycol}{\dimexpr \numexpr \textwidth / 2 - \columnsep \relax sp\relax}
+\setlength{\extramargin}{\dimexpr \numexpr (\textwidth - \mycol) / 2 \relax sp\relax}
+\addtolength{\oddsidemargin}{\extramargin}
+\addtolength{\evensidemargin}{\extramargin}
+\setlength{\textwidth}{\mycol}
+\newcommand{\twocolstart}{\relax}
+\newcommand{\twocolfinish}{\relax}
+\else
+\newcommand{\twocolstart}{\begin{multicols}{2}}
+\newcommand{\twocolfinish}{\end{multicols}}
+\fi
 \fancyheadoffset{0pt}
+\topmargin     -0.5 in
+\textheight     9   in
+
+
 
 %%%%%%%%%%%%%%%% basic header/footer with tracking for files and sections
 
@@ -97,6 +118,10 @@
  \rfoot{}
 \fi
 
+\ifdraftcol
+\fancyhfoffset[L]{1in}
+\fancyhfoffset[R]{1in}
+\fi
 
 \begin{document}
 
@@ -108,17 +133,15 @@
 %\thispagestyle{empty}
 
 %%%%%%%%% ABSTRACT
-\twocolumn[
-\begin{@twocolumnfalse}
 \maketitle
 \begin{abstract}
   Abstract here
   
 \par\vspace{\baselineskip}
 \end{abstract}
-\end{@twocolumnfalse}
-]
 
+
+\twocolstart
 %%%%%%%%% BODY TEXT
 \input{intro}
 \input{impl}
@@ -127,6 +150,8 @@
 \input{cache}
 \input{exper}
 \input{concs}
+
+\twocolfinish
 
 \bibliography{references}
 
