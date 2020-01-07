@@ -1,135 +1,217 @@
 \section{Implementation}\labsect{impl}
+\subsection{Design Goals}
+The goal of our algorithm is to maximize \texttt{throughput} and
+\texttt{scaling} for parallel hashing. To achieve this we developed a
+novel approach that is both \texttt{wait-free} and \texttt{pause-free}.
+\subsection{Parallel Hashing Overview}
+This section will (1) list the common methods for parallel hashing,
+(2) discuss their attributes, and (3) explain why our approach is
+better suited to parallel environments.
+(Note I'm basically quoting wikipedia/stackoverflow here) \\
+\begin{itemize}
+\item Chain Hashing \\ \texttt{Chain Hashing} has the advantage of a
+  stable performance as the load factor grows. For parallel hashing
+  this is especially valuable as simply tracking the load factor
+  between threads has non-neglidgable overhead. It has the
+  disadvantage of requiring list iteration which has poor cache
+  locality, and importantly for parallel hashing, requires multiple
+  operations for delete (and insert if multiple pointers are
+  present). \\
+  Seth: The first reason is basically the ENTIRE reason
+  its picked (its worst case aint to bad)
+\item Open-Address Hashing \\ \texttt{Open-Address Hashing} has the
+  advantage of good performance with a low load factor and it requires
+  only a single operation for insert and delete. It's disadvantages
+  are that as the load factor increases it's performance drastically
+  falls.
+\item Cuckoo Hashing \\ \texttt{Cuckoo Hashing} maintains the benefits of
+  both \texttt{Open-Address Hashing} and \texttt{Chain Hashing} though
+  does this by adding significant complexity (multiple consecutive
+  ops) in the \texttt{re-hashing} stage.
+\end{itemize}
+With the goal of achieving an entirely \texttt{wait-free} and
+\texttt{pause-free} hash algorithm, both \texttt{chain hashing} and
+\texttt{cuckoo hashing} become impossible (or at least no known
+implementation) multiple reliant operations are sometimes
+required. This requires waiting in some way. This left us with
+\texttt{Open-Address Hashing} as the base of the algorithm which left
+the task of finding an efficient and \texttt{wait-free} method of
+minimizing the load-factor to not cause performance degregation. To do
+this we used to \texttt{k-way} variant of \texttt{open-address
+  hashing} (similiar to double-hashing) to minimize clustering and if
+in the \texttt{k} buckets no valid bucket was found, we resized the
+table. This ensures that issue of performance dropoff as load-factor
+increases was not present. This also triggers resizing alot, which in
+a parallel table has historically meant expensive synchonization
+between threads as well as \texttt{waiting}. To handle this we
+developed a new method of resizing that minimizes the overhead to
+simply the memory allocation and amortizes the copying cost over
+future insert operation.
+
 \subsection{General}
 The general structure of the \texttt{hashtable} is a circular array of
 \texttt{subtables} each of which can be thought of as an independent
-\texttt{open-address} hashtable. A new \texttt{subtable} is added to
-the \texttt{hashtable} when an \texttt{insert} operation is unable to
-find a free bucket in the \texttt{hashtable}. The new
+\texttt{open-address} hashtable. Since the \texttt{subtables} are
+stored in a circular array the index of both the \texttt{head} and
+\texttt{tail} \texttt{subtable} are stored. A new \texttt{subtable} is
+added to the \texttt{hashtable} when an \texttt{insert} operation is
+unable to find a free bucket in the \texttt{hashtable}. The new
 \texttt{subtable} will be added to the array of subtable with an
 atomic \texttt{CAS} operation. This allows any thread to expand the
 \texttt{hashtable} \textit{without} disrupting the rest of the
 table. The \texttt{CAS} ensures that if two concurrent threads try and
 add a \texttt{subtable}, they won't double add. Typically each new
 \texttt{subtable} will be double the size of the previous, though this
-can vary as we will discuss later.
-
-
-Each given \texttt{subtable} consists of an array of pointers to
-\texttt{entries} within the \texttt{hashtable}. All of the pointers
-start out as NULL and are modified using \texttt{CAS}. This means that
-to \texttt{find} the location of a given \texttt{entry} a thread might
-search through multiple \texttt{subtables}. To \texttt{find} and
-\texttt{entries} location within a given \texttt{subtable},
-\texttt{open-address} hashing is used. The \texttt{hashtable} is
-preconfigured with the number of \texttt{hash-attempts}, each attempt
-corresponding to a unique hash function, each operation should try
+can vary as we will discuss later. Each given \texttt{subtable}
+consists of an array of \texttt{triplets} each of which contain a
+pointer to a \texttt{key-value pair}, a \texttt{copied flag}, and a
+\texttt{tag} of its corresponding \texttt{key-value} pair. This can
+all be accomplished in a single 64 bit pointer on an X86 machine and
+thus are simply stored as \texttt{key-value pair} pointers. A
+\texttt{key-value pair} in the hashtable consists of a \texttt{key}, a
+\texttt{value}, and a \texttt{deleted flag}. All of the
+\texttt{triplets} start out as NULL and are modified using
+\texttt{CAS}. This means that to \texttt{find} the location of a given
+\texttt{key-value pair} a thread might search through multiple
+\texttt{subtables}. To \texttt{find} and \texttt{key-value-pairs}
+location within a given \texttt{subtable}, \texttt{open-address}
+hashing is used. The \texttt{hashtable} is preconfigured with the
+number of \texttt{hash functions} each insert/query/delete should try
 within a given \texttt{subtable} before moving on to the next. The
 order that the \texttt{subtables} are checked as well as the order
 that each unique hash function is used within a given
 \texttt{subtable} is fixed so that any two threads operating on the
 same data are guranteed to follow the same execution path.
-
+\subsection{Invariants}
+It is important to ensure that the path for any two hash table
+operations referencing the same data is exactly the same, including
+the order that they check the buckets within a given \texttt{subtable}
+as well as the order that the iterate through the
+\texttt{subtables}. This allows for \texttt{inserts} operations to
+safely attempt to place their corresponding \texttt{key-value pair} in
+the \textit{first NULL bucket} they come across. Doing this means that
+any other insert/query/delete referencing the same \texttt{key-value
+  pair} is guranteed to have not found a free bucket or the value it's
+searching for earlier in the \texttt{hashtable} than where the
+\texttt{key-value pair}. This is the primary means of synchonization
+between threads as well important for performance.
 \subsection{Insert}
 The \texttt{insert} operation is implemented by iterating through the
 \texttt{subtables} via the path described above until the
 \textit{first NULL bucket} is found. At this point the thread will
-attempt to \texttt{CAS} the \texttt{entry's} pointer value into the
-bucket. If the \texttt{CAS} is succesful then the \texttt{insert}
-operation is complete. If unsuccesful, another thread must have
-updated that slot. So, the thread will check if the slot's
-\texttt{entry's} value match. If the value's match the \texttt{insert}
-operation is complete, otherwise it will continue through its
-\texttt{hash-attempts} for the \texttt{subtable} it is on and
-potentially continue on to, or create if it does not exist, the next
-\texttt{subtable}. It is important to maintain, for both performance
-and correctness, that when searching for an \texttt{entry}, when the
-\textit{first NULL bucket} is found, the entry cannot be anywhere
-later in the chain of \texttt{subtables}. By forcing all operations on
-a given \texttt{entry} through the same bucket and only using atomic
+attempt to \texttt{CAS} the \texttt{key-value pair's} pointer value
+into the bucket. If the \texttt{CAS} is succesful then the
+\texttt{insert} operation is complete. If unsuccesful, another thread
+must have updated that slot. So, the thread will check if the slot's
+\texttt{key-value pair's} value match. If the value's match the
+\texttt{insert} operation is complete, otherwise it will continue
+through its \texttt{hash functions} for the \texttt{subtable} it is on
+and potentially continue on to, or create if it does not exist, the
+next \texttt{subtable}. It is important to maintain, for both
+performance and correctness, that when searching for an
+\texttt{key-value pair}, when the \textit{first NULL bucket} is found,
+the key-value pair cannot be anywhere later in the chain of
+\texttt{subtables}. By forcing all operations on a given
+\texttt{key-value pair} through the same bucket and only using atomic
 operation on said bucket the common ABA race condition is
 overcome. Maintaining this invariant is why the order that an
-operation will go through the \texttt{subtables} and
-\texttt{hash-attempts} within said subtable is fixed. This ordering
-combined with \texttt{insert} operations attempts to add their
-\texttt{entry} to the \textit{first NULL bucket} the \texttt{entry}
-hashed to ensures that whether another thread wins the \texttt{CAS} or
-not will not affect the invariant. Maintaining the \textit{first NULL
-  bucket} invariant does imply that \texttt{delete} operations need to
-do more than just \texttt{free()} and NULL out the slot of the
-\texttt{entry} being deleted.
+operation will go through the \texttt{subtables} and \texttt{hash
+  functions} within said subtable is fixed. This ordering combined
+with \texttt{insert} operations attempts to add their
+\texttt{key-value pair} to the \textit{first NULL bucket} the
+\texttt{key-value pair} hashed to ensures that whether another thread
+wins the \texttt{CAS} or not will not affect the
+invariant. Maintaining the \textit{first NULL bucket} invariant does
+imply that \texttt{delete} operations need to do more than just
+\texttt{free()} and NULL out the slot of the \texttt{key-value pair}
+being deleted.
 
 \subsection{Query}
 The \texttt{query} process is done similar to insert in that when
-\texttt{querying} for an entry a thread will check each
+\texttt{querying} for an key-value pair a thread will check each
 \texttt{subtable} and potential bucket in the same order until it
-finds the \texttt{entry} which will result in success or runs out of
-\texttt{subtables} or finds a NULL bucket both of which will indicate
-the \texttt{entry} is not present.
+finds the \texttt{key-value pair} which will result in success or runs
+out of \texttt{subtables} or finds a NULL bucket both of which will
+indicate the \texttt{key-value pair} is not present.
 
 \subsection{Delete}
 For reasons that will become apparent later, \texttt{delete} will be
 discussed after other implementation details have been establish.
 
 \subsection{Resizing}
-In it simplist form, \texttt{resizing} by creating more space can be
-accomplish simply by inserts adding a new \texttt{subtable}. A big
-issue with simply attaching new \texttt{subtables} and not moving any
-of the \texttt{entry's} in smaller subtables is that the overall
-runtime of the algorithm becomes $O(n*log_{initial\_size}(n))$. With
-large \texttt{initial table size}, this would grow slowly, though if
-the amount of \texttt{entries} was not predictable this would be an
-issue. To implement \texttt{resizing} without blocking we used a lazy
+In it simplist form, \texttt{resizing} is done by allocating a new
+\texttt{subtable}, which based on heuristics will either be the size
+of the last or double the size of the last, and adding it to the
+\texttt{subtable ring}. It is key that this operation is very lower
+overhead as otherwise our method for mitigating the performance
+degregation of \texttt{open-address} hashing would be lost. An issue,
+however, with simply attaching new \texttt{subtables} and not moving
+any of the \texttt{key-value pair's} in smaller subtables is that the
+overall runtime of the algorithm becomes
+$O(n*log_{initial\_size}(n))$. With large \texttt{initial table size},
+this would grow slowly, though if the amount of
+\texttt{key-value-pairs} was not predictable this would be an
+issue. To implement \texttt{resizing} without blocking, as well as
+maintain minimal initial overhead, we used a lazy
 method. \texttt{Resizing} is triggered when the difference between the
-largest and smallest \texttt{subtable} passes a threshold. Once
-\texttt{resizing} has been triggered, new \texttt{insert} operations
-will begin lazily moving up \texttt{entries} from the smallest
+largest and \texttt{head} and \texttt{tail} indexes \texttt{subtable}
+passes a threshold. Once \texttt{resizing} has been triggered, new
+\texttt{insert} operations will begin lazily moving up
+\texttt{key-value-pairs} from the \texttt{tail}
 \texttt{subtable}. This is done in 2 steps. \texttt{insert} will
 naturally check \texttt{hash-attempt} number of buckets in the
-smallest \texttt{subtable} as part of the general algorithm. When
+\texttt{tail} \texttt{subtable} as part of the general algorithm. When
 \texttt{resizing} is taking place, after checking a bucket this is NOT
-a match, that buckets entry will be marked by setting the 1s bit via a
-\texttt{CAS}. If the \texttt{CAS} is succesful, the \texttt{entry}
-will be re-added to a larger subtable and a counter for the smallest
-\texttt{subtable} will be incremeneted. Once the counter has reach the
-size of the \texttt{subtable} all the items have been moved up and it
-is impossible for a new \texttt{entry} to be added (there is not
-room). This means that the starting index in \texttt{subtable} list
-can be incremented safely. Since \texttt{subtable} sizes increase
-exponentially, the items from the smallest table are expected to be
-removed significantly more quickly than the larger \texttt{subtables}
-filled, keeping the size of the \texttt{subtable} list constant. This
-lazy method also has the added benefit of distributing the cost over
-many operations keeping the standard deviation low.
+a match, that buckets key-value pair will be marked by setting the
+\texttt{triplet's} \texttt{copied flag} via a \texttt{CAS}. If the
+\texttt{CAS} is succesful, the \texttt{key-value pair} will be
+re-added to a larger subtable and the \texttt{index} for the
+\texttt{tail} \texttt{subtable} will be incremeneted. Once the counter
+has reach the size of the \texttt{subtable} all the items have been
+moved up and it is impossible for a new \texttt{key-value pair} to be
+added (there is not room). This means that the starting index in
+\texttt{subtable} list can be incremented safely. Since
+\texttt{subtable} sizes increase exponentially, the items from the
+\texttt{tail} \texttt{subtable} are expected to be removed
+significantly more quickly than the larger \texttt{subtables} filled,
+keeping the size of the \texttt{subtable} list constant. As well, this
+method of resizing creating little to no overhead on a given operation
+meaning the \texttt{open-address} hashing will be able to consistently
+perform in its ideal conditions. Finally lazy resizing has the added
+benefit allowing real-time gurantees.
 
 \subsection{Delete}
 Deletes implementation is the trickiest by far due to both the need to
 preserve the \textit{first NULL bucket} invariant and common issues
 that arise from trying to delete in a parallel program. To overcome
 these pitfalls, the \texttt{delete} algorithm, instead of directly
-deleting any \texttt{entries}, instead sets a deleted boolean inside
-of the \texttt{entry} being deleted. Note this is distinct from
-setting a boolean or bits in the bucket the \texttt{entry's} pointer
-is stored in an necessary to handle the case of deletion/re-inserting
-occuring while an \texttt{entry} is being moved for
-\texttt{resizing}. Once an \texttt{entry's delete bool} has been set,
-it can only be unset by another \texttt{insert} operation trying to
-add the same key. Allowing any \texttt{insert} to write over the
-deleted entry could easily lead to an ABA race. The way that deleted
-\texttt{entries} are actually removed from the table is by the
-\texttt{resizing} process. During lazy \texttt{resizing} if an
-\texttt{entry} in the smallest \texttt{subtable} has its
-\texttt{delete bool} set, instead of re-inserting it, the
-\texttt{entry} will simply have its 1s bit marked like any other moved
-entry and will be dropped with the \texttt{subtable} it belongs to
-when the resizing process completes. If an \texttt{insert} operation
-finds its matching \texttt{deleted entry} it will always try and
+deleting any \texttt{key-value-pairs}, instead sets a \texttt{deleted
+  flag} inside of the \texttt{key-value pair} being deleted. Note this
+is distinct from setting a boolean or bits in the bucket's
+\texttt{triplet}. Storing the \texttt{deleted flag} in the the
+\texttt{key-value pair's} struct is necessary to handle the case of
+deletion/re-inserting occuring while an \texttt{key-value pair} is
+being moved for \texttt{resizing}. Once an \texttt{key-value pair's
+  delete bool} has been set, it can only be unset by another
+\texttt{insert} operation trying to add the same key. Allowing any
+\texttt{insert} to write over the deleted key-value pair could easily
+lead to an ABA race. The way that deleted \texttt{key-value-pairs} are
+actually removed from the table is by the \texttt{resizing}
+process. During lazy \texttt{resizing} if an \texttt{key-value pair}
+in the \texttt{tail} \texttt{subtable} has its \texttt{delete bool}
+set, instead of re-inserting it, the \texttt{key-value pair} will
+simply have its 1s bit marked like any other moved key-value pair and
+will be dropped with the \texttt{subtable} it belongs to when the
+resizing process completes. If an \texttt{insert} operation finds its
+matching \texttt{deleted key-value pair} it will always try and
 \texttt{undelete} it. The \texttt{undelete} process will also check if
-the resize bits of the \texttt{entry} are set, and if so move the
-\texttt{entry} as part of the \texttt{resizing} process. This is to
-avoid the ABA race where an \texttt{entry} could have been marked and
-pass over as \texttt{deleted} in parallel to another thread inserting
-the \texttt{entry}. If this results in a double \texttt{insert}, while
-a regretable inefficiency, while not affect the correctness of the
+the resize bits of the \texttt{key-value pair} are set, and if so move
+the \texttt{key-value pair} as part of the \texttt{resizing}
+process. This is to avoid the ABA race where an \texttt{key-value
+  pair} could have been marked and pass over as \texttt{deleted} in
+parallel to another thread inserting the \texttt{key-value pair}. If
+this results in a double \texttt{insert}, while a regretable
+inefficiency, while not affect the correctness of the
 \texttt{hashtable}. Since deletion can only occur with the aid of
 resizing, real-time insert/delete ratio's are tracked by each
 \texttt{subtable}, as well as the amount of the \texttt{subtables} to
